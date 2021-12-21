@@ -4,12 +4,12 @@
 
 This sample is a GitHub Reusable Workflow, as an asset in a public repository it can be targetted directly or simply copied into your own repo.
 
-Location of the [Resuable workflow file](.github/workflows/AppDeploy-AzureVote-HelmRunCmd.yml)
+Location of the [Resuable workflow file](.github/workflows/App-AzureVote-HelmRunCmd.yml)
 
 ```yaml
   #Here's how to call the reusable workflow from your workflow
   deploy-azure-vote-app:
-    uses: Azure/aks-baseline-automation/.github/workflows/AppDeploy-AzureVote-HelmRunCmd.yml@main
+    uses: Azure/aks-baseline-automation/.github/workflows/App-AzureVote-HelmRunCmd.yml@main
     with:
       RG: ResourceGroupToDeployTo
       AKSNAME: MyAksCluster

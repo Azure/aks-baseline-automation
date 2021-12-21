@@ -12,8 +12,8 @@ GitHub has a concept of [Reusable Workflows](https://docs.github.com/en/actions/
 
 Sample App | Scenario | Description | Tags
 ---------- | -------- | ----------- | ----
-Aks Voting App | [Simple deployment](scenarios/azurevote-actions.md) | This sample uses  the Azure K8S actions to authenticate and deploy the Azure Voting App. | `GitHub Actions`
-Aks Voting App | [Run Command deployment with verification](scenarios/azurevote-helmruncmd.md) | This sample uses a Helm Chart to deploy the AKS Voting Application. The deployment is executed by the AKS Run Command, which is a secure way to interact with private clusters. | `Aks Run Command` `Playwright web tests` `Helm`
+Aks Voting App | [Simple deployment](docs/app-azurevote-actions.md) | This sample uses the Azure K8S actions to authenticate and deploy the Azure Voting App. | `Azure Container Registry` `GitHub Actions`
+Aks Voting App | [Run Command deployment with verification](docs/app-azurevote-helmruncmd.md) | This sample uses a Helm Chart to deploy the AKS Voting Application. The deployment is executed by the AKS Run Command, which is a secure way to interact with private clusters. | `Aks Run Command` `Playwright web tests` `Helm`
 Fabrikam Drone | Microservices | This sample uses several Helm Charts to deploy the Fabrikam Drone Delivery App. Because the Helm Charts are linked there is sequencing to the installation. | `Microservices`
 
 ## TODO
