@@ -1,7 +1,7 @@
 # Demonstrates how to install the Azure Voting app, leveraging the AKS Run Command.
 # This works great for private clusters, but also works with regular clusters too.
 
-name: AppDeploy - Azure Vote
+name: App Deploy - Azure Vote
 
 on:
   workflow_call:
@@ -38,7 +38,7 @@ on:
         default: false
         required: false
       HELMPACKAGEURI:
-        default: "https://github.com/Gordonby/minihelm/raw/main/samples/AzureVote-0.5.0.tgz"
+        default: "https://github.com/Azure/aks-baseline-automation/raw/main/workloads/azureVote/AzureVote-0.5.0.tgz"
         required: false
         type: string
         description: "The location of the Helm package"
@@ -260,6 +260,8 @@ jobs:
 
       - name: Test App with Playwright
         if: ${{ steps.installapp.outputs.ISPUBLIC}} = 'true'
+        env: 
+          testfile: workloads/azureVote/azure-vote-catswin.spec.js
         run: |
           ipAddress='${{ steps.waitforip.outputs.IPADDRESS}}'
 
@@ -270,7 +272,7 @@ jobs:
           npm install -D @playwright/test
           npm i -D playwright-expect
           npx playwright -V
-          npx playwright test --browser chromium .github/workflows_dep/playwrighttests/azurevote-catswin.spec.js --reporter list
+          npx playwright test --browser chromium $testfile --reporter list
 
       - name: Cleanup app
         if: inputs.UNINSTALLAFTERVERIFY
