@@ -78,8 +78,8 @@ Different components of an AKS solution are often owned by different teams and t
  * Shared-Services lifecycle management, such as upgrading one of the shared services container images to adress some vulnerabuilities or take advatange of some new features.
 
 For better security and version control, all these lifecycle management processes need to be git driven so that any change to any component of the AKS solution is done through code from a Git Repository and goes through a review and approval process. For this reason, we will provide two options to automatically carry out these tasks:
-•	A CI/CD pipeline built using GitHub Actions
-•	A GitOps solution using flux or argoCD.
+ * A CI/CD pipeline built using GitHub Actions
+ * A GitOps solution using flux or argoCD.
  
  **TODO**: add the code and document the steps to automate the lifecycle management of the cluster, the workload and the shared srevices.
 
