@@ -1,7 +1,8 @@
 # Workflows
 
-This folder contains all the GitHub Action workflows used to deploy the different components of the AKS solution. the naming convention for the workflow yaml files is as follow:
-**[IaC|shared-servies|app]-[purpose].yaml**. For example a GitHub workflow intended to provision all the Azure resources under the hub Resource Group using bicep will be called "IaC-bicep-rg-hub.yaml". 
+This folder contains all the GitHub Action workflows used to deploy the different components of the AKS solution. The naming convention for the workflow yaml files is as follow:
+**[IaC|shared-servies|app]-[purpose].yml**. 
+For example a GitHub workflow intended to provision all the Azure resources under the hub Resource Group using bicep will be called "IaC-bicep-rg-hub.yml". 
  
 ## Reusable Workflows
 
