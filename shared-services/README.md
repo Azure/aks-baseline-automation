@@ -1,0 +1,4 @@
+# Shared Services
+This folder contains helm charts and other artifacts used to deploy sacommon services used across multiple clusters and multiple applications.
+
+Example of shared srevices could be third-party services such as [Prisma defender](https://docs.paloaltonetworks.com/prisma/prisma-cloud) and [Splunk](https://github.com/splunk/splunk-connect-for-kubernetes) or open source services such as [NGINX](https://www.nginx.com/resources/glossary/kubernetes-ingress-controller), [KEDA](https://keda.sh), [External-dns](https://github.com/kubernetes-sigs/external-dns#:~:text=ExternalDNS%20supports%20multiple%20DNS%20providers%20which%20have%20been,and%20we%20have%20limited%20resources%20to%20test%20changes.), [Cert-manager](https://cert-manager.io/docs/) or [istio](https://istio.io/).
