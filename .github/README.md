@@ -6,8 +6,8 @@
     - [Deploy Shared-Service using GitHub Actions](#deploy-shared-service-using-github-actions)
     - [Deploy Shared-Service using GitOps with Flux](#deploy-shared-service-using-gitops-with-flux)
   - [Application Deployment](#application-deployment)
-    - [Deploy sample application using GitHub Actions](#deploy-sample-application-using-github-actions)
-    - [Deploy sample application using argoCD](#deploy-sample-application-using-argocd)
+    - [Deploy the sample application using GitHub Actions](#deploy-the-sample-application-using-github-actions)
+    - [Deploy the sample application using GitOps with argoCD](#deploy-the-sample-application-using-gitops-with-argocd)
   - [Lifecycle-Management](#lifecycle-management)
     - [Automate the lifecycle-management of the cluster using GitHub Actions](#automate-the-lifecycle-management-of-the-cluster-using-github-actions)
     - [Automate the lifecycle-management of the shared-services using GitHub Actions](#automate-the-lifecycle-management-of-the-shared-services-using-github-actions)
@@ -74,10 +74,10 @@ The application will be deployed using helm charts and both the Blue/Green and C
 
 The application [Fabrikam Drone Delivery](https://github.com/mspnp/fabrikam-dronedelivery-workload/) is used for this deployment as this application is commonly used by other Reference Implementations, implements four microservices using different programing languages and only has 2 external dependencies.
 
-### Deploy sample application using GitHub Actions
+### Deploy the sample application using GitHub Actions
 **TODO**: add the code and document the steps to deploy the sample application using GitHub Actions.
 
-### Deploy sample application using argoCD
+### Deploy the sample application using GitOps with argoCD
 **TODO**: add the code and document the steps to deploy the sample application using argoCD.
 
 ## Lifecycle-Management   
