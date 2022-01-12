@@ -6,7 +6,12 @@
     - [Deploy Shared-Service using GitHub Actions](#deploy-shared-service-using-github-actions)
     - [Deploy Shared-Service using GitOps with Flux](#deploy-shared-service-using-gitops-with-flux)
   - [Application Deployment](#application-deployment)
+    - [Deploy sample application using GitHub Actions](#deploy-sample-application-using-github-actions)
+    - [Deploy sample application using argoCD](#deploy-sample-application-using-argocd)
   - [Lifecycle-Management](#lifecycle-management)
+    - [Automate the lifecycle-management of the cluster using GitHub Actions](#automate-the-lifecycle-management-of-the-cluster-using-github-actions)
+    - [Automate the lifecycle-management of the shared-services using GitHub Actions](#automate-the-lifecycle-management-of-the-shared-services-using-github-actions)
+    - [Automate the lifecycle-management of the sample application using GitHub Actions](#automate-the-lifecycle-management-of-the-sample-application-using-github-actions)
   - [Secure DevOps](#secure-devops)
   - [GitHub Repo structure](#github-repo-structure)
   - [TODO](#todo)
@@ -68,7 +73,12 @@ This section demonstrates the deployment of an application composed of multiple 
 The application will be deployed using helm charts and both the Blue/Green and Canary release management strategies will be demonstrated. 
 
 The application [Fabrikam Drone Delivery](https://github.com/mspnp/fabrikam-dronedelivery-workload/) is used for this deployment as this application is commonly used by other Reference Implementations, implements four microservices using different programing languages and only has 2 external dependencies.
-**TODO**: add the code and document the steps to deploy the sample application using GitHub Actions or argoCD.
+
+### Deploy sample application using GitHub Actions
+**TODO**: add the code and document the steps to deploy the sample application using GitHub Actions.
+
+### Deploy sample application using argoCD
+**TODO**: add the code and document the steps to deploy the sample application using argoCD.
 
 ## Lifecycle-Management   
 Different components of an AKS solution are often owned by different teams and typically follow their own liefcycle management schedule and process, sometimes using different tools. In this section we will cover the following lifecycle management processes:
@@ -81,7 +91,12 @@ For better security and version control, all these lifecycle management processe
  * A CI/CD pipeline built using GitHub Actions
  * A GitOps solution using flux or argoCD.
  
- **TODO**: add the code and document the steps to automate the lifecycle management of the cluster, the workload and the shared srevices.
+### Automate the lifecycle-management of the cluster using GitHub Actions
+**TODO**: add the code and document the steps to automate the lifecycle-management of the cluster using GitHub Actions.
+### Automate the lifecycle-management of the shared-services using GitHub Actions
+**TODO**: add the code and document the steps to automate the lifecycle-management of the shared-services using GitHub Actions.
+### Automate the lifecycle-management of the sample application using GitHub Actions
+**TODO**: add the code and document the steps to automate the lifecycle-management of the shared-services using GitHub Actions.
 
 ## Secure DevOps
 A typical DevOps process for deploying containers to AKS can be depicted by the diagram below:
