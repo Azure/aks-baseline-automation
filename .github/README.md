@@ -14,7 +14,7 @@
   - [Trademarks](#trademarks)
 # AKS Baseline Automation
  
-This repo demonstrates recommended ways to automate the deployment of the components composing a typical AKS solution.
+This reference implementation demonstrates recommended ways to automate the deployment of the components composing a typical AKS solution.
 
 This implementation and associated documentation are intended to inform the interdisciplinary teams involved in AKS deployment and lifecycle management automation. These teams include:
     
