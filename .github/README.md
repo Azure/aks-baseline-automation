@@ -2,7 +2,7 @@
   - [Infrastructure as Code](#infrastructure-as-code)
     - [Deploy AKS using GitHub Actions and Bicep](#deploy-aks-using-github-actions-and-bicep)
     - [Deploy AKS using GitHub Actions and Terraform](#deploy-aks-using-github-actions-and-terraform)
-  - [Shared Services Lifecycle Management](#shared-services-lifecycle-management)
+  - [Shared Services](#shared-services)
     - [Deploy Shared-Service using GitHub Actions](#deploy-shared-service-using-github-actions)
     - [Deploy Shared-Service using GitOps with Flux](#deploy-shared-service-using-gitops-with-flux)
   - [Application Deployment](#application-deployment)
@@ -37,8 +37,8 @@ This section demonstrates the implementation of a CI/CD pipeline built using Git
 ### Deploy AKS using GitHub Actions and Terraform
 **TODO**: add the code and document the steps to deploy AKS and the Azure resources it depends on using GitHub Actions with Terraform leveraging existing [CAF Terraform modules](https://github.com/Azure/caf-terraform-landingzones-starter/tree/starter/enterprise_scale/construction_sets/aks/online/aks_secure_baseline)
 
-## Shared Services Lifecycle Management   
-This section demonstrates how the shared services are initially provisioned as part of the cluster deployment and also covers their ongoing management.  These services are the  in-cluster common components that are used by all applications running on the cluster. 
+## Shared Services
+This section demonstrates the provisioning of the Shared Services.  These services are the in-cluster common components that are used by all applications running on the cluster. 
 We also provide example of metrics of interest from these shared services that can be captured and surfaced in a dashboard to help with their maintenance.
 
 In this section we demonstrate two implementation options:
