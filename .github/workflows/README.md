@@ -10,7 +10,11 @@ All of the samples provided in this repo are written for GitHub. Many can easily
 
 GitHub has a concept of [Reusable Workflows](https://docs.github.com/en/actions/learn-github-actions/reusing-workflows), which as the name suggests promotes effective reuse of the workflow logic. Most of the samples in this repo are authored as Reusable Workflows to accelerate using them in your Action Workflow.
 
-## Scenarios
+## IaC Workflow Scenarios
+TODO
+## Shared-Services Workflow Scenarios
+TODO
+## Workload Workflow Scenarios
 
 | Sample App     | Scenario                                                                     | Description                                                                                                                                                                     | Tags                                            |
 | -------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
