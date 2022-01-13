@@ -14,7 +14,7 @@ GitHub has a concept of [Reusable Workflows](https://docs.github.com/en/actions/
 TODO
 ## Shared-Services Workflow Scenarios
 TODO
-## Workload Workflow Scenarios
+## Workloads Workflow Scenarios
 
 | Sample App     | Scenario                                                                     | Description                                                                                                                                                                     | Tags                                            |
 | -------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
