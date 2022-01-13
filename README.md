@@ -34,7 +34,7 @@ Each team will be responsible for maintaining their own automation pipeline. The
 ## Infrastructure as Code   
 This section demonstrates the implementation of a CI/CD pipeline built using GitHub Actions to automate the deployments of AKS and other Azure resources that AKS depends on. This pipeline deploys the [AKS Baseline](https://github.com/mspnp/aks-baseline) Reference Implementation using either Biceps or Terraform modules.
 
-![Infrastructure-as-Code](../docs/.attachments/IaC.jpg)
+![Infrastructure-as-Code](./docs/.attachments/IaC.jpg)
 
 ### Deploy AKS using GitHub Actions and Bicep
 **TODO**: add the code and document the steps to deploy AKS and the Azure resources it depends on using GitHub Actions with bicep leveraging existing [CARML](https://CARML) modules.
@@ -63,7 +63,7 @@ This solution features:
 
 Note: as this reference implementation and reference architecture launch, content from the [AKS Baseline (RA/RI)](https://github.com/mspnp/aks-baseline) around GitOps will be updated to point to this RA/RI to give the user a chance to do a deep dive. The AKS Baseline will keep using flux to bootstrap the cluster, but it won’t get into lifecycle management or opinionated kustomization folder structures, etc like this one will.
 
-![Shared-Services Deployment](../docs/.attachments/shared-services.jpg)
+![Shared-Services Deployment](./docs/.attachments/shared-services.jpg)
 
 ## Application Deployment   
 This section demonstrates the deployment of an application composed of multiple services by leveraging two options:
@@ -100,10 +100,10 @@ For better security and version control, all these lifecycle management processe
 
 ## Secure DevOps
 A typical DevOps process for deploying containers to AKS can be depicted by the diagram below:
-![Typical DevOps](../docs/.attachments/secure-devOps-1.jpg)
+![Typical DevOps](./docs/.attachments/secure-devOps-1.jpg)
  
 The security team focus is to make sure that security is built into this automation pipeline and that security tasks are shift to the left and automated as much as possible. They will need for example to work with the different automation teams to make sure that the following controls are in place within their pipelines:
-![Secure DevOps](../docs/.attachments/secure-devOps-2.jpg)
+![Secure DevOps](./docs/.attachments/secure-devOps-2.jpg)
 
 In addition to this oversight role, they will also have to build and maintain their own pipeline to automate the management of security related resources outside the clusters (Azure policies, firewall rules, NSGs, Azure RBAC, etc) as well as inside the cluster (Network Security Policies, Service Mesh authentication and A.uthroization rules, Kubernetes RBAC, etc).
 
@@ -113,7 +113,7 @@ In addition to this oversight role, they will also have to build and maintain th
 
 This repository is organized as follow:
 
-![AKS Baseline Automation Repo Structure](../docs/.attachments/repo-structure.jpg)
+![AKS Baseline Automation Repo Structure](./docs/.attachments/repo-structure.jpg)
 
 ## TODO
 
