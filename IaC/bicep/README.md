@@ -1,23 +1,37 @@
 # bicep
 
+## Setting up the GitHub Pipeline
 This folder contains IaC code for biecp and instructions on how to deploy AKS and the Azure resources it depends on.
 
 To deploy an AKS environment in your own subscription,follow the steps below: 
 
 1. Clone this repository
 
-2. Make sure that a CARML module for each Azure resource you want to deploy is present under the ./bicep/CARML folder. If not, copy them from https://aka.ms/CARML.
+2. Make sure that a CARML module for each Azure resource you want to deploy is present under the ./IaC/bicep/CARML folder. If not, copy them from https://aka.ms/CARML.
 
-3. Copy the sample parameter file from each CARML module to the folder represeting your resource group. For example copy the parameter file for the AKS module from "./CARML/Microsoft.ContainerService/managedClusters/.parameters/azure.parameters.json" to "./IaC/bicep/rg-spoke", assuming the resource group where you are going to deploy AKS is called "rg-spoke".
+3. Review the sample parameter files and bicep template orchestration files provided under the following two folders:
 
-    Note that there are already sample parameter files provided under "./IaC/bicep/rg-hub" and "./IaC/bicep/rg-spoke" that have been customized to deploy Azure resources in the hub and spoke resource groups as specified in the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline/blob/main/04-networking.md).
+    - ./IaC/bicep/rg-hub: contains the customized files used to build the resources in the hub resource group per the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline/blob/main/04-networking.md).
+    - ./IaC/bicep/rg-spoke: contains the customized files used to build the resources in the spoke resource group per the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline/blob/main/04-networking.md).
 
-4. Customize these parameter files based on your specific deployment requirements for each resource.
+   Customize these files based on your specific deployment requirements for each resource.
 
-5. Test the deployment of each Azure resource individually using the [Azure CLI](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-cli) or [PowerShell command](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-powershell).
+4. Test the deployment of each Azure resource individually using the [Azure CLI](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-cli) or [PowerShell command](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-powershell).
 
-6. Customize the default GitHub Action workflows provided under the .github\workflows folder to deploy your Azure resources using the bicep parameter files that you previously updated:
+5. Customize the default GitHub Action workflows under the .github\workflows folder to automate the deployment of your Azure resources through the GitHub pipleine using the bicep parameter and orchestration files that you previously updated. There is one workflow file for each Azure resource group that needs to be built:
    - IaC-bicep-rg-hub.yml
    - IaC-bicep-rg-spoke.yml
 
-    Note that the two sample workflow files provided deploy respectively Azure resources in the hub and spoke resource groups as specified in the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline/blob/main/04-networking.md).
+    Note that these two sample workflow files deploy Azure resources respectively in the hub and spoke resource groups as specified in the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline/blob/main/04-networking.md).
+
+6. Setup the Service principal and Secrets for the GitHub pipeline
+
+   TODO
+
+7. Run and troubleshoot the Github pipleine
+   
+   TODO
+
+8. Optional: Use Github runners running in Azure rather than in GitHub cloud for better security
+
+   TODO
