@@ -10,12 +10,14 @@ To deploy an AKS environment in your own subscription,follow the steps below:
 
 3. Copy the sample parameter file from each CARML module to the folder represeting your resource group. For example copy the parameter file for the AKS module from "./CARML/Microsoft.ContainerService/managedClusters/.parameters/azure.parameters.json" to "./IaC/bicep/rg-spoke", assuming the resource group where you are going to deploy AKS is called "rg-spoke".
 
+    Note that there are already sample parameter files provided under "./IaC/bicep/rg-hub" and "./IaC/bicep/rg-spoke" that have been customized to deploy Azure resources in the hub and spoke resource groups as specified in the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline/blob/main/04-networking.md).
+
 4. Customize these parameter files based on your specific deployment requirements for each resource.
 
 5. Test the deployment of each Azure resource individually using the [Azure CLI](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-cli) or [PowerShell command](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-powershell).
 
-6. Customize the default GitHub Action workflows provided under the .github\workflows fodler to deploy your Azure resources:
+6. Customize the default GitHub Action workflows provided under the .github\workflows folder to deploy your Azure resources using the bicep parameter files that you previously updated:
    - IaC-bicep-rg-hub.yml
    - IaC-bicep-rg-spoke.yml
 
-    Note that these two sample workflow files provided deploy respectively the resources in the hub and spoke resource groups as specified in the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline/blob/main/04-networking.md).
+    Note that the two sample workflow files provided deploy respectively Azure resources in the hub and spoke resource groups as specified in the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline/blob/main/04-networking.md).
