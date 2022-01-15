@@ -1,9 +1,9 @@
 # bicep
 
-## Setting up the GitHub Pipeline
-This folder contains IaC code for biecp and instructions on how to deploy AKS and the Azure resources it depends on.
+This folder contains IaC code for biecp to deploy AKS and the Azure resources it depends on, as well as instructions on how to customize them and automate their deployment using GitHub Action workflows.
 
-To deploy an AKS environment in your own subscription,follow the steps below: 
+## Customize the bicep templates
+To customize the sample bicep templates provided based on your specific needs, follow the steps below:
 
 1. Clone this repository
 
@@ -18,20 +18,23 @@ To deploy an AKS environment in your own subscription,follow the steps below:
 
 4. Test the deployment of each Azure resource individually using the [Azure CLI](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-cli) or [PowerShell command](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-powershell).
 
-5. Customize the default GitHub Action workflows under the .github\workflows folder to automate the deployment of your Azure resources through the GitHub pipleine using the bicep parameter and orchestration files that you previously updated. There is one workflow file for each Azure resource group that needs to be built:
+## Customize the GitHub Action Workflows
+To customize the sample GitHub pipleine provided based on your specific needs, follow the instructions below:
+
+1. Customize the default GitHub Action workflows under the .github\workflows folder to automate the deployment of your Azure resources through the GitHub pipleine using the bicep parameter and orchestration files that you previously updated. There is one workflow file for each Azure resource group that needs to be built:
    - IaC-bicep-rg-hub.yml
    - IaC-bicep-rg-spoke.yml
 
     Note that these two sample workflow files deploy Azure resources respectively in the hub and spoke resource groups as specified in the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline/blob/main/04-networking.md).
 
-6. Setup the Service principal and Secrets for the GitHub pipeline
+2. Configure the GitHub Actions to access Azure resources through [Workload Identity federation with OpenID Connect](https://docs.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Cwindows#use-the-azure-login-action-with-openid-connect). This is a more secure access method than using Service Principals because you won't have to manage any secret.
 
    TODO
 
-7. Run and troubleshoot the Github pipleine
+3. Run and troubleshoot the Github pipleine
    
    TODO
 
-8. Optional: Use Github runners running in Azure rather than in GitHub cloud for better security
+4. Optional: Use Github runners running in Azure rather than in GitHub cloud for better security
 
    TODO
