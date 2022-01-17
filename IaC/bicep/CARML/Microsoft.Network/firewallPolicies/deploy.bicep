@@ -113,7 +113,7 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-03-01' = {
     } : null
     dnsSettings: enableProxy ? {
       enableProxy: enableProxy
-      requireProxyForNetworkRules: requireProxyForNetworkRules
+      // requireProxyForNetworkRules: requireProxyForNetworkRules
       servers: servers
     } : null
     insights: insightsIsEnabled ? {
