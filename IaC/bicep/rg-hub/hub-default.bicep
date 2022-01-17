@@ -53,31 +53,33 @@ var rgName_var = 'rg-${location}'
 // var hubFwName_var = 'fw-${location}'
 // var fwPoliciesBaseName_var = 'fw-policies-base'
 // var fwPoliciesName_var = 'fw-policies-${location}'
-// var hubVNetName_var = 'vnet-${location}-hub'
+//var hubVNetName_var = 'vnet-${location}-hub'
 // var bastionNetworkNsgName_var = 'nsg-${location}-bastion'
-// var hubLaName_var = 'la-hub-${location}-${uniqueString(hubVnetName.id)}'
+var hubLaName_var = 'test' //'la-hub-${location}-${uniqueString(hubVnetName.id)}'
 
-module resourceGroup '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
+module rg '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
   name: rgName_var
   params:{
     name: resourceGroupName
     location: location
   }
-  scope: subscription()
 }
 
-// resource hubLaName 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
-//   name: hubLaName_var
-//   location: location
-//   properties: {
-//     sku: {
-//       name: 'PerGB2018'
-//     }
-//     retentionInDays: 30
-//     publicNetworkAccessForIngestion: 'Enabled'
-//     publicNetworkAccessForQuery: 'Enabled'
-//   }
-// }
+module hubLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep' = {
+  name: hubLaName_var
+  params:{
+    name: hubLaName_var
+    location: location
+    serviceTier: 'PerGB2018'
+    dataRetention: 30
+    publicNetworkAccessForIngestion: 'Enabled'
+    publicNetworkAccessForQuery: 'Enabled'
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn:[
+    rg
+  ]
+}
 
 // resource bastionNetworkNsgName 'Microsoft.Network/networkSecurityGroups@2020-05-01' = {
 //   name: bastionNetworkNsgName_var
