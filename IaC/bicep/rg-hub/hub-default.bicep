@@ -1,3 +1,5 @@
+targetScope = 'subscription'
+
 @description('Name of the resource group')
 param resourceGroupName string = 'rg-enterprise-networking-hubs'
 
@@ -59,6 +61,7 @@ module resourceGroup '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' 
   name: rgName_var
   params:{
     name: resourceGroupName
+    location: location
   }
   scope: subscription()
 }
