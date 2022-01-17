@@ -53,9 +53,9 @@ var hubFwPipNames = [
   '${baseFwPipName}-02'
 ]
 
-// var hubFwName = 'fw-${location}'
-// var fwPoliciesBaseName = 'fw-policies-base'
-// var fwPoliciesName = 'fw-policies-${location}'
+var hubFwName = 'fw-${location}'
+var fwPoliciesBaseName = 'fw-policies-base'
+var fwPoliciesName = 'fw-policies-${location}'
 var hubVNetName = 'vnet-${location}-hub'
 var bastionNetworkNsgName = 'nsg-${location}-bastion'
 var hubLaName = 'la-hub-${location}-${uniqueString(resourceId('Microsoft.Network/virtualNetworks', hubVNetName))}'
@@ -140,23 +140,22 @@ module hubFwPips '../CARML/Microsoft.Network/publicIPAddresses/deploy.bicep' = [
   ]
 }]
 
-// resource fwPoliciesBaseName 'Microsoft.Network/firewallPolicies@2021-02-01' = {
-//   name: fwPoliciesBaseName
-//   location: location
-//   properties: {
-//     sku: {
-//       tier: 'Standard'
-//     }
-//     threatIntelMode: 'Deny'
-//     threatIntelWhitelist: {
-//       ipAddresses: []
-//     }
-//     dnsSettings: {
-//       servers: []
-//       enableProxy: true
-//     }
-//   }
-// }
+module fwPoliciesBase '../CARML/Microsoft.Network/firewallPolicies/deploy.bicep' = {
+  name: fwPoliciesBaseName
+  params:{
+    name: fwPoliciesBaseName
+    location: location
+    tier: 'Standard'
+    threatIntelMode: 'Deny'
+    ipAddresses: []
+    enableProxy: true
+    servers: []
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn:[
+    rg
+  ]
+}
 
 // resource fwPoliciesBaseName_DefaultNetworkRuleCollectionGroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2021-02-01' = {
 //   parent: fwPoliciesBaseName
