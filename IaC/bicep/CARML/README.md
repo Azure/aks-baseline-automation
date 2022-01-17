@@ -14,6 +14,7 @@ This folder contains select bicep modules imported from the [CARML](https://aka.
 *  Policy Definitions
 *  Private DNS Zones
 *  Private Endpoints
+*  Public IP address
 *  Resource Groups
 *  Role Assignments
 *  Role Definitions

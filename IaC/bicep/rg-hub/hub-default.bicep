@@ -46,12 +46,12 @@ param azureGatewaySubnetAddressSpace string = '10.200.0.64/27'
 @maxLength(18)
 param azureBastionSubnetAddressSpace string = '10.200.0.96/27'
 
-// var baseFwPipName = 'pip-fw-${location}'
-// var hubFwPipNames = [
-//   '${baseFwPipName}-default'
-//   '${baseFwPipName}-01'
-//   '${baseFwPipName}-02'
-// ]
+var baseFwPipName = 'pip-fw-${location}'
+var hubFwPipNames = [
+  '${baseFwPipName}-default'
+  '${baseFwPipName}-01'
+  '${baseFwPipName}-02'
+]
 
 // var hubFwName = 'fw-${location}'
 // var fwPoliciesBaseName = 'fw-policies-base'
@@ -126,18 +126,19 @@ module hubVNet '../CARML/Microsoft.Network/virtualNetworks/deploy.bicep' = {
   ]
 }
 
-// resource hubFwPipNames 'Microsoft.Network/publicIpAddresses@2020-05-01' = [for item in hubFwPipNames: {
-//   name: item
-//   location: location
-//   sku: {
-//     name: 'Standard'
-//   }
-//   properties: {
-//     publicIPAllocationMethod: 'Static'
-//     idleTimeoutInMinutes: 4
-//     publicIPAddressVersion: 'IPv4'
-//   }
-// }]
+module hubFwPips '../CARML/Microsoft.Network/publicIPAddresses/deploy.bicep' = [for item in hubFwPipNames: {
+  name: item
+  params:{
+    name: item
+    location: location
+    skuName: 'Standard'
+    publicIPAllocationMethod: 'Static'
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn:[
+    rg
+  ]
+}]
 
 // resource fwPoliciesBaseName 'Microsoft.Network/firewallPolicies@2021-02-01' = {
 //   name: fwPoliciesBaseName
