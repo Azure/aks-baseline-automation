@@ -23,6 +23,9 @@ param resourceGroupName string = 'rg-enterprise-networking-hubs'
 ])
 param location string
 
+@description('Optional. Array of Security Rules to deploy to the Network Security Group. When not provided, an NSG including only the built-in roles will be deployed.')
+param networkSecurityGroupSecurityRules array = []
+
 // @description('A /24 to contain the regional firewall, management, and gateway subnet')
 // @minLength(10)
 // @maxLength(18)
@@ -44,21 +47,21 @@ param location string
 // param azureBastionSubnetAddressSpace string = '10.200.0.96/27'
 
 // var baseFwPipName = 'pip-fw-${location}'
-// var hubFwPipNames_var = [
+// var hubFwPipNames = [
 //   '${baseFwPipName}-default'
 //   '${baseFwPipName}-01'
 //   '${baseFwPipName}-02'
 // ]
-var rgName_var = 'rg-${location}'
-// var hubFwName_var = 'fw-${location}'
-// var fwPoliciesBaseName_var = 'fw-policies-base'
-// var fwPoliciesName_var = 'fw-policies-${location}'
-//var hubVNetName_var = 'vnet-${location}-hub'
-// var bastionNetworkNsgName_var = 'nsg-${location}-bastion'
-var hubLaName_var = 'test' //'la-hub-${location}-${uniqueString(hubVnetName.id)}'
+
+// var hubFwName = 'fw-${location}'
+// var fwPoliciesBaseName = 'fw-policies-base'
+// var fwPoliciesName = 'fw-policies-${location}'
+// var hubVNetName = 'vnet-${location}-hub'
+var bastionNetworkNsgName = 'nsg-${location}-bastion'
+var hubLaName = 'test' //'la-hub-${location}-${uniqueString(hubVnetName.id)}'
 
 module rg '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
-  name: rgName_var
+  name: resourceGroupName
   params:{
     name: resourceGroupName
     location: location
@@ -66,9 +69,9 @@ module rg '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
 }
 
 module hubLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep' = {
-  name: hubLaName_var
+  name: hubLaName
   params:{
-    name: hubLaName_var
+    name: hubLaName
     location: location
     serviceTier: 'PerGB2018'
     dataRetention: 30
@@ -81,195 +84,22 @@ module hubLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep' = 
   ]
 }
 
-// resource bastionNetworkNsgName 'Microsoft.Network/networkSecurityGroups@2020-05-01' = {
-//   name: bastionNetworkNsgName_var
-//   location: location
-//   properties: {
-//     securityRules: [
-//       {
-//         name: 'AllowWebExperienceInBound'
-//         properties: {
-//           description: 'Allow our users in. Update this to be as restrictive as possible.'
-//           protocol: 'Tcp'
-//           sourcePortRange: '*'
-//           sourceAddressPrefix: 'Internet'
-//           destinationPortRange: '443'
-//           destinationAddressPrefix: '*'
-//           access: 'Allow'
-//           priority: 100
-//           direction: 'Inbound'
-//         }
-//       }
-//       {
-//         name: 'AllowControlPlaneInBound'
-//         properties: {
-//           description: 'Service Requirement. Allow control plane access. Regional Tag not yet supported.'
-//           protocol: 'Tcp'
-//           sourcePortRange: '*'
-//           sourceAddressPrefix: 'GatewayManager'
-//           destinationPortRange: '443'
-//           destinationAddressPrefix: '*'
-//           access: 'Allow'
-//           priority: 110
-//           direction: 'Inbound'
-//         }
-//       }
-//       {
-//         name: 'AllowHealthProbesInBound'
-//         properties: {
-//           description: 'Service Requirement. Allow Health Probes.'
-//           protocol: 'Tcp'
-//           sourcePortRange: '*'
-//           sourceAddressPrefix: 'AzureLoadBalancer'
-//           destinationPortRange: '443'
-//           destinationAddressPrefix: '*'
-//           access: 'Allow'
-//           priority: 120
-//           direction: 'Inbound'
-//         }
-//       }
-//       {
-//         name: 'AllowBastionHostToHostInBound'
-//         properties: {
-//           description: 'Service Requirement. Allow Required Host to Host Communication.'
-//           protocol: '*'
-//           sourcePortRange: '*'
-//           sourceAddressPrefix: 'VirtualNetwork'
-//           destinationPortRanges: [
-//             '8080'
-//             '5701'
-//           ]
-//           destinationAddressPrefix: 'VirtualNetwork'
-//           access: 'Allow'
-//           priority: 130
-//           direction: 'Inbound'
-//         }
-//       }
-//       {
-//         name: 'DenyAllInBound'
-//         properties: {
-//           protocol: '*'
-//           sourcePortRange: '*'
-//           sourceAddressPrefix: '*'
-//           destinationPortRange: '*'
-//           destinationAddressPrefix: '*'
-//           access: 'Deny'
-//           priority: 1000
-//           direction: 'Inbound'
-//         }
-//       }
-//       {
-//         name: 'AllowSshToVnetOutBound'
-//         properties: {
-//           description: 'Allow SSH out to the VNet'
-//           protocol: 'Tcp'
-//           sourcePortRange: '*'
-//           sourceAddressPrefix: '*'
-//           destinationPortRange: '22'
-//           destinationAddressPrefix: 'VirtualNetwork'
-//           access: 'Allow'
-//           priority: 100
-//           direction: 'Outbound'
-//         }
-//       }
-//       {
-//         name: 'AllowRdpToVnetOutBound'
-//         properties: {
-//           protocol: 'Tcp'
-//           description: 'Allow RDP out to the VNet'
-//           sourcePortRange: '*'
-//           sourceAddressPrefix: '*'
-//           destinationPortRange: '3389'
-//           destinationAddressPrefix: 'VirtualNetwork'
-//           access: 'Allow'
-//           priority: 110
-//           direction: 'Outbound'
-//         }
-//       }
-//       {
-//         name: 'AllowControlPlaneOutBound'
-//         properties: {
-//           description: 'Required for control plane outbound. Regional prefix not yet supported'
-//           protocol: 'Tcp'
-//           sourcePortRange: '*'
-//           sourceAddressPrefix: '*'
-//           destinationPortRange: '443'
-//           destinationAddressPrefix: 'AzureCloud'
-//           access: 'Allow'
-//           priority: 120
-//           direction: 'Outbound'
-//         }
-//       }
-//       {
-//         name: 'AllowBastionHostToHostOutBound'
-//         properties: {
-//           description: 'Service Requirement. Allow Required Host to Host Communication.'
-//           protocol: '*'
-//           sourcePortRange: '*'
-//           sourceAddressPrefix: 'VirtualNetwork'
-//           destinationPortRanges: [
-//             '8080'
-//             '5701'
-//           ]
-//           destinationAddressPrefix: 'VirtualNetwork'
-//           access: 'Allow'
-//           priority: 130
-//           direction: 'Outbound'
-//         }
-//       }
-//       {
-//         name: 'AllowBastionCertificateValidationOutBound'
-//         properties: {
-//           description: 'Service Requirement. Allow Required Session and Certificate Validation.'
-//           protocol: '*'
-//           sourcePortRange: '*'
-//           sourceAddressPrefix: '*'
-//           destinationPortRange: '80'
-//           destinationAddressPrefix: 'Internet'
-//           access: 'Allow'
-//           priority: 140
-//           direction: 'Outbound'
-//         }
-//       }
-//       {
-//         name: 'DenyAllOutBound'
-//         properties: {
-//           protocol: '*'
-//           sourcePortRange: '*'
-//           sourceAddressPrefix: '*'
-//           destinationPortRange: '*'
-//           destinationAddressPrefix: '*'
-//           access: 'Deny'
-//           priority: 1000
-//           direction: 'Outbound'
-//         }
-//       }
-//     ]
-//   }
-// }
-
-// resource bastionNetworkNsgName_Microsoft_Insights_default 'Microsoft.Network/networkSecurityGroups/providers/diagnosticSettings@2017-05-01-preview' = {
-//   name: '${bastionNetworkNsgName_var}/Microsoft.Insights/default'
-//   properties: {
-//     workspaceId: hubLaName.id
-//     logs: [
-//       {
-//         category: 'NetworkSecurityGroupEvent'
-//         enabled: true
-//       }
-//       {
-//         category: 'NetworkSecurityGroupRuleCounter'
-//         enabled: true
-//       }
-//     ]
-//   }
-//   dependsOn: [
-//     bastionNetworkNsgName
-//   ]
-// }
+module bastionNsg '../CARML/Microsoft.Network/networkSecurityGroups/deploy.bicep' = {
+  name: bastionNetworkNsgName
+  params:{
+    name: bastionNetworkNsgName
+    location: location
+    networkSecurityGroupSecurityRules: networkSecurityGroupSecurityRules
+    diagnosticWorkspaceId: hubLa.outputs.logAnalyticsResourceId
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn:[
+    rg
+  ]
+}
 
 // resource hubVnetName 'Microsoft.Network/virtualNetworks@2020-05-01' = {
-//   name: hubVNetName_var
+//   name: hubVNetName
 //   location: location
 //   properties: {
 //     addressSpace: {
@@ -304,7 +134,7 @@ module hubLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep' = 
 // }
 
 // resource hubVnetName_Microsoft_Insights_default 'Microsoft.Network/virtualNetworks/providers/diagnosticSettings@2017-05-01-preview' = {
-//   name: '${hubVNetName_var}/Microsoft.Insights/default'
+//   name: '${hubVNetName}/Microsoft.Insights/default'
 //   properties: {
 //     workspaceId: hubLaName.id
 //     metrics: [
@@ -319,7 +149,7 @@ module hubLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep' = 
 //   ]
 // }
 
-// resource hubFwPipNames 'Microsoft.Network/publicIpAddresses@2020-05-01' = [for item in hubFwPipNames_var: {
+// resource hubFwPipNames 'Microsoft.Network/publicIpAddresses@2020-05-01' = [for item in hubFwPipNames: {
 //   name: item
 //   location: location
 //   sku: {
@@ -333,7 +163,7 @@ module hubLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep' = 
 // }]
 
 // resource fwPoliciesBaseName 'Microsoft.Network/firewallPolicies@2021-02-01' = {
-//   name: fwPoliciesBaseName_var
+//   name: fwPoliciesBaseName
 //   location: location
 //   properties: {
 //     sku: {
@@ -391,7 +221,7 @@ module hubLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep' = 
 // }
 
 // resource fwPoliciesName 'Microsoft.Network/firewallPolicies@2021-02-01' = {
-//   name: fwPoliciesName_var
+//   name: fwPoliciesName
 //   location: location
 //   properties: {
 //     basePolicy: {
@@ -451,7 +281,7 @@ module hubLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep' = 
 // }
 
 // resource hubFwName 'Microsoft.Network/azureFirewalls@2020-11-01' = {
-//   name: hubFwName_var
+//   name: hubFwName
 //   location: location
 //   zones: [
 //     '1'
@@ -467,29 +297,29 @@ module hubLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep' = 
 //     threatIntelMode: 'Deny'
 //     ipConfigurations: [
 //       {
-//         name: hubFwPipNames_var[0]
+//         name: hubFwPipNames[0]
 //         properties: {
 //           subnet: {
-//             id: resourceId('Microsoft.Network/virtualNetworks/subnets', hubVNetName_var, 'AzureFirewallSubnet')
+//             id: resourceId('Microsoft.Network/virtualNetworks/subnets', hubVNetName, 'AzureFirewallSubnet')
 //           }
 //           publicIPAddress: {
-//             id: resourceId('Microsoft.Network/publicIpAddresses', hubFwPipNames_var[0])
-//           }
-//         }
-//       }
-//       {
-//         name: hubFwPipNames_var[1]
-//         properties: {
-//           publicIPAddress: {
-//             id: resourceId('Microsoft.Network/publicIpAddresses', hubFwPipNames_var[1])
+//             id: resourceId('Microsoft.Network/publicIpAddresses', hubFwPipNames[0])
 //           }
 //         }
 //       }
 //       {
-//         name: hubFwPipNames_var[2]
+//         name: hubFwPipNames[1]
 //         properties: {
 //           publicIPAddress: {
-//             id: resourceId('Microsoft.Network/publicIpAddresses', hubFwPipNames_var[2])
+//             id: resourceId('Microsoft.Network/publicIpAddresses', hubFwPipNames[1])
+//           }
+//         }
+//       }
+//       {
+//         name: hubFwPipNames[2]
+//         properties: {
+//           publicIPAddress: {
+//             id: resourceId('Microsoft.Network/publicIpAddresses', hubFwPipNames[2])
 //           }
 //         }
 //       }
@@ -509,7 +339,7 @@ module hubLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep' = 
 // }
 
 // resource hubFwName_Microsoft_Insights_default 'Microsoft.Network/azureFirewalls/providers/diagnosticSettings@2021-05-01-preview' = {
-//   name: '${hubFwName_var}/Microsoft.Insights/default'
+//   name: '${hubFwName}/Microsoft.Insights/default'
 //   properties: {
 //     workspaceId: hubLaName.id
 //     logs: [
