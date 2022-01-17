@@ -150,6 +150,43 @@ module fwPoliciesBase '../CARML/Microsoft.Network/firewallPolicies/deploy.bicep'
     ipAddresses: []
     enableProxy: true
     servers: []
+    ruleCollectionGroups: [
+      {
+        name: 'DefaultNetworkRuleCollectionGroup'
+        priority: 200
+        ruleCollections: [
+          {
+            ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+            action: {
+              type: 'Allow'
+            }
+            rules: [
+              {
+                ruleType: 'NetworkRule'
+                name: 'DNS'
+                ipProtocols: [
+                  'UDP'
+                ]
+                sourceAddresses: [
+                  '*'
+                ]
+                sourceIpGroups: []
+                destinationAddresses: [
+                  '*'
+                ]
+                destinationIpGroups: []
+                destinationFqdns: []
+                destinationPorts: [
+                  '53'
+                ]
+              }
+            ]
+            name: 'org-wide-allowed'
+            priority: 100
+          }
+        ]
+      }
+    ]
   }
   scope: resourceGroup(resourceGroupName)
   dependsOn:[
@@ -157,105 +194,41 @@ module fwPoliciesBase '../CARML/Microsoft.Network/firewallPolicies/deploy.bicep'
   ]
 }
 
-// resource fwPoliciesBaseName_DefaultNetworkRuleCollectionGroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2021-02-01' = {
-//   parent: fwPoliciesBaseName
-//   name: 'DefaultNetworkRuleCollectionGroup'
-//   location: location
-//   properties: {
-//     priority: 200
-//     ruleCollections: [
-//       {
-//         ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-//         action: {
-//           type: 'Allow'
-//         }
-//         rules: [
-//           {
-//             ruleType: 'NetworkRule'
-//             name: 'DNS'
-//             ipProtocols: [
-//               'UDP'
-//             ]
-//             sourceAddresses: [
-//               '*'
-//             ]
-//             sourceIpGroups: []
-//             destinationAddresses: [
-//               '*'
-//             ]
-//             destinationIpGroups: []
-//             destinationFqdns: []
-//             destinationPorts: [
-//               '53'
-//             ]
-//           }
-//         ]
-//         name: 'org-wide-allowed'
-//         priority: 100
-//       }
-//     ]
-//   }
-// }
-
-// resource fwPoliciesName 'Microsoft.Network/firewallPolicies@2021-02-01' = {
-//   name: fwPoliciesName
-//   location: location
-//   properties: {
-//     basePolicy: {
-//       id: fwPoliciesBaseName.id
-//     }
-//     sku: {
-//       tier: 'Standard'
-//     }
-//     threatIntelMode: 'Deny'
-//     threatIntelWhitelist: {
-//       ipAddresses: []
-//     }
-//     dnsSettings: {
-//       servers: []
-//       enableProxy: true
-//     }
-//   }
-//   dependsOn: [
-//     fwPoliciesBaseName_DefaultNetworkRuleCollectionGroup
-//   ]
-// }
-
-// resource fwPoliciesName_DefaultDnatRuleCollectionGroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2021-02-01' = {
-//   parent: fwPoliciesName
-//   name: 'DefaultDnatRuleCollectionGroup'
-//   location: location
-//   properties: {
-//     priority: 100
-//     ruleCollections: []
-//   }
-// }
-
-// resource fwPoliciesName_DefaultApplicationRuleCollectionGroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2021-02-01' = {
-//   parent: fwPoliciesName
-//   name: 'DefaultApplicationRuleCollectionGroup'
-//   location: location
-//   properties: {
-//     priority: 300
-//     ruleCollections: []
-//   }
-//   dependsOn: [
-//     fwPoliciesName_DefaultDnatRuleCollectionGroup
-//   ]
-// }
-
-// resource fwPoliciesName_DefaultNetworkRuleCollectionGroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2021-02-01' = {
-//   parent: fwPoliciesName
-//   name: 'DefaultNetworkRuleCollectionGroup'
-//   location: location
-//   properties: {
-//     priority: 200
-//     ruleCollections: []
-//   }
-//   dependsOn: [
-//     fwPoliciesName_DefaultApplicationRuleCollectionGroup
-//   ]
-// }
+module fwPolicies '../CARML/Microsoft.Network/firewallPolicies/deploy.bicep' = {
+  name: fwPoliciesName
+  params:{
+    name: fwPoliciesName
+    location: location
+    basePolicyResourceId: fwPoliciesBase.outputs.firewallPolicyResourceId
+    tier: 'Standard'
+    threatIntelMode: 'Deny'
+    ipAddresses: []
+    enableProxy: true
+    servers: []
+    ruleCollectionGroups: [
+      {
+        name: 'DefaultDnatRuleCollectionGroup'
+        priority: 100
+        ruleCollections: []
+      }
+      {
+        name: 'DefaultNetworkRuleCollectionGroup'
+        priority: 200
+        ruleCollections: []
+      }
+      {
+        name: 'DefaultApplicationRuleCollectionGroup'
+        priority: 300
+        ruleCollections: []
+      }
+    ]
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn:[
+    rg
+    fwPoliciesBase
+  ]
+}
 
 // resource hubFwName 'Microsoft.Network/azureFirewalls@2020-11-01' = {
 //   name: hubFwName
@@ -337,4 +310,4 @@ module fwPoliciesBase '../CARML/Microsoft.Network/firewallPolicies/deploy.bicep'
 //   ]
 // }
 
-// output hubVnetId string = hubVnetName.id
+output hubVnetId string = hubVNet.outputs.virtualNetworkResourceId

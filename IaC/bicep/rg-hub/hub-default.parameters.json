@@ -181,18 +181,6 @@
                     }
                 }
             ]
-        }//,
-        // "hubVnetAddressSpace": {
-        //     "value": "10.200.0.0/24"
-        // },
-        // "azureFirewallSubnetAddressSpace": {
-        //     "value": "10.200.0.0/26"
-        // },
-        // "azureGatewaySubnetAddressSpace": {
-        //     "value": "10.200.0.64/27"
-        // },
-        // "azureBastionSubnetAddressSpace": {
-        //     "value": "10.200.0.96/27"
-        // }
+        }
     }
 }
