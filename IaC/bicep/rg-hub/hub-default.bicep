@@ -26,25 +26,25 @@ param location string
 @description('Optional. Array of Security Rules to deploy to the Network Security Group. When not provided, an NSG including only the built-in roles will be deployed.')
 param networkSecurityGroupSecurityRules array = []
 
-// @description('A /24 to contain the regional firewall, management, and gateway subnet')
-// @minLength(10)
-// @maxLength(18)
-// param hubVnetAddressSpace string = '10.200.0.0/24'
+@description('A /24 to contain the regional firewall, management, and gateway subnet')
+@minLength(10)
+@maxLength(18)
+param hubVnetAddressSpace string = '10.200.0.0/24'
 
-// @description('A /26 under the VNet Address Space for the regional Azure Firewall')
-// @minLength(10)
-// @maxLength(18)
-// param azureFirewallSubnetAddressSpace string = '10.200.0.0/26'
+@description('A /26 under the VNet Address Space for the regional Azure Firewall')
+@minLength(10)
+@maxLength(18)
+param azureFirewallSubnetAddressSpace string = '10.200.0.0/26'
 
-// @description('A /27 under the VNet Address Space for our regional On-Prem Gateway')
-// @minLength(10)
-// @maxLength(18)
-// param azureGatewaySubnetAddressSpace string = '10.200.0.64/27'
+@description('A /27 under the VNet Address Space for our regional On-Prem Gateway')
+@minLength(10)
+@maxLength(18)
+param azureGatewaySubnetAddressSpace string = '10.200.0.64/27'
 
-// @description('A /27 under the VNet Address Space for regional Azure Bastion')
-// @minLength(10)
-// @maxLength(18)
-// param azureBastionSubnetAddressSpace string = '10.200.0.96/27'
+@description('A /27 under the VNet Address Space for regional Azure Bastion')
+@minLength(10)
+@maxLength(18)
+param azureBastionSubnetAddressSpace string = '10.200.0.96/27'
 
 // var baseFwPipName = 'pip-fw-${location}'
 // var hubFwPipNames = [
@@ -56,9 +56,9 @@ param networkSecurityGroupSecurityRules array = []
 // var hubFwName = 'fw-${location}'
 // var fwPoliciesBaseName = 'fw-policies-base'
 // var fwPoliciesName = 'fw-policies-${location}'
-// var hubVNetName = 'vnet-${location}-hub'
+var hubVNetName = 'vnet-${location}-hub'
 var bastionNetworkNsgName = 'nsg-${location}-bastion'
-var hubLaName = 'test' //'la-hub-${location}-${uniqueString(hubVnetName.id)}'
+var hubLaName = 'la-hub-${location}-${uniqueString(resourceId('Microsoft.Network/virtualNetworks', hubVNetName))}'
 
 module rg '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
   name: resourceGroupName
@@ -98,56 +98,33 @@ module bastionNsg '../CARML/Microsoft.Network/networkSecurityGroups/deploy.bicep
   ]
 }
 
-// resource hubVnetName 'Microsoft.Network/virtualNetworks@2020-05-01' = {
-//   name: hubVNetName
-//   location: location
-//   properties: {
-//     addressSpace: {
-//       addressPrefixes: [
-//         hubVnetAddressSpace
-//       ]
-//     }
-//     subnets: [
-//       {
-//         name: 'AzureFirewallSubnet'
-//         properties: {
-//           addressPrefix: azureFirewallSubnetAddressSpace
-//         }
-//       }
-//       {
-//         name: 'GatewaySubnet'
-//         properties: {
-//           addressPrefix: azureGatewaySubnetAddressSpace
-//         }
-//       }
-//       {
-//         name: 'AzureBastionSubnet'
-//         properties: {
-//           addressPrefix: azureBastionSubnetAddressSpace
-//           networkSecurityGroup: {
-//             id: bastionNetworkNsgName.id
-//           }
-//         }
-//       }
-//     ]
-//   }
-// }
-
-// resource hubVnetName_Microsoft_Insights_default 'Microsoft.Network/virtualNetworks/providers/diagnosticSettings@2017-05-01-preview' = {
-//   name: '${hubVNetName}/Microsoft.Insights/default'
-//   properties: {
-//     workspaceId: hubLaName.id
-//     metrics: [
-//       {
-//         category: 'AllMetrics'
-//         enabled: true
-//       }
-//     ]
-//   }
-//   dependsOn: [
-//     hubVnetName
-//   ]
-// }
+module hubVNet '../CARML/Microsoft.Network/virtualNetworks/deploy.bicep' = {
+  name: hubVNetName
+  params:{
+    name: hubVNetName
+    addressPrefixes: array(hubVnetAddressSpace)
+    diagnosticWorkspaceId: hubLa.outputs.logAnalyticsResourceId
+    subnets: [
+      {
+        name: 'AzureFirewallSubnet'
+        addressPrefix: azureFirewallSubnetAddressSpace
+      }
+      {
+        name: 'GatewaySubnet'
+        addressPrefix: azureGatewaySubnetAddressSpace
+      }
+      {
+        name: 'AzureBastionSubnet'
+        addressPrefix: azureBastionSubnetAddressSpace
+        networkSecurityGroupName: bastionNsg.outputs.networkSecurityGroupName
+      }
+    ]
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn:[
+    rg
+  ]
+}
 
 // resource hubFwPipNames 'Microsoft.Network/publicIpAddresses@2020-05-01' = [for item in hubFwPipNames: {
 //   name: item
