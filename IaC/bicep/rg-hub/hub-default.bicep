@@ -62,7 +62,7 @@ var hubLaName = 'la-hub-${location}-${uniqueString(resourceId('Microsoft.Network
 
 module rg '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
   name: resourceGroupName
-  params:{
+  params: {
     name: resourceGroupName
     location: location
   }
@@ -70,7 +70,7 @@ module rg '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
 
 module hubLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep' = {
   name: hubLaName
-  params:{
+  params: {
     name: hubLaName
     location: location
     serviceTier: 'PerGB2018'
@@ -79,28 +79,28 @@ module hubLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep' = 
     publicNetworkAccessForQuery: 'Enabled'
   }
   scope: resourceGroup(resourceGroupName)
-  dependsOn:[
+  dependsOn: [
     rg
   ]
 }
 
 module bastionNsg '../CARML/Microsoft.Network/networkSecurityGroups/deploy.bicep' = {
   name: bastionNetworkNsgName
-  params:{
+  params: {
     name: bastionNetworkNsgName
     location: location
     networkSecurityGroupSecurityRules: networkSecurityGroupSecurityRules
     diagnosticWorkspaceId: hubLa.outputs.logAnalyticsResourceId
   }
   scope: resourceGroup(resourceGroupName)
-  dependsOn:[
+  dependsOn: [
     rg
   ]
 }
 
 module hubVNet '../CARML/Microsoft.Network/virtualNetworks/deploy.bicep' = {
   name: hubVNetName
-  params:{
+  params: {
     name: hubVNetName
     addressPrefixes: array(hubVnetAddressSpace)
     diagnosticWorkspaceId: hubLa.outputs.logAnalyticsResourceId
@@ -121,14 +121,14 @@ module hubVNet '../CARML/Microsoft.Network/virtualNetworks/deploy.bicep' = {
     ]
   }
   scope: resourceGroup(resourceGroupName)
-  dependsOn:[
+  dependsOn: [
     rg
   ]
 }
 
 module hubFwPips '../CARML/Microsoft.Network/publicIPAddresses/deploy.bicep' = [for item in hubFwPipNames: {
   name: item
-  params:{
+  params: {
     name: item
     location: location
     skuName: 'Standard'
@@ -140,14 +140,14 @@ module hubFwPips '../CARML/Microsoft.Network/publicIPAddresses/deploy.bicep' = [
     ]
   }
   scope: resourceGroup(resourceGroupName)
-  dependsOn:[
+  dependsOn: [
     rg
   ]
 }]
 
 module fwPoliciesBase '../CARML/Microsoft.Network/firewallPolicies/deploy.bicep' = {
   name: fwPoliciesBaseName
-  params:{
+  params: {
     name: fwPoliciesBaseName
     location: location
     tier: 'Standard'
@@ -194,14 +194,14 @@ module fwPoliciesBase '../CARML/Microsoft.Network/firewallPolicies/deploy.bicep'
     ]
   }
   scope: resourceGroup(resourceGroupName)
-  dependsOn:[
+  dependsOn: [
     rg
   ]
 }
 
 module fwPolicies '../CARML/Microsoft.Network/firewallPolicies/deploy.bicep' = {
   name: fwPoliciesName
-  params:{
+  params: {
     name: fwPoliciesName
     location: location
     basePolicyResourceId: fwPoliciesBase.outputs.firewallPolicyResourceId
@@ -229,7 +229,7 @@ module fwPolicies '../CARML/Microsoft.Network/firewallPolicies/deploy.bicep' = {
     ]
   }
   scope: resourceGroup(resourceGroupName)
-  dependsOn:[
+  dependsOn: [
     rg
     fwPoliciesBase
   ]
@@ -238,104 +238,31 @@ module fwPolicies '../CARML/Microsoft.Network/firewallPolicies/deploy.bicep' = {
 module hubFw '../CARML/Microsoft.Network/azureFirewalls/deploy.bicep' = {
   name: hubFwName
   scope: resourceGroup(resourceGroupName)
-  params:{
+  params: {
     name: hubFwName
     location: location
-    vNetId: hubVNet.outputs.virtualNetworkResourceId
-    availabilityZones: [
-          '1'
-          '2'
-          '3'
-        ]
+    zones: [
+      '1'
+      '2'
+      '3'
+    ]
     azureSkuName: 'AZFW_VNet'
     azureSkuTier: 'Standard'
+    threatIntelMode: 'Deny'
+    ipConfigurations: [for (hubFwPipName, index) in hubFwPipNames: {
+      name: hubFwPipNames[index]
+      publicIPAddressResourceId: hubFwPips[index].outputs.publicIPAddressResourceId
+      subnetResourceId: (index == 0) ? resourceId('Microsoft.Network/virtualNetworks/subnets', hubVNetName, 'AzureFirewallSubnet') : null
+    }]
+    natRuleCollections: []
+    networkRuleCollections: []
+    applicationRuleCollections: []
     firewallPolicyId: fwPolicies.outputs.firewallPolicyResourceId
-    azureFirewallPipName: hubFwPips[0].outputs.publicIPAddressName
     diagnosticWorkspaceId: hubLa.outputs.logAnalyticsResourceId
   }
-  dependsOn:[
+  dependsOn: [
     rg
   ]
 }
-
-// resource hubFwName 'Microsoft.Network/azureFirewalls@2020-11-01' = {
-//   name: hubFwName
-//   location: location
-//   zones: [
-//     '1'
-//     '2'
-//     '3'
-//   ]
-//   properties: {
-//     additionalProperties: {}
-//     sku: {
-//       name: 'AZFW_VNet'
-//       tier: 'Standard'
-//     }
-//     threatIntelMode: 'Deny'
-//     ipConfigurations: [
-//       {
-//         name: hubFwPipNames[0]
-//         properties: {
-//           subnet: {
-//             id: resourceId('Microsoft.Network/virtualNetworks/subnets', hubVNetName, 'AzureFirewallSubnet')
-//           }
-//           publicIPAddress: {
-//             id: resourceId('Microsoft.Network/publicIpAddresses', hubFwPipNames[0])
-//           }
-//         }
-//       }
-//       {
-//         name: hubFwPipNames[1]
-//         properties: {
-//           publicIPAddress: {
-//             id: resourceId('Microsoft.Network/publicIpAddresses', hubFwPipNames[1])
-//           }
-//         }
-//       }
-//       {
-//         name: hubFwPipNames[2]
-//         properties: {
-//           publicIPAddress: {
-//             id: resourceId('Microsoft.Network/publicIpAddresses', hubFwPipNames[2])
-//           }
-//         }
-//       }
-//     ]
-//     natRuleCollections: []
-//     networkRuleCollections: []
-//     applicationRuleCollections: []
-//     firewallPolicy: {
-//       id: fwPoliciesName.id
-//     }
-//   }
-//   dependsOn: [
-//     hubFwPipNames
-//     hubVnetName
-//     fwPoliciesName_DefaultNetworkRuleCollectionGroup
-//   ]
-// }
-
-// resource hubFwName_Microsoft_Insights_default 'Microsoft.Network/azureFirewalls/providers/diagnosticSettings@2021-05-01-preview' = {
-//   name: '${hubFwName}/Microsoft.Insights/default'
-//   properties: {
-//     workspaceId: hubLaName.id
-//     logs: [
-//       {
-//         categoryGroup: 'allLogs'
-//         enabled: true
-//       }
-//     ]
-//     metrics: [
-//       {
-//         category: 'AllMetrics'
-//         enabled: true
-//       }
-//     ]
-//   }
-//   dependsOn: [
-//     hubFwName
-//   ]
-// }
 
 output hubVnetId string = hubVNet.outputs.virtualNetworkResourceId
