@@ -133,6 +133,11 @@ module hubFwPips '../CARML/Microsoft.Network/publicIPAddresses/deploy.bicep' = [
     location: location
     skuName: 'Standard'
     publicIPAllocationMethod: 'Static'
+    zones: [
+      '1'
+      '2'
+      '3'
+    ]
   }
   scope: resourceGroup(resourceGroupName)
   dependsOn:[
@@ -227,6 +232,29 @@ module fwPolicies '../CARML/Microsoft.Network/firewallPolicies/deploy.bicep' = {
   dependsOn:[
     rg
     fwPoliciesBase
+  ]
+}
+
+module hubFw '../CARML/Microsoft.Network/azureFirewalls/deploy.bicep' = {
+  name: hubFwName
+  scope: resourceGroup(resourceGroupName)
+  params:{
+    name: hubFwName
+    location: location
+    vNetId: hubVNet.outputs.virtualNetworkResourceId
+    availabilityZones: [
+          '1'
+          '2'
+          '3'
+        ]
+    azureSkuName: 'AZFW_VNet'
+    azureSkuTier: 'Standard'
+    firewallPolicyId: fwPolicies.outputs.firewallPolicyResourceId
+    azureFirewallPipName: hubFwPips[0].outputs.publicIPAddressName
+    diagnosticWorkspaceId: hubLa.outputs.logAnalyticsResourceId
+  }
+  dependsOn:[
+    rg
   ]
 }
 
