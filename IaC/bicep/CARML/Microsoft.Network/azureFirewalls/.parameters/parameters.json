@@ -12,6 +12,15 @@
                 "3"
             ]
         },
+        "ipConfigurations": {
+            "value": [
+                {
+                    "name": "ipConfig01",
+                    "publicIPAddressResourceId": "",
+                    "subnetResourceId": ""
+                }
+            ]
+        },
         "applicationRuleCollections": {
             "value": [
                 {
@@ -96,9 +105,6 @@
                     }
                 }
             ]
-        },
-        "vNetId": {
-            "value": "/subscriptions/<<subscriptionId>>/resourceGroups/validation-rg/providers/Microsoft.Network/virtualNetworks/adp-sxx-az-vnet-x-azfw"
         },
         "roleAssignments": {
             "value": [
