@@ -43,10 +43,8 @@ var routeTableName = 'route-to-${location}-hub-fw'
 var nsgNodePoolsName = 'nsg-${clusterVNetName}-nodepools'
 var nsgAksiLbName = 'nsg-${clusterVNetName}-aksilbs'
 var nsgAppGwName = 'nsg-${clusterVNetName}-appgw'
-var hubRgName = split(hubVnetResourceId, '/')[4]
 var hubNetworkName = split(hubVnetResourceId, '/')[8]
 var toHubPeeringName = 'spoke-${orgAppId}-to-${hubNetworkName}'
-var toSpokePeeringName = '${hubNetworkName}-to-spoke-${orgAppId}'
 var primaryClusterPipName = 'pip-${orgAppId}-00'
 
 module rg '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
@@ -228,6 +226,7 @@ module clusterVNet '../CARML/Microsoft.Network/virtualNetworks/deploy.bicep' = {
         allowForwardedTraffic: true
         allowVirtualNetworkAccess: true
         allowGatewayTransit: false
+        remotePeeringEnabled: true
         useRemoteGateways: false
       }
     ]
@@ -235,23 +234,6 @@ module clusterVNet '../CARML/Microsoft.Network/virtualNetworks/deploy.bicep' = {
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
     rg
-  ]
-}
-
-module hubVNet_to_clusterVNet_peering '../CARML/Microsoft.Network/virtualNetworks/virtualNetworkPeerings/deploy.bicep' = {
-  name: nsgAppGwName
-  params: {
-    localVnetName: hubNetworkName
-    remoteVirtualNetworkId: clusterVNet.outputs.virtualNetworkResourceId
-    name: toSpokePeeringName
-    allowForwardedTraffic: false
-    allowGatewayTransit: false
-    allowVirtualNetworkAccess: true
-    useRemoteGateways: false
-  }
-  scope: resourceGroup(hubRgName)
-  dependsOn: [
-    clusterVNet
   ]
 }
 
@@ -272,4 +254,3 @@ module primaryClusterPip '../CARML/Microsoft.Network/publicIPAddresses/deploy.bi
 
 output clusterVnetResourceId string = clusterVNet.outputs.virtualNetworkResourceId
 output nodepoolSubnetResourceIds array = clusterVNet.outputs.subnetResourceIds
-//output appGwPublicIpAddress string = primaryClusterPip.outputs.PublicIpAddress
