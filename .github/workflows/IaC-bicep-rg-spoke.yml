@@ -1,11 +1,6 @@
 # The pipeline is triggered on push to the branch and the files you specify below
-on:
-  push: 
-    branches:
-      - 'user/bahramr/terraform'
-    paths:
-      - '.github/workflows/IaC-terraform-rg-hub.yml'
-      - 'iaC/terraform/rg-hub/**'
+on: 
+  workflow_dispatch:
 
 env:
   AZURE_CREDENTIALS: '{"clientId":"${{ secrets.SERVICE_PRINCIPAL }}", "clientSecret":"${{ secrets.SERVICE_PRINCIPAL_PWD }}", "subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}", "tenantId":"${{ secrets.TENANT }}"}' 
