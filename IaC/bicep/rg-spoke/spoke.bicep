@@ -26,6 +26,11 @@ param hubVnetResourceId string
 ])
 param location string
 
+@description('A /16 to contain the cluster')
+@minLength(10)
+@maxLength(18)
+param clusterVnetAddressSpace string = '10.240.0.0/16'
+
 var orgAppId = 'BU0001A0008'
 var clusterVNetName = 'vnet-spoke-${orgAppId}-00'
 var routeTableName = 'route-to-${location}-hub-fw'
@@ -185,9 +190,7 @@ module clusterVNet '../CARML/Microsoft.Network/virtualNetworks/deploy.bicep' = {
   name: clusterVNetName
   params: {
     name: clusterVNetName
-    addressPrefixes: [
-      '10.240.0.0/16'
-    ]
+    addressPrefixes: array(clusterVnetAddressSpace)
     diagnosticWorkspaceId: hubLaWorkspaceResourceId
     subnets: [
       {
