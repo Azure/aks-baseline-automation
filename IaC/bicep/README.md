@@ -11,8 +11,8 @@ To customize the sample bicep templates provided based on your specific needs, f
 
 3. Review the sample parameter files and bicep template orchestration files provided under the following two folders:
 
-    - ./IaC/bicep/rg-hub: contains the customized files used to build the resources in the hub resource group per the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline/blob/main/04-networking.md).
-    - ./IaC/bicep/rg-spoke: contains the customized files used to build the resources in the spoke resource group per the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline/blob/main/04-networking.md).
+    - ./IaC/bicep/rg-hub: contains the customized files used to build the resources in the hub resource group per the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline).
+    - ./IaC/bicep/rg-spoke: contains the customized files used to build the resources in the spoke resource group per the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline).
 
    Customize these files based on your specific deployment requirements for each resource.
 
@@ -25,7 +25,7 @@ To customize the sample GitHub pipleine provided based on your specific needs, f
    - IaC-bicep-rg-hub.yml
    - IaC-bicep-rg-spoke.yml
 
-    Note that these two sample workflow files deploy Azure resources respectively in the hub and spoke resource groups as specified in the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline/blob/main/04-networking.md).
+    Note that these two sample workflow files deploy Azure resources respectively in the hub and spoke resource groups as specified in the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline).
 
 2. Configure the GitHub Actions to access Azure resources through [Workload Identity federation with OpenID Connect](https://docs.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Cwindows#use-the-azure-login-action-with-openid-connect). This is a more secure access method than using Service Principals because you won't have to manage any secret.
 

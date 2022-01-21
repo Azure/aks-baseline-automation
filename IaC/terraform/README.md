@@ -3,7 +3,7 @@
 This folder contains IaC code for terraform and instructions on how to deploy AKS and the Azure resources it depends on.
 It leverages the [CAF Terraform modules](https://github.com/aztfmod/terraform-azurerm-caf).
 
-To build the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline/blob/main/04-networking.md) manually using Azure CLI commands and the CAF terraform modules, follow these [deploymeny instructions](https://github.com/Azure/caf-terraform-landingzones-starter/tree/starter/enterprise_scale/construction_sets/aks/online/aks_secure_baseline/standalone).
+To build the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline) manually using Azure CLI commands and the CAF terraform modules, follow these [deployment instructions](https://github.com/Azure/caf-terraform-landingzones-starter/tree/starter/enterprise_scale/construction_sets/aks/online/aks_secure_baseline/standalone).
 
 To automate the deployment using a GitHub Action pipeline, follow these steps:
 
@@ -21,6 +21,6 @@ To automate the deployment using a GitHub Action pipeline, follow these steps:
 
 3- Copy the files from this directory <https://github.com/Azure/caf-terraform-landingzones-starter/tree/starter/enterprise_scale/construction_sets/aks/online/aks_secure_baseline/standalone> to the forked repository.
 
-4- Run the workflow located in this repository under [./github/Workflows/IaC-terraform-standalone.yml](]./github/Workflows/IaC-terraform-standalone.yml).
+4- Run this workflow to deploy all the resources [.github/Workflows/IaC-terraform-standalone.yml](]./github/Workflows/IaC-terraform-standalone.yml).
 
 Note that the [trigger](https://docs.github.com/en/actions/using-workflows/triggering-a-workflow) for this workflow is set by default to [workflow_dispatch](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow) to run it manually. Feel free to change it to run automatically based on your specific needs.
