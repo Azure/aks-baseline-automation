@@ -252,7 +252,7 @@ module hubFw '../CARML/Microsoft.Network/azureFirewalls/deploy.bicep' = {
     ipConfigurations: [for (hubFwPipName, index) in hubFwPipNames: {
       name: hubFwPipNames[index]
       publicIPAddressResourceId: hubFwPips[index].outputs.publicIPAddressResourceId
-      subnetResourceId: (index == 0) ? resourceId('Microsoft.Network/virtualNetworks/subnets', hubVNetName, 'AzureFirewallSubnet') : null
+      subnetResourceId: (index == 0) ? '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/virtualNetworks/${hubVNetName}/subnets/AzureFirewallSubnet' : null
     }]
     natRuleCollections: []
     networkRuleCollections: []

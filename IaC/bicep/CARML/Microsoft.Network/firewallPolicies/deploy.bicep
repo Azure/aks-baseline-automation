@@ -153,6 +153,7 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-03-01' = {
   }
 }
 
+@batchSize(1)
 module firewallPolicy_ruleCollectionGroups 'ruleCollectionGroups/deploy.bicep' = [for (ruleCollectionGroup, index) in ruleCollectionGroups: {
   name: '${uniqueString(deployment().name, location)}-firewallPolicy_ruleCollectionGroups-${index}'
   params: {
@@ -161,11 +162,9 @@ module firewallPolicy_ruleCollectionGroups 'ruleCollectionGroups/deploy.bicep' =
     priority: ruleCollectionGroup.priority
     ruleCollections: ruleCollectionGroup.ruleCollections
   }
-  dependsOn: [
-    firewallPolicy
-  ]
 }]
 
+@batchSize(1)
 module firewallPolicy_ruleGroups 'ruleGroups/deploy.bicep' = [for (ruleGroup, index) in ruleGroups: {
   name: '${uniqueString(deployment().name, location)}-firewallPolicy_ruleGroups-${index}'
   params: {
@@ -174,9 +173,6 @@ module firewallPolicy_ruleGroups 'ruleGroups/deploy.bicep' = [for (ruleGroup, in
     priority: ruleGroup.priority
     rules: ruleGroup.rules
   }
-  dependsOn: [
-    firewallPolicy
-  ]
 }]
 
 @description('The name of the deployed firewall policy')
