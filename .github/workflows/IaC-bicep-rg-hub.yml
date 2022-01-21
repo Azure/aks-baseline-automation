@@ -1,0 +1,13 @@
+# The pipeline is triggered on push to the branch and the files you specify below
+
+on:
+  push: 
+    branches: [ No Trigger ]
+    paths:
+    - '.github/workflows/IaC-bicep-rg-hub.yml'
+    - 'iaC/bicep/rg-hub/**'
+
+env:
+  resourceGroupName: 'rg-hub'
+  location: 'westus2'
+
