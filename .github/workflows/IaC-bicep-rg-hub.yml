@@ -17,3 +17,8 @@ env:
   TENANT: ${{ secrets.TENANT }}
   ENVIRONMENT: "1${{ github.run_id }}"
 
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: deploy the hub resource
