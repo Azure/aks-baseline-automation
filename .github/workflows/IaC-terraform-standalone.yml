@@ -1,13 +1,14 @@
 # The pipeline is triggered on push to the branch and the files you specify below
 on:
   push:
+    # branches to consider in the event; optional, defaults to all
     branches:
-      - 'user/bahramr/terraform'
-
+      - main
+#test
 env:
-  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.SERVICE_PRINCIPAL }}", "clientSecret":"${{ secrets.SERVICE_PRINCIPAL_PWD }}", "subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}", "tenantId":"${{ secrets.TENANT }}"}' 
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.SERVICE_PRINCIPAL_ID }}", "clientSecret":"${{ secrets.SERVICE_PRINCIPAL_PWD }}", "subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}", "tenantId":"${{ secrets.TENANT }}"}' 
   event_sha: +refs/pull/${{ github.event.issue.number }}/merge
-  SERVICE_PRINCIPAL: ${{ secrets.SERVICE_PRINCIPAL }}
+  SERVICE_PRINCIPAL_ID: ${{ secrets.SERVICE_PRINCIPAL_ID }}
   SERVICE_PRINCIPAL_PWD: ${{ secrets.SERVICE_PRINCIPAL_PWD }}
   SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}            
   TENANT: ${{ secrets.TENANT }}
@@ -30,19 +31,22 @@ jobs:
           terraform_wrapper: false
           # https://stackoverflow.com/questions/65170927/terraform-output-value-failed-formatted-by-jq-in-github-actions
 
-      - name: Deploy Standalone
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Deployment
         run: |
           pwd
-          cd iaC/terraform/standalone/
+          cd IaC/terraform/standalone/
           configuration_folder=configuration
           parameter_files=$(find $configuration_folder -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
           terraform init -upgrade
           eval terraform apply ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -auto-approve
-      - name: Test
+      - name: Testing
         id: test
         run: |
           pwd
-          cd iaC/terraform/standalone/
+          cd IaC/terraform/standalone/
           ls -lta
           export SUBSCRIPTION_ID=$(az account show --query id -o tsv)
           export PREFIX=$(terraform output -json | jq -r '.global_settings.value.prefixes[0]')
@@ -53,12 +57,12 @@ jobs:
           go test -v  shared_services/shared_services_test.go
           go test -v  aks/aks_test.go
           go test -v  flux/flux_test.go
-      - name: Destroy Standalone
+      - name: Destroy Deployment
         if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad') || github.event_name != 'issue_comment'     
         run: |
           ls -lta
           pwd
-          cd iaC/terraform/standalone
+          cd IaC/terraform/standalone
           configuration_folder=configuration
           parameter_files=$(find $configuration_folder -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
           # remove flux from state as flux provider has issues with destroy
@@ -72,7 +76,7 @@ jobs:
     steps:
       - name: Login azure
         run: |
-          az login --service-principal -u '${{ env.SERVICE_PRINCIPAL }}' -p '${{ env.SERVICE_PRINCIPAL_PWD }}' --tenant '${{ env.TENANT }}'
+          az login --service-principal -u '${{ env.SERVICE_PRINCIPAL_ID }}' -p '${{ env.SERVICE_PRINCIPAL_PWD }}' --tenant '${{ env.TENANT }}'
           az account set -s  ${{ env.SUBSCRIPTION_ID }}
       - name: Complete purge
         run: |
