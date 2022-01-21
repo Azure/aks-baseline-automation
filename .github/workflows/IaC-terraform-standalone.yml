@@ -2,7 +2,8 @@
 
 on:
   push: 
-    branches: [ user/bahramr/terraform ]
+    branches:
+      - 'user/bahramr/**'
     paths:
     - '.github/workflows/IaC-terraform-rg-hub.yml'
     - 'iaC/terraform/rg-hub/**'
