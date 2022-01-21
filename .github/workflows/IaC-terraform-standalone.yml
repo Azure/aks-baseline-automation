@@ -1,0 +1,91 @@
+name: IaC-terraform-standalone
+# The pipeline is triggered on push to the branch and the files you specify below
+
+on:
+  push: 
+    branches: [ bahramr ]
+    paths:
+    - '.github/workflows/IaC-terraform-rg-hub.yml'
+    - 'iaC/terraform/rg-hub/**'
+    
+env:
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.SERVICE_PRINCIPAL }}", "clientSecret":"${{ secrets.SERVICE_PRINCIPAL_PWD }}", "subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}", "tenantId":"${{ secrets.TENANT }}"}' 
+  event_sha: +refs/pull/${{ github.event.issue.number }}/merge
+  SERVICE_PRINCIPAL: ${{ secrets.SERVICE_PRINCIPAL }}
+  SERVICE_PRINCIPAL_PWD: ${{ secrets.SERVICE_PRINCIPAL_PWD }}
+  SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}            
+  TENANT: ${{ secrets.TENANT }}
+  ENVIRONMENT: "1${{ github.run_id }}"
+
+jobs:
+  deploy-standalone:
+    runs-on: ubuntu-latest
+    outputs:
+      prefix: ${{ steps.test.outputs.PREFIX }}
+    steps:
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ env.AZURE_CREDENTIALS }}
+
+      - uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.0.3
+          terraform_wrapper: false
+          # https://stackoverflow.com/questions/65170927/terraform-output-value-failed-formatted-by-jq-in-github-actions
+
+      - name: Deploy Standalone
+        run: |
+          pwd
+          cd iaC/terraform/standalone/
+          configuration_folder=configuration
+          parameter_files=$(find $configuration_folder -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
+          terraform init -upgrade
+          eval terraform apply ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -auto-approve
+      - name: Test
+        id: test
+        run: |
+          pwd
+          cd iaC/terraform/standalone/
+          ls -lta
+          export SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+          export PREFIX=$(terraform output -json | jq -r '.global_settings.value.prefixes[0]')
+          echo $(terraform output -json | jq -r .aks_clusters_kubeconfig.value.cluster_re1.aks_kubeconfig_admin_cmd) | bash
+
+          cd ../test
+          go mod tidy
+          go test -v  shared_services/shared_services_test.go
+          go test -v  aks/aks_test.go
+          go test -v  flux/flux_test.go
+      - name: Destroy Standalone
+        if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad') || github.event_name != 'issue_comment'     
+        run: |
+          ls -lta
+          pwd
+          cd iaC/terraform/standalone
+          configuration_folder=configuration
+          parameter_files=$(find $configuration_folder -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
+          # remove flux from state as flux provider has issues with destroy
+          terraform state rm 'module.flux_addon'
+          eval terraform destroy ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -auto-approve
+  purge:
+    name: purge
+    runs-on: ubuntu-latest
+    if: ${{ failure() || cancelled() }}
+    needs: [deploy-standalone]
+    steps:
+      - name: Login azure
+        run: |
+          az login --service-principal -u '${{ env.SERVICE_PRINCIPAL }}' -p '${{ env.SERVICE_PRINCIPAL_PWD }}' --tenant '${{ env.TENANT }}'
+          az account set -s  ${{ env.SUBSCRIPTION_ID }}
+      - name: Complete purge
+        run: |
+          echo RunId $ENVIRONMENT
+          for i in `az monitor diagnostic-settings subscription list -o tsv --query "value[?contains(name, '$ENVIRONMENT' )].name"`; do echo "purging subscription diagnostic-settings: $i" && $(az monitor diagnostic-settings subscription delete --name $i --yes); done
+          for i in `az monitor log-profiles list -o tsv --query '[].name'`; do az monitor log-profiles delete --name $i; done
+          # for i in `az ad group list --query "[?contains(displayName, '$ENVIRONMENT')].objectId" -o tsv`; do echo "purging Azure AD group: $i" && $(az ad group delete --verbose --group $i || true); done
+          # for i in `az ad app list --query "[?contains(displayName, '$ENVIRONMENT')].appId" -o tsv`; do echo "purging Azure AD app: $i" && $(az ad app delete --verbose --id $i || true); done
+          for i in `az keyvault list-deleted --query "[?tags.testing_job_id=='$ENVIRONMENT'].name" -o tsv`; do az keyvault purge --name $i; done
+          for i in `az group list --query "[?tags.testing_job_id=='$ENVIRONMENT'].name" -o tsv`; do echo "purging resource group: $i" && $(az group delete -n $i -y --no-wait || true); done
+          for i in `az role assignment list --query "[?contains(roleDefinitionName, '$ENVIRONMENT')].roleDefinitionName" -o tsv`; do echo "purging role assignment: $i" && $(az role assignment delete --role $i || true); done
+          for i in `az role definition list --query "[?contains(roleName, '$ENVIRONMENT')].roleName" -o tsv`; do echo "purging custom role definition: $i" && $(az role definition delete --name $i || true); done
