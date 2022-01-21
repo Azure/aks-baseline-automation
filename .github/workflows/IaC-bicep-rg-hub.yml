@@ -2,10 +2,10 @@
 on:
   push: 
     branches:
-      - 'NoTrigger'
+      - 'user/bahramr/terraform'
     paths:
-      - '.github/workflows/IaC-bicep-rg-hub.yml'
-      - 'iaC/bicep/rg-hub/**'
+      - '.github/workflows/IaC-terraform-rg-hub.yml'
+      - 'iaC/terraform/rg-hub/**'
 
 env:
   AZURE_CREDENTIALS: '{"clientId":"${{ secrets.SERVICE_PRINCIPAL }}", "clientSecret":"${{ secrets.SERVICE_PRINCIPAL_PWD }}", "subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}", "tenantId":"${{ secrets.TENANT }}"}' 
