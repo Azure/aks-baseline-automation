@@ -3,7 +3,7 @@
 on:
   push: 
     branches:
-      - 'user/bahramr/**'
+      - 'user/bahramr/terraform'
     paths:
     - '.github/workflows/IaC-terraform-rg-hub.yml'
     - 'iaC/terraform/rg-hub/**'
@@ -16,7 +16,7 @@ env:
   SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}            
   TENANT: ${{ secrets.TENANT }}
   ENVIRONMENT: "1${{ github.run_id }}"
-#test
+
 jobs:
   deploy-standalone:
     runs-on: ubuntu-latest
