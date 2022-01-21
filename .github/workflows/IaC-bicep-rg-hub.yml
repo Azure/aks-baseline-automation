@@ -3,10 +3,7 @@
 on:
   push: 
     branches:
-      - 'user/NoTrigger/**'
-    paths:
-      - '.github/workflows/IaC-bicep-rg-hub.yml'
-      - 'iaC/bicep/rg-hub/**'
+      - 'NoTrigger'
 
 env:
   AZURE_CREDENTIALS: '{"clientId":"${{ secrets.SERVICE_PRINCIPAL }}", "clientSecret":"${{ secrets.SERVICE_PRINCIPAL_PWD }}", "subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}", "tenantId":"${{ secrets.TENANT }}"}' 
@@ -25,4 +22,5 @@ jobs:
       - env:
           EVENT_CONTEXT: ${{ toJSON(github.event) }}
         run: |
-          echo $EVENT_CONTEXT      
+          echo $EVENT_CONTEXT
+ 
