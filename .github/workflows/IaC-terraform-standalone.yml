@@ -3,7 +3,7 @@ name: IaC-terraform-standalone
 
 on:
   push: 
-    branches: [ bahramr ]
+    branches: [ user/bahramr/terraform ]
     paths:
     - '.github/workflows/IaC-terraform-rg-hub.yml'
     - 'iaC/terraform/rg-hub/**'
