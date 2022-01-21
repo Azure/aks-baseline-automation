@@ -1,0 +1,25 @@
+# The pipeline is triggered on push to the branch and the files you specify below
+
+on:
+  push: 
+    branches:
+      - 'NoTrigger'
+
+env:
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.SERVICE_PRINCIPAL }}", "clientSecret":"${{ secrets.SERVICE_PRINCIPAL_PWD }}", "subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}", "tenantId":"${{ secrets.TENANT }}"}' 
+  event_sha: +refs/pull/${{ github.event.issue.number }}/merge
+  SERVICE_PRINCIPAL: ${{ secrets.SERVICE_PRINCIPAL }}
+  SERVICE_PRINCIPAL_PWD: ${{ secrets.SERVICE_PRINCIPAL_PWD }}
+  SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}            
+  TENANT: ${{ secrets.TENANT }}
+  ENVIRONMENT: "1${{ github.run_id }}"
+
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: deploy the spoke resource
+      - env:
+          EVENT_CONTEXT: ${{ toJSON(github.event) }}
+        run: |
+          echo $EVENT_CONTEXT
