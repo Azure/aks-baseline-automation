@@ -31,17 +31,19 @@ param location string
 @maxLength(18)
 param clusterVnetAddressSpace string = '10.240.0.0/16'
 
+@description('The resource ID of the Log Analytics Workspace in the hub')
+param hubLaWorkspaceResourceId string
+
+@description('The resource ID of the Firewall in the hub')
+param hubFwResourceId string
+
 var orgAppId = 'BU0001A0008'
 var clusterVNetName = 'vnet-spoke-${orgAppId}-00'
 var routeTableName = 'route-to-${location}-hub-fw'
 var nsgNodePoolsName = 'nsg-${clusterVNetName}-nodepools'
 var nsgAksiLbName = 'nsg-${clusterVNetName}-aksilbs'
 var nsgAppGwName = 'nsg-${clusterVNetName}-appgw'
-var hubRgName = split(hubVnetResourceId, '/')[4]
 var hubNetworkName = split(hubVnetResourceId, '/')[8]
-var hubFwResourceId = resourceId(hubRgName, 'Microsoft.Network/azureFirewalls', 'fw-${location}')
-var hubLaWorkspaceName = 'la-hub-${location}-${uniqueString(hubVnetResourceId)}'
-var hubLaWorkspaceResourceId = resourceId(hubRgName, 'Microsoft.OperationalInsights/workspaces', hubLaWorkspaceName)
 var toHubPeeringName = 'spoke-to-${hubNetworkName}'
 var primaryClusterPipName = 'pip-${orgAppId}-00'
 
