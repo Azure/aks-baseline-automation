@@ -238,7 +238,7 @@ module clusterVNet '../CARML/Microsoft.Network/virtualNetworks/deploy.bicep' = {
   ]
 }
 
-module hubVNet_to_clusterVNet_peering'../CARML/Microsoft.Network/virtualNetworks/virtualNetworkPeerings/deploy.bicep' = {
+module hubVNet_to_clusterVNet_peering '../CARML/Microsoft.Network/virtualNetworks/virtualNetworkPeerings/deploy.bicep' = {
   name: nsgAppGwName
   params: {
     localVnetName: hubNetworkName
