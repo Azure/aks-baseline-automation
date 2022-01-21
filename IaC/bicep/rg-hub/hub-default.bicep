@@ -249,11 +249,21 @@ module hubFw '../CARML/Microsoft.Network/azureFirewalls/deploy.bicep' = {
     azureSkuName: 'AZFW_VNet'
     azureSkuTier: 'Standard'
     threatIntelMode: 'Deny'
-    ipConfigurations: [for (hubFwPipName, index) in hubFwPipNames: {
-      name: hubFwPipNames[index]
-      publicIPAddressResourceId: hubFwPips[index].outputs.publicIPAddressResourceId
-      subnetResourceId: (index == 0) ? '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/virtualNetworks/${hubVNetName}/subnets/AzureFirewallSubnet' : null
-    }]
+    ipConfigurations: [
+      {
+        name: hubFwPipNames[0]
+        publicIPAddressResourceId: hubFwPips[0].outputs.publicIPAddressResourceId
+        subnetResourceId: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/virtualNetworks/${hubVNetName}/subnets/AzureFirewallSubnet'
+      }
+      {
+        name: hubFwPipNames[1]
+        publicIPAddressResourceId: hubFwPips[1].outputs.publicIPAddressResourceId
+      }
+      {
+        name: hubFwPipNames[2]
+        publicIPAddressResourceId: hubFwPips[2].outputs.publicIPAddressResourceId
+      }
+    ]
     natRuleCollections: []
     networkRuleCollections: []
     applicationRuleCollections: []
