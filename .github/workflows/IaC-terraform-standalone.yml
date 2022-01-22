@@ -4,7 +4,7 @@ on:
     # branches to consider in the event; optional, defaults to all
     branches:
       - main
-#test
+
 env:
   AZURE_CREDENTIALS: '{"clientId":"${{ secrets.SERVICE_PRINCIPAL_ID }}", "clientSecret":"${{ secrets.SERVICE_PRINCIPAL_PWD }}", "subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}", "tenantId":"${{ secrets.TENANT }}"}' 
   event_sha: +refs/pull/${{ github.event.issue.number }}/merge
