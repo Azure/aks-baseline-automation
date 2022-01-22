@@ -19,8 +19,8 @@ To automate the deployment using a GitHub Action pipeline, follow these steps:
 |TENANT| Azure tenant id||
 |FLUX_TOKEN| [GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) for Flux V2||
 
-3- Copy the files from this directory <https://github.com/Azure/caf-terraform-landingzones-starter/tree/starter/enterprise_scale/construction_sets/aks/online/aks_secure_baseline/standalone> to the forked repository.
+3- Clone the repository https://github.com/Azure/caf-terraform-landingzones-starter.git and copy the files from its directory <https://github.com/Azure/caf-terraform-landingzones-starter/tree/starter/enterprise_scale/construction_sets/aks/online/aks_secure_baseline/standalone> to your working repository that you forked previously .
 
-4- Run this workflow to deploy all the resources [.github/Workflows/IaC-terraform-standalone.yml](]./github/Workflows/IaC-terraform-standalone.yml).
+4- Run the following workflow pipeline from your working repository to deploy all the Azure resources: [.github/Workflows/IaC-terraform-standalone.yml](../../.github/workflows/IaC-terraform-standalone.yml).
 
 Note that the [trigger](https://docs.github.com/en/actions/using-workflows/triggering-a-workflow) for this workflow is set by default to [workflow_dispatch](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow) to run it manually. Feel free to change it to run automatically based on your specific needs.
