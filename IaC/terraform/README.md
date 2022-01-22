@@ -19,7 +19,7 @@ To automate the deployment using a GitHub Action pipeline, follow these steps:
 |TENANT| Azure tenant id||
 |FLUX_TOKEN| [GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) for Flux V2||
 
-3- Clone the repository https://github.com/Azure/caf-terraform-landingzones-starter.git and copy the following folders from this repository to your working repository that you forked previously:
+3- Clone the repository https://github.com/Azure/caf-terraform-landingzones-starter.git and copy the following folders from this repository to your working repository under the ./IaC/terraform folder:
  - ./enterprise_scale/construction_sets/aks/online/aks_secure_baseline/standalone
  - ./enterprise_scale/construction_sets/aks/online/aks_secure_baseline/test
 
