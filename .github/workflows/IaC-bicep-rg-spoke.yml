@@ -1,5 +1,6 @@
-# The pipeline is triggered on push to the branch and the files you specify below
-on: workflow_dispatch
+
+on:
+  workflow_dispatch:
 
 env:
   AZURE_CREDENTIALS: '{"clientId":"${{ secrets.SERVICE_PRINCIPAL }}", "clientSecret":"${{ secrets.SERVICE_PRINCIPAL_PWD }}", "subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}", "tenantId":"${{ secrets.TENANT }}"}' 
@@ -15,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: deploy the spoke resource
-      - env:
+        env:
           EVENT_CONTEXT: ${{ toJSON(github.event) }}
         run: |
           echo $EVENT_CONTEXT
