@@ -1,4 +1,4 @@
-#Status: WIP.
+#Status: Work In Progress
 
 on:
   workflow_call:
