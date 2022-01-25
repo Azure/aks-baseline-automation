@@ -63,10 +63,10 @@ jobs:
         uses: azure/k8s-deploy@v1
         with:
           manifests: |
-            https://github.com/Azure/aks-baseline-automation/raw/gb-builtinactions-azurevote/workloads/azure-vote/back-deployment.yml
-            https://github.com/Azure/aks-baseline-automation/raw/gb-builtinactions-azurevote/workloads/azure-vote/back-service.yml
-            https://github.com/Azure/aks-baseline-automation/raw/gb-builtinactions-azurevote/workloads/azure-vote/front-deployment.yml
-            https://github.com/Azure/aks-baseline-automation/raw/gb-builtinactions-azurevote/workloads/azure-vote/front-service.yml
+            workloads/azure-vote/back-deployment.yml
+            workloads/azure-vote/back-service.yml
+            workloads/azure-vote/front-deployment.yml
+            workloads/azure-vote/front-service.yml
           images: |
             mcr.microsoft.com/azuredocs/azure-vote-front:v1
           namespace: ${{ inputs.NAMESPACE }}
