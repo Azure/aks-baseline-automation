@@ -29,7 +29,7 @@ jobs:
   AzureVoteApp1:
     needs: [ReusableWF]
     environment: gord
-    uses: azure/aks-baseline-automation/.github/workflows/App-AzureVote-Actions.yml@gb-builtinactions-azurevote
+    uses: ./.github/workflows/App-AzureVote-Actions.yml@gb-builtinactions-azurevote
     with:
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
