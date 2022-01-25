@@ -50,6 +50,7 @@ jobs:
           environment: azurecloud
           allow-no-subscriptions: false
       
+      # Needs accessProfiles/listCredential on scope accessProfiles/clusterAdmin
       - name: Set the target Azure Kubernetes Service (AKS) cluster.
         uses: azure/aks-set-context@v1
         with:
