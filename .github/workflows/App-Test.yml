@@ -35,5 +35,6 @@ jobs:
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
       APPNAME: baseVote1
+      GITHUBENVIRONMENT: gord
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.GORD_AZURE_CREDENTIALS }}
