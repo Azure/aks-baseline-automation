@@ -7,11 +7,13 @@ on:
   workflow_dispatch:
     inputs:
       ResourceGroup:
-        description: 'ResourceGroup'
-        default: 'Automation-Actions-AksDeployCI'
-        type: boolean
-        required: false
-
+        description: 'Resource Group Name'
+        type: string
+        required: true
+      AKSNAME:
+        description: 'AKS Cluster Name'
+        type: string
+        required: true
 
 
 jobs:
@@ -20,6 +22,7 @@ jobs:
     environment: gord
     outputs:
       RG: ${{ github.event.inputs.ResourceGroup }}
+      AKSNAME: ${{ github.event.inputs.AKSNAME }}
 
     steps:
       - name: Dummy step
@@ -31,7 +34,7 @@ jobs:
     uses: azure/aks-baseline-automation/.github/workflows/App-AzureVote-Actions.yml@gb-builtinactions-azurevote
     with:
       RG: ${{ needs.ReusableWF.outputs.RG }}
-      AKSNAME: aks-Byo
+      AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
       APPNAME: baseVote1
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.GORD_AZURE_CREDENTIALS }}
