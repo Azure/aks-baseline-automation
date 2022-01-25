@@ -9,9 +9,6 @@ on:
       AKSNAME:
         required: true
         type: string
-      ACRNAME:
-        required: true
-        type: string
       APPNAME:
         required: true
         type: string
@@ -19,19 +16,6 @@ on:
         default: "default"
         required: false
         type: string
-      REPOURL:
-        default: "https://github.com/Azure-Samples/azure-voting-app-redis"
-        required: false
-        type: string
-      REPOREF:
-        default: "129888"
-        required: false
-        type: string
-      REPOPATH:
-        default: "129888"
-        required: false
-        type: string
-        description: The directory in the repo containing the Dockerfile
     secrets:
       AZURE_CREDENTIALS:
         required: true
@@ -43,14 +27,10 @@ jobs:
       APPNAME: "${{ inputs.APPNAME }}"
       NAMESP: "${{ inputs.NAMESPACE }}"
       AKSNAME: "${{ inputs.AKSNAME}}"
-      ACRNAME: "${{ inputs.ACRNAME}}"
-      
       RG: "${{ inputs.RG }}"
+      
     steps:
       - uses: actions/checkout@v2
-        with: 
-          repository: ${{ inputs.REPOURL}}
-          ref: ${{ inputs.REPOREF}}
 
       - name: Job parameter inspection
         run: |
@@ -65,26 +45,6 @@ jobs:
           environment: azurecloud
           allow-no-subscriptions: false
       
-      - name: Connect to Azure Container Registry (ACR)
-        run:
-          TOKEN=$(az acr login --name <acrName> --expose-token --output tsv --query accessToken)
-          docker login $ACRNAME.azurecr.io --username 00000000-0000-0000-0000-000000000000 --password $TOKEN
-
-      - name: Container build and push to a Azure Container Registry (ACR)
-        env:
-          REPOPATH: "${{ inputs.REPOPATH}}"
-        run: |
-          cd $REPOPATH
-          docker build . -t ${{ inputs.ACRNAME }}.azurecr.io/${{ inputs.APP_NAME }}:${{ github.sha }}
-          docker push ${{ inputs.ACRNAME }}.azurecr.io/${{ inputs.APP_NAME }}:${{ github.sha }}
-          
-      - name: Build and push production images
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          tags: ${{ inputs.ACRNAME }}/${{ inputs.APP_NAME }}:${{ github.sha }},${{secrets.ACR_NAME}}/${{ inputs.APP_NAME }}:${{ github.sha }}
-          push: true
-
       - name: Set the target Azure Kubernetes Service (AKS) cluster.
         uses: azure/aks-set-context@v1
         with:
@@ -96,12 +56,10 @@ jobs:
         uses: azure/k8s-deploy@v1
         with:
           manifests: |
-            manifests/votingapp/back-deployment.yml
-            manifests/votingapp/back-service.yml
-            manifests/votingapp/front-deployment.yml
-            manifests/votingapp/front-service.yml
+            https://github.com/Azure/aks-baseline-automation/raw/gb-builtinactions-azurevote/workloads/azure-vote/back-deployment.yml
+            https://github.com/Azure/aks-baseline-automation/raw/gb-builtinactions-azurevote/workloads/azure-vote/back-service.yml
+            https://github.com/Azure/aks-baseline-automation/raw/gb-builtinactions-azurevote/workloads/azure-vote/front-deployment.yml
+            https://github.com/Azure/aks-baseline-automation/raw/gb-builtinactions-azurevote/workloads/azure-vote/front-service.yml
           images: |
-            ${{ env.REGISTRY_NAME }}.azurecr.io/azure-vote-front:${{ github.sha }}
-          #imagepullsecrets: |
-          #  ${{ env.SECRET }}
+            mcr.microsoft.com/azuredocs/azure-vote-front:v1
           namespace: ${{ inputs.NAMESPACE }}
