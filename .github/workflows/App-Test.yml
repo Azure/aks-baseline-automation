@@ -28,7 +28,7 @@ jobs:
 
   AzureVoteApp1:
     needs: [ReusableWF]
-    environment: gord
+    #environment: gord
     #uses: ./.github/workflows/App-AzureVote-Actions.yml@gb-builtinactions-azurevote
     uses: ./.github/workflows/App-AzureVote-Actions.yml
     with:
