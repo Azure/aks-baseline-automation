@@ -1,4 +1,4 @@
-#Status: Work In Progress
+# Shows deploying the Azure Voting App from MCR using Azure/ actions.
 
 on:
   workflow_call:
