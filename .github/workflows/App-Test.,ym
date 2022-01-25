@@ -12,9 +12,12 @@ on:
         type: boolean
         required: false
 
+
+
 jobs:
   ReusableWF:
     runs-on: ubuntu-latest
+    environment: gord
     outputs:
       RG: ${{ github.event.inputs.ResourceGroup }}
 
@@ -24,10 +27,11 @@ jobs:
 
   AzureVoteApp1:
     needs: [ReusableWF]
+    environment: gord
     uses: azure/aks-baseline-automation/.github/workflows/App-AzureVote-Actions.yml@gb-builtinactions-azurevote
     with:
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: aks-Byo
       APPNAME: baseVote1
     secrets:
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      AZURE_CREDENTIALS: ${{ secrets.GORD_AZURE_CREDENTIALS }}
