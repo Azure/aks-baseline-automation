@@ -50,7 +50,8 @@ jobs:
           environment: azurecloud
           allow-no-subscriptions: false
       
-      # Needs accessProfiles/listCredential on scope accessProfiles/clusterAdmin
+      # RBAC.
+      # "Needs accessProfiles/listCredential on scope accessProfiles/clusterAdmin" = Azure Kubernetes Service Cluster Admin Role
       - name: Set the target Azure Kubernetes Service (AKS) cluster.
         uses: azure/aks-set-context@v1
         with:
