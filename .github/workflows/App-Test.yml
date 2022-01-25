@@ -1,0 +1,39 @@
+# Workflow is for testing reusable workflows to expedite the developer inner loop.
+
+name: Test Harness for Reusable App workflows
+
+on:
+  workflow_dispatch:
+    inputs:
+      ResourceGroup:
+        description: 'Resource Group Name'
+        type: string
+        required: true
+      AKSNAME:
+        description: 'AKS Cluster Name'
+        type: string
+        required: true
+
+
+jobs:
+  ReusableWF:
+    runs-on: ubuntu-latest
+    environment: gord
+    outputs:
+      RG: ${{ github.event.inputs.ResourceGroup }}
+      AKSNAME: ${{ github.event.inputs.AKSNAME }}
+
+    steps:
+      - name: Dummy step
+        run: echo "Resuable workflows can't be directly passed ENV/INPUTS (yet)"
+
+  AzureVoteApp1:
+    needs: [ReusableWF]
+    environment: gord
+    uses: azure/aks-baseline-automation/.github/workflows/App-AzureVote-Actions.yml@gb-builtinactions-azurevote
+    with:
+      RG: ${{ needs.ReusableWF.outputs.RG }}
+      AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
+      APPNAME: baseVote1
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.GORD_AZURE_CREDENTIALS }}
