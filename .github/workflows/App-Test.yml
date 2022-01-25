@@ -1,7 +1,6 @@
 # Workflow is for testing reusable workflows to expedite the developer inner loop.
-# Should not be merged to main
 
-name: Test Harness for Reusable workflows
+name: Test Harness for Reusable App workflows
 
 on:
   workflow_dispatch:
@@ -14,7 +13,6 @@ on:
         description: 'AKS Cluster Name'
         type: string
         required: true
-
 
 jobs:
   ReusableWF:
