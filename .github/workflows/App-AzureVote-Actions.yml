@@ -16,6 +16,10 @@ on:
         default: "default"
         required: false
         type: string
+      GITHUBENVIRONMENT:
+        default: ""
+        required: false
+        type: string
     secrets:
       AZURE_CREDENTIALS:
         required: true
@@ -23,6 +27,7 @@ on:
 jobs:
   App_Create:
     runs-on: ubuntu-latest
+    environment: "${{ inputs.GITHUBENVIRONMENT }}"
     env:
       APPNAME: "${{ inputs.APPNAME }}"
       NAMESP: "${{ inputs.NAMESPACE }}"
