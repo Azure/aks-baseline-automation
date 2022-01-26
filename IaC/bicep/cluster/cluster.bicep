@@ -1,7 +1,7 @@
 targetScope = 'subscription'
 
 @description('Name of the resource group')
-param resourceGroupName string = 'rg-cluster'
+param resourceGroupName string = 'rg-spoke'
 
 @description('The regional network spoke VNet Resource ID that the cluster will be joined to')
 @minLength(79)
@@ -103,6 +103,22 @@ module rg '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
   }
 }
 
+module clusterLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep' = {
+  name: logAnalyticsWorkspaceName
+  params: {
+    name: logAnalyticsWorkspaceName
+    location: location
+    serviceTier: 'PerGB2018'
+    dataRetention: 30
+    publicNetworkAccessForIngestion: 'Enabled'
+    publicNetworkAccessForQuery: 'Enabled'
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+  ]
+}
+
 module clusterControlPlaneIdentity '../CARML/Microsoft.ManagedIdentity/userAssignedIdentities/deploy.bicep' = {
   name: clusterControlPlaneIdentityName
   params: {
@@ -157,7 +173,7 @@ module keyVault '../CARML/Microsoft.KeyVault/vaults/deploy.bicep' = {
     enableVaultForDiskEncryption: false
     enableVaultForTemplateDeployment: false
     enableSoftDelete: true
-    diagnosticWorkspaceId: resourceId(subscription().subscriptionId, 'Microsoft.OperationalInsights/workspaces', logAnalyticsWorkspaceName)
+    diagnosticWorkspaceId: clusterLa.outputs.logAnalyticsResourceId
     secrets: [
       {
         name: 'gateway-public-cert'
