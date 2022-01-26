@@ -1,4 +1,4 @@
-#Status: Work In Progress
+# Shows deploying the Azure Voting App from MCR using Azure/ actions.
 
 on:
   workflow_call:
@@ -9,14 +9,15 @@ on:
       AKSNAME:
         required: true
         type: string
-      ACRNAME:
-        required: true
-        type: string
       APPNAME:
         required: true
         type: string
       NAMESPACE:
         default: "default"
+        required: false
+        type: string
+      GITHUBENVIRONMENT:
+        default: ""
         required: false
         type: string
     secrets:
@@ -26,11 +27,13 @@ on:
 jobs:
   App_Create:
     runs-on: ubuntu-latest
+    environment: "${{ inputs.GITHUBENVIRONMENT }}"
     env:
       APPNAME: "${{ inputs.APPNAME }}"
       NAMESP: "${{ inputs.NAMESPACE }}"
       AKSNAME: "${{ inputs.AKSNAME}}"
       RG: "${{ inputs.RG }}"
+      
     steps:
       - uses: actions/checkout@v2
 
@@ -38,34 +41,17 @@ jobs:
         run: |
           echo "RG is ${{ inputs.RG }}"
           echo "AKS name is ${{ inputs.AKSNAME }}"
-
-      - name: Connect to Azure Container Registry (ACR)
-        uses: azure/docker-login@v1
+          
+      - name: Azure Login
+        uses: Azure/login@v1
         with:
-          login-server: ${{ inputs.ACRNAME }}.azurecr.io
-          username: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
-          password: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
-
-      - name: Container build and push to a Azure Container Registry (ACR)
-        run: |
-          docker build . -t ${{ inputs.ACRNAME }}.azurecr.io/${{ inputs.APP_NAME }}:${{ github.sha }}
-          docker push ${{ inputs.ACRNAME }}.azurecr.io/${{ inputs.APP_NAME }}:${{ github.sha }}
-
-      - name: Build and push production images
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          tags: ${{ inputs.ACRNAME }}/${{ inputs.APP_NAME }}:${{ github.sha }},${{secrets.ACR_NAME}}/${{ inputs.APP_NAME }}:${{ github.sha }}
-          push: true
-
-      # - name: Azure Login
-      #   uses: Azure/login@v1
-      #   with:
-      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
-      #     enable-AzPSSession: false
-      #     environment: azurecloud
-      #     allow-no-subscriptions: false
-
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: false
+          environment: azurecloud
+          allow-no-subscriptions: false
+      
+      # RBAC.
+      # "Needs accessProfiles/listCredential on scope accessProfiles/clusterAdmin" = Azure Kubernetes Service Cluster Admin Role
       - name: Set the target Azure Kubernetes Service (AKS) cluster.
         uses: azure/aks-set-context@v1
         with:
@@ -77,12 +63,10 @@ jobs:
         uses: azure/k8s-deploy@v1
         with:
           manifests: |
-            manifests/votingapp/back-deployment.yml
-            manifests/votingapp/back-service.yml
-            manifests/votingapp/front-deployment.yml
-            manifests/votingapp/front-service.yml
+            workloads/azure-vote/back-deployment.yml
+            workloads/azure-vote/back-service.yml
+            workloads/azure-vote/front-deployment.yml
+            workloads/azure-vote/front-service.yml
           images: |
-            ${{ env.REGISTRY_NAME }}.azurecr.io/azure-vote-front:${{ github.sha }}
-          #imagepullsecrets: |
-          #  ${{ env.SECRET }}
+            mcr.microsoft.com/azuredocs/azure-vote-front:v1
           namespace: ${{ inputs.NAMESPACE }}

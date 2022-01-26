@@ -14,7 +14,6 @@ on:
         type: string
         required: true
 
-
 jobs:
   ReusableWF:
     runs-on: ubuntu-latest
@@ -29,11 +28,13 @@ jobs:
 
   AzureVoteApp1:
     needs: [ReusableWF]
-    environment: gord
-    uses: azure/aks-baseline-automation/.github/workflows/App-AzureVote-Actions.yml@gb-builtinactions-azurevote
+    #environment: gord
+    #uses: ./.github/workflows/App-AzureVote-Actions.yml@gb-builtinactions-azurevote
+    uses: ./.github/workflows/App-AzureVote-Actions.yml
     with:
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
       APPNAME: baseVote1
+      GITHUBENVIRONMENT: gord
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.GORD_AZURE_CREDENTIALS }}
