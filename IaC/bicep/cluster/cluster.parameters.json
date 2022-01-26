@@ -1,0 +1,9 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "targetVnetResourceId": {
+            "value": "/subscriptions/<<subscriptionId>>/resourceGroups/rg-spoke/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0008-00"
+        }
+    }
+}
