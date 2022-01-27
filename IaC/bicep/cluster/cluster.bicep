@@ -71,16 +71,17 @@ var clusterName = 'aks-${subRgUniqueString}'
 var logAnalyticsWorkspaceName = 'la-${clusterName}'
 // var containerInsightsSolutionName = 'ContainerInsights(${logAnalyticsWorkspaceName})'
 // var defaultAcrName = 'acraks${subRgUniqueString}'
-// var vNetResourceGroup = split(targetVnetResourceId, '/')[4]
+var vNetResourceGroup = split(targetVnetResourceId, '/')[4]
 var vnetName = split(targetVnetResourceId, '/')[8]
-var vnetNodePoolSubnetResourceId = '${targetVnetResourceId}/subnets/snet-clusternodes'
+var subnetName = 'snet-clusternodes'
+var vnetNodePoolSubnetResourceId = '${targetVnetResourceId}/subnets/${subnetName}'
 // var vnetIngressServicesSubnetResourceId = '${targetVnetResourceId}/subnets/snet-cluster-ingressservices'
-// var agwName_var = 'apw-${clusterName}'
+var agwName = 'apw-${clusterName}'
 var akvPrivateDnsZonesName = 'privatelink.vaultcore.azure.net'
 var clusterControlPlaneIdentityName = 'mi-${clusterName}-controlplane'
 var keyVaultName = 'kv-${clusterName}'
 var aksIngressDomainName = 'aks-ingress.${domainName}'
-// var aksBackendDomainName = 'bu0001a0008-00.${aksIngressDomainName}'
+var aksBackendDomainName = 'bu0001a0008-00.${aksIngressDomainName}'
 // var policyResourceIdAKSLinuxRestrictive = '/providers/Microsoft.Authorization/policySetDefinitions/42b8ef37-b724-4e24-bbc8-7a7708edfe00'
 // var policyResourceIdEnforceHttpsIngress = '/providers/Microsoft.Authorization/policyDefinitions/1a5b4dca-0b6f-4cf5-907c-56316bc1bf3d'
 // var policyResourceIdEnforceInternalLoadBalancers = '/providers/Microsoft.Authorization/policyDefinitions/3fc4dc25-5baf-40d8-9b05-7fe74c1bc64e'
@@ -270,202 +271,134 @@ module aksIngressDomain '../CARML/Microsoft.Network/privateDnsZones/deploy.bicep
 //   }
 // }
 
-// resource agwName 'Microsoft.Network/applicationGateways@2020-05-01' = {
-//   name: agwName_var
-//   location: location
-//   identity: {
-//     type: 'UserAssigned'
-//     userAssignedIdentities: {
-//       '${mi_appgateway_frontend.id}': {}
-//     }
-//   }
-//   zones: pickZones('Microsoft.Network', 'applicationGateways', location, 3)
-//   properties: {
-//     sku: {
-//       name: 'WAF_v2'
-//       tier: 'WAF_v2'
-//     }
-//     sslPolicy: {
-//       policyType: 'Custom'
-//       cipherSuites: [
-//         'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
-//         'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
-//       ]
-//       minProtocolVersion: 'TLSv1_2'
-//     }
-//     trustedRootCertificates: [
-//       {
-//         name: 'root-cert-wildcard-aks-ingress'
-//         properties: {
-//           keyVaultSecretId: '${keyVaultName.properties.vaultUri}secrets/appgw-ingress-internal-aks-ingress-tls'
-//         }
-//       }
-//     ]
-//     gatewayIPConfigurations: [
-//       {
-//         name: 'apw-ip-configuration'
-//         properties: {
-//           subnet: {
-//             id: '${targetVnetResourceId}/subnets/snet-applicationgateway'
-//           }
-//         }
-//       }
-//     ]
-//     frontendIPConfigurations: [
-//       {
-//         name: 'apw-frontend-ip-configuration'
-//         properties: {
-//           publicIPAddress: {
-//             id: resourceId(subscription().subscriptionId, vNetResourceGroup, 'Microsoft.Network/publicIpAddresses', 'pip-BU0001A0008-00')
-//           }
-//         }
-//       }
-//     ]
-//     frontendPorts: [
-//       {
-//         name: 'port-443'
-//         properties: {
-//           port: 443
-//         }
-//       }
-//     ]
-//     autoscaleConfiguration: {
-//       minCapacity: 0
-//       maxCapacity: 10
-//     }
-//     webApplicationFirewallConfiguration: {
-//       enabled: true
-//       firewallMode: 'Prevention'
-//       ruleSetType: 'OWASP'
-//       ruleSetVersion: '3.2'
-//       exclusions: []
-//       fileUploadLimitInMb: 10
-//       disabledRuleGroups: []
-//     }
-//     enableHttp2: false
-//     sslCertificates: [
-//       {
-//         name: '${agwName_var}-ssl-certificate'
-//         properties: {
-//           keyVaultSecretId: '${keyVaultName.properties.vaultUri}secrets/gateway-public-cert'
-//         }
-//       }
-//     ]
-//     probes: [
-//       {
-//         name: 'probe-${aksBackendDomainName}'
-//         properties: {
-//           protocol: 'Https'
-//           path: '/favicon.ico'
-//           interval: 30
-//           timeout: 30
-//           unhealthyThreshold: 3
-//           pickHostNameFromBackendHttpSettings: true
-//           minServers: 0
-//           match: {}
-//         }
-//       }
-//     ]
-//     backendAddressPools: [
-//       {
-//         name: aksBackendDomainName
-//         properties: {
-//           backendAddresses: [
-//             {
-//               fqdn: aksBackendDomainName
-//             }
-//           ]
-//         }
-//       }
-//     ]
-//     backendHttpSettingsCollection: [
-//       {
-//         name: 'aks-ingress-backendpool-httpsettings'
-//         properties: {
-//           port: 443
-//           protocol: 'Https'
-//           cookieBasedAffinity: 'Disabled'
-//           pickHostNameFromBackendAddress: true
-//           requestTimeout: 20
-//           probe: {
-//             id: resourceId('Microsoft.Network/applicationGateways/probes', agwName_var, 'probe-${aksBackendDomainName}')
-//           }
-//           trustedRootCertificates: [
-//             {
-//               id: resourceId('Microsoft.Network/applicationGateways/trustedRootCertificates', agwName_var, 'root-cert-wildcard-aks-ingress')
-//             }
-//           ]
-//         }
-//       }
-//     ]
-//     httpListeners: [
-//       {
-//         name: 'listener-https'
-//         properties: {
-//           frontendIPConfiguration: {
-//             id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', agwName_var, 'apw-frontend-ip-configuration')
-//           }
-//           frontendPort: {
-//             id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', agwName_var, 'port-443')
-//           }
-//           protocol: 'Https'
-//           sslCertificate: {
-//             id: resourceId('Microsoft.Network/applicationGateways/sslCertificates', agwName_var, '${agwName_var}-ssl-certificate')
-//           }
-//           hostName: 'bicycle.${domainName}'
-//           hostNames: []
-//           requireServerNameIndication: true
-//         }
-//       }
-//     ]
-//     requestRoutingRules: [
-//       {
-//         name: 'apw-routing-rules'
-//         properties: {
-//           ruleType: 'Basic'
-//           httpListener: {
-//             id: resourceId('Microsoft.Network/applicationGateways/httpListeners', agwName_var, 'listener-https')
-//           }
-//           backendAddressPool: {
-//             id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', agwName_var, aksBackendDomainName)
-//           }
-//           backendHttpSettings: {
-//             id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', agwName_var, 'aks-ingress-backendpool-httpsettings')
-//           }
-//         }
-//       }
-//     ]
-//   }
-//   dependsOn: [
-//     nodepools_to_akv
-//     keyVaultName_Microsoft_Authorization_id_mi_appgateway_frontend_keyVaultReader
-//     keyVaultName_Microsoft_Authorization_id_mi_appgateway_frontend_keyVaultSecretsUserRole
-//   ]
-// }
-
-// resource agwName_Microsoft_Insights_default 'Microsoft.Network/applicationGateways/providers/diagnosticSettings@2017-05-01-preview' = {
-//   name: '${agwName_var}/Microsoft.Insights/default'
-//   properties: {
-//     workspaceId: resourceId('Microsoft.OperationalInsights/workspaces', logAnalyticsWorkspaceName)
-//     logs: [
-//       {
-//         category: 'ApplicationGatewayAccessLog'
-//         enabled: true
-//       }
-//       {
-//         category: 'ApplicationGatewayPerformanceLog'
-//         enabled: true
-//       }
-//       {
-//         category: 'ApplicationGatewayFirewallLog'
-//         enabled: true
-//       }
-//     ]
-//   }
-//   dependsOn: [
-//     agwName
-//   ]
-// }
+module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
+  name: agwName
+  params: {
+    name: agwName
+    location: location
+    userAssignedIdentities: {
+      '${mi_appgateway_frontend.outputs.msiResourceId}': {}
+    }
+    // zones: pickZones('Microsoft.Network', 'applicationGateways', location, 3)
+    sku: 'WAF_v2'
+    // sslPolicy: {
+    //   policyType: 'Custom'
+    //   cipherSuites: [
+    //     'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
+    //     'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
+    //   ]
+    //   minProtocolVersion: 'TLSv1_2'
+    // }
+    gatewayIpConfigurationName: 'apw-ip-configuration' //subnet id: '${targetVnetResourceId}/subnets/snet-applicationgateway'
+    // trustedRootCertificates: [
+    //   {
+    //     name: 'root-cert-wildcard-aks-ingress'
+    //     properties: {
+    //       keyVaultSecretId: '${keyVaultName.properties.vaultUri}secrets/appgw-ingress-internal-aks-ingress-tls'
+    //     }
+    //   }
+    // ]
+    backendHttpConfigurations: [
+      {
+        backendHttpConfigurationName: 'aks-ingress-backendpool-httpsettings'
+        port: 443
+        protocol: 'https'
+        cookieBasedAffinity: 'Disabled'
+        pickHostNameFromBackendAddress: true
+        probeEnabled: false
+        //requestTimeout: 20
+        // trustedRootCertificates: [
+        //   {
+        //      id: resourceId('Microsoft.Network/applicationGateways/trustedRootCertificates', agwName, 'root-cert-wildcard-aks-ingress')
+        //   }
+        // ]
+      }
+    ]
+    frontendPublicIpResourceId: '${subscription().id}/resourceGroups/${vNetResourceGroup}/providers/Microsoft.Network/publicIpAddresses/pip-BU0001A0008-00'
+    frontendHttpsListeners: [
+      {
+        frontendListenerName: 'port-443'
+        frontendIPType: 'Public'
+        port: 443
+      }
+    ]
+    // httpListeners: [
+    //   {
+    //     name: 'listener-https'
+    //     properties: {
+    //       frontendIPConfiguration: {
+    //         id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', agwName_var, 'apw-frontend-ip-configuration')
+    //       }
+    //       frontendPort: {
+    //         id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', agwName_var, 'port-443')
+    //       }
+    //       protocol: 'Https'
+    //       sslCertificate: {
+    //         id: resourceId('Microsoft.Network/applicationGateways/sslCertificates', agwName_var, '${agwName_var}-ssl-certificate')
+    //       }
+    //       hostName: 'bicycle.${domainName}'
+    //       hostNames: []
+    //       requireServerNameIndication: true
+    //     }
+    //   }
+    // ]
+    backendPools: [
+      {
+        backendPoolName: aksBackendDomainName
+        backendAddresses: [
+          {
+            fqdn: aksBackendDomainName
+          }
+        ]
+      }
+    ]
+    // autoscaleConfiguration: {
+    //   minCapacity: 0
+    //   maxCapacity: 10
+    // }
+    vNetName: vnetName
+    subnetName: subnetName
+    http2Enabled: true
+    sslCertificateName: '${agwName}-ssl-certificate'
+    sslCertificateKeyVaultSecretId: '${keyVault.outputs.keyVaultUrl}secrets/gateway-public-cert'
+    // webApplicationFirewallConfiguration: {
+    //   enabled: true
+    //   firewallMode: 'Prevention'
+    //   ruleSetType: 'OWASP'
+    //   ruleSetVersion: '3.2'
+    //   exclusions: []
+    //   fileUploadLimitInMb: 10
+    //   disabledRuleGroups: []
+    // }
+    probes: [
+      {
+        backendHttpConfigurationName: 'probe-${aksBackendDomainName}' //will be altered by module
+        protocol: 'Https'
+        path: '/favicon.ico'
+        interval: 30
+        timeout: 30
+        unhealthyThreshold: 3
+        //pickHostNameFromBackendHttpSettings: true
+        minServers: 0
+        //match: {}
+        //modules expect host
+      }
+    ]
+    routingRules: [
+      {
+        frontendListenerName: 'listener-https'
+        backendPoolName: aksBackendDomainName
+        backendHttpConfigurationName: 'aks-ingress-backendpool-httpsettings'
+      }
+    ]
+    diagnosticWorkspaceId: clusterLa.outputs.logAnalyticsResourceId
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+    keyVault
+  ]
+}
 
 output aksClusterName string = clusterName
 output aksIngressControllerPodManagedIdentityResourceId string = podmi_ingress_controller.outputs.msiResourceId
