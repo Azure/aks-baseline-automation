@@ -214,6 +214,8 @@ var probes_var = [for probe in probes: {
     protocol: probe.protocol
     host: probe.host
     path: probe.path
+    //NEW
+    pickHostNameFromBackendHttpSettings: true
     interval: contains(probe, 'interval') ? probe.interval : 30
     timeout: contains(probe, 'timeout') ? probe.timeout : 30
     unhealthyThreshold: contains(probe, 'timeout') ? probe.unhealthyThreshold : 3
@@ -275,7 +277,8 @@ var frontendHttpListeners_var = [for frontendHttpListener in frontendHttpListene
   }
 }]
 var httpsRequestRoutingRules = [for routingRule in routingRules: {
-  name: '${routingRule.frontendListenerName}-${routingRule.backendHttpConfigurationName}-${routingRule.backendHttpConfigurationName}'
+  //name: '${routingRule.frontendListenerName}-${routingRule.backendHttpConfigurationName}-${routingRule.backendHttpConfigurationName}'
+  name: '${routingRule.frontendListenerName}-${routingRule.backendHttpConfigurationName}'
   properties: {
     RuleType: 'Basic'
     httpListener: {

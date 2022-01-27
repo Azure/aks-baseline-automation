@@ -316,8 +316,13 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
     ]
     frontendPublicIpResourceId: '${subscription().id}/resourceGroups/${vNetResourceGroup}/providers/Microsoft.Network/publicIpAddresses/pip-BU0001A0008-00'
     frontendHttpsListeners: [
+      // {
+      //   frontendListenerName: 'port-443'
+      //   frontendIPType: 'Public'
+      //   port: 443
+      // }
       {
-        frontendListenerName: 'port-443'
+        frontendListenerName: 'listener-https'
         frontendIPType: 'Public'
         port: 443
       }
@@ -326,16 +331,6 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
     //   {
     //     name: 'listener-https'
     //     properties: {
-    //       frontendIPConfiguration: {
-    //         id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', agwName_var, 'apw-frontend-ip-configuration')
-    //       }
-    //       frontendPort: {
-    //         id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', agwName_var, 'port-443')
-    //       }
-    //       protocol: 'Https'
-    //       sslCertificate: {
-    //         id: resourceId('Microsoft.Network/applicationGateways/sslCertificates', agwName_var, '${agwName_var}-ssl-certificate')
-    //       }
     //       hostName: 'bicycle.${domainName}'
     //       hostNames: []
     //       requireServerNameIndication: true
@@ -381,7 +376,12 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
         //pickHostNameFromBackendHttpSettings: true
         minServers: 0
         //match: {}
-        //modules expect host
+        host: null //THIS SETTING SHOULD NOT BE HERE
+        body: '' //THIS SETTING SHOULD NOT BE HERE
+        statusCodes: [ //THIS SETTING SHOULD NOT BE HERE
+          '200'
+          '401'
+        ]
       }
     ]
     routingRules: [
