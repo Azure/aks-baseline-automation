@@ -278,7 +278,7 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2021-05-01' =
     customErrorConfigurations: customErrorConfigurations
     enableFips: enableFips
     enableHttp2: enableHttp2
-    firewallPolicy: empty(firewallPolicyId) ? {
+    firewallPolicy: !empty(firewallPolicyId) ? {
       id: firewallPolicyId
     } : null
     forceFirewallPolicyAssociation: !empty(firewallPolicyId)
