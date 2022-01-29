@@ -271,7 +271,176 @@ module aksIngressDomain '../CARML/Microsoft.Network/privateDnsZones/deploy.bicep
 //   }
 // }
 
+
 module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
+  name: agwName
+  params: {
+    name: agwName
+    location: location
+    userAssignedIdentities: {
+      '${mi_appgateway_frontend.outputs.msiResourceId}': {}
+    }
+    sku: 'WAF_v2'
+    sslPolicy: {
+      policyType: 'Custom'
+      cipherSuites: [
+        'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
+        'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
+      ]
+      minProtocolVersion: 'TLSv1_2'
+    }
+    trustedRootCertificates: [
+      {
+        name: 'root-cert-wildcard-aks-ingress'
+        properties: {
+          keyVaultSecretId: '${keyVault.outputs.keyVaultUrl}secrets/appgw-ingress-internal-aks-ingress-tls'
+        }
+      }
+    ]
+    gatewayIPConfigurations: [
+      {
+        name: 'apw-ip-configuration'
+        properties: {
+          subnet: {
+            id: '${targetVnetResourceId}/subnets/snet-applicationgateway'
+          }
+        }
+      }
+    ]
+    frontendIPConfigurations: [
+      {
+        name: 'apw-frontend-ip-configuration'
+        properties: {
+          publicIPAddress: {
+            id: resourceId(subscription().subscriptionId, vNetResourceGroup, 'Microsoft.Network/publicIpAddresses', 'pip-BU0001A0008-00')
+          }
+        }
+      }
+    ]
+    frontendPorts: [
+      {
+        name: 'port-443'
+        properties: {
+          port: 443
+        }
+      }
+    ]
+    autoscaleConfiguration: {
+      minCapacity: 0
+      maxCapacity: 10
+    }
+    webApplicationFirewallConfiguration: {
+      enabled: true
+      firewallMode: 'Prevention'
+      ruleSetType: 'OWASP'
+      ruleSetVersion: '3.2'
+      exclusions: []
+      fileUploadLimitInMb: 10
+      disabledRuleGroups: []
+    }
+    enableHttp2: false
+    sslCertificates: [
+      {
+        name: '${agwName}-ssl-certificate'
+        properties: {
+          keyVaultSecretId: '${keyVault.outputs.keyVaultUrl}secrets/gateway-public-cert'
+        }
+      }
+    ]
+    probes: [
+      {
+        name: 'probe-${aksBackendDomainName}'
+        properties: {
+          protocol: 'Https'
+          path: '/favicon.ico'
+          interval: 30
+          timeout: 30
+          unhealthyThreshold: 3
+          pickHostNameFromBackendHttpSettings: true
+          minServers: 0
+          match: {}
+        }
+      }
+    ]
+    backendAddressPools: [
+      {
+        name: aksBackendDomainName
+        properties: {
+          backendAddresses: [
+            {
+              fqdn: aksBackendDomainName
+            }
+          ]
+        }
+      }
+    ]
+    backendHttpSettingsCollection: [
+      {
+        name: 'aks-ingress-backendpool-httpsettings'
+        properties: {
+          port: 443
+          protocol: 'Https'
+          cookieBasedAffinity: 'Disabled'
+          pickHostNameFromBackendAddress: true
+          requestTimeout: 20
+          probe: {
+            id: resourceId('Microsoft.Network/applicationGateways/probes', agwName, 'probe-${aksBackendDomainName}')
+          }
+          trustedRootCertificates: [
+            {
+              id: resourceId('Microsoft.Network/applicationGateways/trustedRootCertificates', agwName, 'root-cert-wildcard-aks-ingress')
+            }
+          ]
+        }
+      }
+    ]
+    httpListeners: [
+      {
+        name: 'listener-https'
+        properties: {
+          frontendIPConfiguration: {
+            id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', agwName, 'apw-frontend-ip-configuration')
+          }
+          frontendPort: {
+            id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', agwName, 'port-443')
+          }
+          protocol: 'Https'
+          sslCertificate: {
+            id: resourceId('Microsoft.Network/applicationGateways/sslCertificates', agwName, '${agwName}-ssl-certificate')
+          }
+          hostName: 'bicycle.${domainName}'
+          hostNames: []
+          requireServerNameIndication: true
+        }
+      }
+    ]
+    requestRoutingRules: [
+      {
+        name: 'apw-routing-rules'
+        properties: {
+          ruleType: 'Basic'
+          httpListener: {
+            id: resourceId('Microsoft.Network/applicationGateways/httpListeners', agwName, 'listener-https')
+          }
+          backendAddressPool: {
+            id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', agwName, aksBackendDomainName)
+          }
+          backendHttpSettings: {
+            id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', agwName, 'aks-ingress-backendpool-httpsettings')
+          }
+        }
+      }
+    ]
+    zones: pickZones('Microsoft.Network', 'applicationGateways', location, 3)
+    diagnosticWorkspaceId: clusterLa.outputs.logAnalyticsResourceId
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+  ]
+}
+
+module agw1 '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
   name: agwName
   params: {
     name: agwName
@@ -305,7 +474,10 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
         protocol: 'https'
         cookieBasedAffinity: 'Disabled'
         pickHostNameFromBackendAddress: true
-        probeEnabled: false
+        probeEnabled: true
+        // probe: {
+        //   id: resourceId('Microsoft.Network/applicationGateways/probes', agwName_var, 'probe-${aksBackendDomainName}')
+        // }
         //requestTimeout: 20
         // trustedRootCertificates: [
         //   {
@@ -315,18 +487,14 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       }
     ]
     frontendPublicIpResourceId: '${subscription().id}/resourceGroups/${vNetResourceGroup}/providers/Microsoft.Network/publicIpAddresses/pip-BU0001A0008-00'
-    frontendHttpsListeners: [
-      // {
-      //   frontendListenerName: 'port-443'
-      //   frontendIPType: 'Public'
-      //   port: 443
-      // }
+    frontendHttpListeners: [
       {
-        frontendListenerName: 'listener-https'
-        frontendIPType: 'Public'
+        name: 'port-443'
         port: 443
       }
     ]
+    frontendPrivateIpAddress: '10.0.8.6'
+    // frontendHttpsListeners: []
     // httpListeners: [
     //   {
     //     name: 'listener-https'
@@ -378,7 +546,8 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
         //match: {}
         host: null //THIS SETTING SHOULD NOT BE HERE
         body: '' //THIS SETTING SHOULD NOT BE HERE
-        statusCodes: [ //THIS SETTING SHOULD NOT BE HERE
+        statusCodes: [
+          //THIS SETTING SHOULD NOT BE HERE
           '200'
           '401'
         ]
