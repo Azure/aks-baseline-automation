@@ -71,7 +71,7 @@ var clusterName = 'aks-${subRgUniqueString}'
 var logAnalyticsWorkspaceName = 'la-${clusterName}'
 // var containerInsightsSolutionName = 'ContainerInsights(${logAnalyticsWorkspaceName})'
 // var defaultAcrName = 'acraks${subRgUniqueString}'
-var vNetResourceGroup = split(targetVnetResourceId, '/')[4]
+//var vNetResourceGroup = split(targetVnetResourceId, '/')[4]
 var vnetName = split(targetVnetResourceId, '/')[8]
 var subnetName = 'snet-clusternodes'
 var vnetNodePoolSubnetResourceId = '${targetVnetResourceId}/subnets/${subnetName}'
@@ -286,7 +286,6 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
     ]
     sslPolicyMinProtocolVersion: 'TLSv1_2'
-
     trustedRootCertificates: [
       {
         name: 'root-cert-wildcard-aks-ingress'
@@ -310,7 +309,8 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
         name: 'apw-frontend-ip-configuration'
         properties: {
           publicIPAddress: {
-            id: resourceId('Microsoft.Network/publicIpAddresses', 'pip-BU0001A0008-00')
+            //id: resourceId('Microsoft.Network/publicIpAddresses', 'pip-BU0001A0008-00')
+            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/publicIpAddresses/pip-BU0001A0008-00'
           }
         }
       }
@@ -380,11 +380,13 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
           pickHostNameFromBackendAddress: true
           requestTimeout: 20
           probe: {
-            id: resourceId('Microsoft.Network/applicationGateways/probes', agwName, 'probe-${aksBackendDomainName}')
+            //id: resourceId('Microsoft.Network/applicationGateways/probes', agwName, 'probe-${aksBackendDomainName}')
+            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/probes/probe-${aksBackendDomainName}'
           }
           trustedRootCertificates: [
             {
-              id: resourceId('Microsoft.Network/applicationGateways/trustedRootCertificates', agwName, 'root-cert-wildcard-aks-ingress')
+              //id: resourceId('Microsoft.Network/applicationGateways/trustedRootCertificates', agwName, 'root-cert-wildcard-aks-ingress')
+              id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/trustedRootCertificates/root-cert-wildcard-aks-ingress'
             }
           ]
         }
@@ -395,14 +397,17 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
         name: 'listener-https'
         properties: {
           frontendIPConfiguration: {
-            id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', agwName, 'apw-frontend-ip-configuration')
+            //id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', agwName, 'apw-frontend-ip-configuration')
+            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/frontendIPConfigurations/apw-frontend-ip-configuration'
           }
           frontendPort: {
-            id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', agwName, 'port-443')
+            //id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', agwName, 'port-443')
+            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/frontendPorts/port-443'
           }
           protocol: 'Https'
           sslCertificate: {
-            id: resourceId('Microsoft.Network/applicationGateways/sslCertificates', agwName, '${agwName}-ssl-certificate')
+            //id: resourceId('Microsoft.Network/applicationGateways/sslCertificates', agwName, '${agwName}-ssl-certificate')
+            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/sslCertificates/${agwName}-ssl-certificate'
           }
           hostName: 'bicycle.${domainName}'
           hostNames: []
@@ -416,13 +421,16 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
         properties: {
           ruleType: 'Basic'
           httpListener: {
-            id: resourceId('Microsoft.Network/applicationGateways/httpListeners', agwName, 'listener-https')
+            //id: resourceId('Microsoft.Network/applicationGateways/httpListeners', agwName, 'listener-https')
+            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/httpListeners/listener-https'
           }
           backendAddressPool: {
-            id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', agwName, aksBackendDomainName)
+            //id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', agwName, aksBackendDomainName)
+            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/backendAddressPools/${aksBackendDomainName}'
           }
           backendHttpSettings: {
-            id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', agwName, 'aks-ingress-backendpool-httpsettings')
+            //id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', agwName, 'aks-ingress-backendpool-httpsettings')
+            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/backendHttpSettingsCollection/aks-ingress-backendpool-httpsettings'
           }
         }
       }
