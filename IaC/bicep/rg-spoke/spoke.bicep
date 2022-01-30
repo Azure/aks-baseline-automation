@@ -245,6 +245,11 @@ module primaryClusterPip '../CARML/Microsoft.Network/publicIPAddresses/deploy.bi
     skuName: 'Standard'
     publicIPAllocationMethod: 'Static'
     publicIPAddressVersion: 'IPv4'
+    zones: [
+      '1'
+      '2'
+      '3'
+    ]
   }
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
