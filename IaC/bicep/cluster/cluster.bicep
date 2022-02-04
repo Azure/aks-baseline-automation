@@ -49,13 +49,13 @@ param kubernetesVersion string = '1.22.4'
 @description('Domain name to use for App Gateway and AKS ingress.')
 param domainName string = 'contoso.com'
 
-// @description('Your cluster will be bootstrapped from this git repo.')
-// @minLength(9)
-// param gitOpsBootstrappingRepoHttpsUrl string = 'https://github.com/mspnp/aks-baseline'
+@description('Your cluster will be bootstrapped from this git repo.')
+@minLength(9)
+param gitOpsBootstrappingRepoHttpsUrl string = 'https://github.com/mspnp/aks-baseline'
 
-// @description('You cluster will be bootstrapped from this branch in the identifed git repo.')
-// @minLength(1)
-// param gitOpsBootstrappingRepoBranch string = 'main'
+@description('You cluster will be bootstrapped from this branch in the identifed git repo.')
+@minLength(1)
+param gitOpsBootstrappingRepoBranch string = 'main'
 
 // var networkContributorRole = '${subscription().id}/providers/Microsoft.Authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7'
 // var monitoringMetricsPublisherRole = '${subscription().id}/providers/Microsoft.Authorization/roleDefinitions/3913510d-42f4-4e42-8a64-420c390055eb'
@@ -701,6 +701,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
     userAssignedIdentities: {
       '${clusterControlPlaneIdentity.outputs.msiPrincipalId}': {}
     }
+    diagnosticWorkspaceId: clusterLa.outputs.logAnalyticsResourceId
     tags: {
       'Business unit': 'BU0001'
       'Application identifier': 'a0008'
@@ -726,6 +727,75 @@ module acrPullRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/n
     rg
   ]
 }
+
+resource clusterName_Microsoft_KubernetesConfiguration_flux 'Microsoft.ContainerService/managedClusters/providers/extensions@2021-09-01' = {
+  name: '${clusterName}/Microsoft.KubernetesConfiguration/flux'
+  properties: {
+    extensionType: 'Microsoft.Flux'
+    autoUpgradeMinorVersion: true
+    releaseTrain: 'Stable'
+    scope: {
+      cluster: {
+        releaseNamespace: 'flux-system'
+        configurationSettings: {
+          'helm-controller.enabled': 'false'
+          'source-controller.enabled': 'true'
+          'kustomize-controller.enabled': 'true'
+          'notification-controller.enabled': 'false'
+          'image-automation-controller.enabled': 'false'
+          'image-reflector-controller.enabled': 'false'
+        }
+        configurationProtectedSettings: {}
+      }
+    }
+  }
+  dependsOn: [
+    cluster
+    acrPullRole
+  ]
+}
+
+resource clusterName_Microsoft_KubernetesConfiguration_bootstrap 'Microsoft.ContainerService/managedClusters/providers/fluxConfigurations@2022-01-01-preview' = {
+  name: '${clusterName}/Microsoft.KubernetesConfiguration/bootstrap'
+  properties: {
+    scope: 'cluster'
+    namespace: 'flux-system'
+    sourceKind: 'GitRepository'
+    gitRepository: {
+      url: gitOpsBootstrappingRepoHttpsUrl
+      timeoutInSeconds: 180
+      syncIntervalInSeconds: 300
+      repositoryRef: {
+        branch: gitOpsBootstrappingRepoBranch
+        tag: null
+        semver: null
+        commit: null
+      }
+      sshKnownHosts: ''
+      httpsUser: null
+      httpsCACert: null
+      localAuthRef: null
+    }
+    kustomizations: {
+      unified: {
+        path: './cluster-manifests'
+        dependsOn: []
+        timeoutInSeconds: 300
+        syncIntervalInSeconds: 300
+        retryIntervalInSeconds: null
+        prune: true
+        force: false
+      }
+    }
+  }
+  dependsOn: [
+    clusterName_Microsoft_KubernetesConfiguration_flux
+    resourceId('Microsoft.ContainerRegistry/registries/providers/roleAssignments', defaultAcrName, 'Microsoft.Authorization', guid(clusterName.id, acrPullRole))
+    clusterName
+  ]
+}
+
+
 
 output aksClusterName string = clusterName
 output aksIngressControllerPodManagedIdentityResourceId string = podmi_ingress_controller.outputs.msiResourceId
