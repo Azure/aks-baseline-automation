@@ -66,7 +66,7 @@ param domainName string = 'contoso.com'
 // var clusterReaderRoleId = '7f6c6a51-bcf8-42ba-9220-52d62157d7db'
 // var serviceClusterUserRoleId = '4abbcc35-e782-43d8-92c5-2d3f1bd2253f'
 var subRgUniqueString = uniqueString('aks', subscription().subscriptionId, resourceGroupName)
-// var nodeResourceGroupName = 'rg-${clusterName}-nodepools'
+var nodeResourceGroupName = 'rg-${clusterName}-nodepools'
 var clusterName = 'aks-${subRgUniqueString}'
 var logAnalyticsWorkspaceName = 'la-${clusterName}'
 // var containerInsightsSolutionName = 'ContainerInsights(${logAnalyticsWorkspaceName})'
@@ -105,6 +105,22 @@ module rg '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
   }
 }
 
+module nodeResourceGroup '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
+  name: nodeResourceGroupName
+  params: {
+    name: nodeResourceGroupName
+    location: location
+    roleAssignments: [
+      {
+        'roleDefinitionIdOrName': 'Virtual Machine Contributor'
+        'principalIds': [
+          cluster.outputs.resourceId
+        ]
+      }
+    ]
+  }
+}
+
 module clusterLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep' = {
   name: logAnalyticsWorkspaceName
   params: {
@@ -114,6 +130,22 @@ module clusterLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep
     dataRetention: 30
     publicNetworkAccessForIngestion: 'Enabled'
     publicNetworkAccessForQuery: 'Enabled'
+    savedSearches: [
+      {
+        name: 'AllPrometheus'
+        category: 'Prometheus'
+        displayName: 'All collected Prometheus information'
+        query: 'InsightsMetrics | where Namespace == \'prometheus\''
+        version: 1
+      }
+      {
+        name: 'NodeRebootRequested'
+        category: 'Prometheus'
+        displayName: 'Nodes reboot required by kured'
+        query: 'InsightsMetrics | where Namespace == \'prometheus\' and Name == \'kured_reboot_required\' | where Val > 0'
+        version: 1
+      }
+    ]
   }
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
@@ -461,6 +493,43 @@ module clusterIdentityRbac2 '../CARML/Microsoft.Network/virtualNetworks/subnets/
     roleDefinitionIdOrName: 'Network Contributor'
     resourceId: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/virtualNetworks/${vnetName}/subnets/${clusterIngressSubnetName}'
   }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+  ]
+}
+
+module PodFailedScheduledQuery '../CARML/Microsoft.Insights/scheduledQueryRules/deploy.bicep' = {
+  name: 'PodFailedScheduledQuery'
+  params: {
+    name: 'PodFailedScheduledQuery'
+    alertDescription: 'Alert on pod Failed phase.'
+    severity: 3
+    evaluationFrequency: 'PT5M'
+    enabled: true
+    windowSize: 'PT10M'
+    queryTimeRange: 'PT5M'
+
+    scopes: [
+      clusterLa.outputs.logAnalyticsResourceId
+    ]
+    criterias: {
+      'allOf': [
+        {
+          query: '//https://docs.microsoft.com/azure/azure-monitor/insights/container-insights-alerts \r\n let endDateTime = now(); let startDateTime = ago(1h); let trendBinSize = 1m; let clusterName = "${clusterName}"; KubePodInventory | where TimeGenerated < endDateTime | where TimeGenerated >= startDateTime | where ClusterName == clusterName | distinct ClusterName, TimeGenerated | summarize ClusterSnapshotCount = count() by bin(TimeGenerated, trendBinSize), ClusterName | join hint.strategy=broadcast ( KubePodInventory | where TimeGenerated < endDateTime | where TimeGenerated >= startDateTime | distinct ClusterName, Computer, PodUid, TimeGenerated, PodStatus | summarize TotalCount = count(), PendingCount = sumif(1, PodStatus =~ "Pending"), RunningCount = sumif(1, PodStatus =~ "Running"), SucceededCount = sumif(1, PodStatus =~ "Succeeded"), FailedCount = sumif(1, PodStatus =~ "Failed") by ClusterName, bin(TimeGenerated, trendBinSize) ) on ClusterName, TimeGenerated | extend UnknownCount = TotalCount - PendingCount - RunningCount - SucceededCount - FailedCount | project TimeGenerated, TotalCount = todouble(TotalCount) / ClusterSnapshotCount, PendingCount = todouble(PendingCount) / ClusterSnapshotCount, RunningCount = todouble(RunningCount) / ClusterSnapshotCount, SucceededCount = todouble(SucceededCount) / ClusterSnapshotCount, FailedCount = todouble(FailedCount) / ClusterSnapshotCount, UnknownCount = todouble(UnknownCount) / ClusterSnapshotCount| summarize AggregatedValue = avg(FailedCount) by bin(TimeGenerated, trendBinSize)'
+          timeAggregation: 'Average'
+          metricMeasureColumn: 'AggregatedValue'
+          operator: 'GreaterThan'
+          threshold: 3
+          failingPeriods: {
+            numberOfEvaluationPeriods: 3
+            minFailingPeriodsToAlert: 3
+          }
+        }
+      ]
+    }
+  }
+
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
     rg
