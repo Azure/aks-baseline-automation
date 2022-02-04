@@ -712,6 +712,21 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
   ]
 }
 
+module acrPullRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/nested_rbac.bicep' = {
+  name: 'acrPullRole'
+  params: {
+    principalIds: [
+      cluster.outputs.systemAssignedPrincipalId
+    ]
+    roleDefinitionIdOrName: '/providers/Microsoft.Authorization/roleDefinitions/7f951dda-4ed3-4680-a7ca-43fe172d538d'
+    resourceId: cluster.outputs.azureKubernetesServiceResourceId
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+  ]
+}
+
 output aksClusterName string = clusterName
 output aksIngressControllerPodManagedIdentityResourceId string = podmi_ingress_controller.outputs.msiResourceId
 // output aksIngressControllerPodManagedIdentityClientId string = podmi_ingress_controller.outputs.msiClientId
