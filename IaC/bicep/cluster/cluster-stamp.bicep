@@ -822,6 +822,8 @@ resource clusterName 'Microsoft.ContainerService/managedClusters@2021-09-01' = {
   ]
 }
 
+//don't forget RBAC
+
 resource clusterName_Microsoft_KubernetesConfiguration_flux 'Microsoft.ContainerService/managedClusters/providers/extensions@2021-09-01' = {
   name: '${clusterName_var}/Microsoft.KubernetesConfiguration/flux'
   properties: {

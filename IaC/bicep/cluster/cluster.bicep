@@ -69,7 +69,7 @@ var subRgUniqueString = uniqueString('aks', subscription().subscriptionId, resou
 var nodeResourceGroupName = 'rg-${clusterName}-nodepools'
 var clusterName = 'aks-${subRgUniqueString}'
 var logAnalyticsWorkspaceName = 'la-${clusterName}'
-// var containerInsightsSolutionName = 'ContainerInsights(${logAnalyticsWorkspaceName})'
+var containerInsightsSolutionName = 'ContainerInsights(${logAnalyticsWorkspaceName})'
 // var defaultAcrName = 'acraks${subRgUniqueString}'
 //var vNetResourceGroup = split(targetVnetResourceId, '/')[4]
 var vnetName = split(targetVnetResourceId, '/')[8]
@@ -144,6 +144,18 @@ module clusterLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep
         displayName: 'Nodes reboot required by kured'
         query: 'InsightsMetrics | where Namespace == \'prometheus\' and Name == \'kured_reboot_required\' | where Val > 0'
         version: 1
+      }
+    ]
+    gallerySolutions: [
+      {
+        name: containerInsightsSolutionName
+        product: 'OMSGallery/ContainerInsights'
+        publisher: 'Microsoft'
+      }
+      {
+        name: 'KeyVaultAnalytics(${logAnalyticsWorkspaceName})'
+        product: 'OMSGallery/KeyVaultAnalytics'
+        publisher: 'Microsoft'
       }
     ]
   }
@@ -530,6 +542,32 @@ module PodFailedScheduledQuery '../CARML/Microsoft.Insights/scheduledQueryRules/
     }
   }
 
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+  ]
+}
+
+module AllAzureAdvisorAlert '../CARML/Microsoft.Insights/activityLogAlerts/deploy.bicep' = {
+  name: 'AllAzureAdvisorAlert'
+  params: {
+    name: 'AllAzureAdvisorAlert'
+    alertDescription: 'All azure advisor alerts'
+    enabled: true
+    scopes: [
+      rg.outputs.resourceGroupResourceId
+    ]
+    conditions: [
+      {
+        field: 'category'
+        equals: 'Recommendation'
+      }
+      {
+        field: 'operationName'
+        equals: 'Microsoft.Advisor/recommendations/available/action'
+      }
+    ]
+  }
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
     rg
