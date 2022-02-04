@@ -7,14 +7,14 @@ param resourceGroupName string = 'rg-spoke'
 @minLength(79)
 param targetVnetResourceId string
 
-// @description('Azure AD Group in the identified tenant that will be granted the highly privileged cluster-admin role. If Azure RBAC is used, then this group will get a role assignment to Azure RBAC, else it will be assigned directly to the cluster\'s admin group.')
-// param clusterAdminAadGroupObjectId string
+@description('Azure AD Group in the identified tenant that will be granted the highly privileged cluster-admin role. If Azure RBAC is used, then this group will get a role assignment to Azure RBAC, else it will be assigned directly to the cluster\'s admin group.')
+param clusterAdminAadGroupObjectId string
 
 // @description('Azure AD Group in the identified tenant that will be granted the read only privileges in the a0008 namespace that exists in the cluster. This is only used when Azure RBAC is used for Kubernetes RBAC.')
 // param a0008NamespaceReaderAadGroupObjectId string
 
-// @description('Your AKS control plane Cluster API authentication tenant')
-// param k8sControlPlaneAuthorizationTenantId string
+@description('Your AKS control plane Cluster API authentication tenant')
+param k8sControlPlaneAuthorizationTenantId string
 
 @description('The certificate data for app gateway TLS termination. It is base64')
 param appGatewayListenerCertificate string
@@ -44,7 +44,7 @@ param aksIngressControllerCertificate string
   'southeastasia'
 ])
 param location string = 'eastus2'
-// param kubernetesVersion string = '1.22.4'
+param kubernetesVersion string = '1.22.4'
 
 @description('Domain name to use for App Gateway and AKS ingress.')
 param domainName string = 'contoso.com'
@@ -95,7 +95,7 @@ var aksBackendDomainName = 'bu0001a0008-00.${aksIngressDomainName}'
 // var policyAssignmentNameRoRootFilesystem = guid(policyResourceIdRoRootFilesystem, resourceGroup().name, clusterName)
 // var policyAssignmentNameEnforceResourceLimits = guid(policyResourceIdEnforceResourceLimits, resourceGroup().name, clusterName)
 // var policyAssignmentNameEnforceImageSource = guid(policyResourceIdEnforceImageSource, resourceGroup().name, clusterName)
-// var isUsingAzureRBACasKubernetesRBAC = (subscription().tenantId == k8sControlPlaneAuthorizationTenantId)
+var isUsingAzureRBACasKubernetesRBAC = (subscription().tenantId == k8sControlPlaneAuthorizationTenantId)
 
 module rg '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
   name: resourceGroupName
@@ -114,7 +114,7 @@ module nodeResourceGroup '../CARML/Microsoft.Resources/resourceGroups/deploy.bic
       {
         'roleDefinitionIdOrName': 'Virtual Machine Contributor'
         'principalIds': [
-          cluster.outputs.resourceId
+          cluster.outputs.azureKubernetesServiceResourceId
         ]
       }
     ]
@@ -567,6 +567,144 @@ module AllAzureAdvisorAlert '../CARML/Microsoft.Insights/activityLogAlerts/deplo
         equals: 'Microsoft.Advisor/recommendations/available/action'
       }
     ]
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+  ]
+}
+
+module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep' = {
+  name: clusterName
+  params: {
+    name: clusterName
+    aksClusterSkuTier: 'Paid'
+    aksClusterKubernetesVersion: kubernetesVersion
+    aksClusterDnsPrefix: uniqueString(rg.outputs.resourceGroupResourceId, clusterName)
+    primaryAgentPoolProfile: [
+      {
+        name: 'npsystem'
+        count: 3
+        vmSize: 'Standard_DS2_v2'
+        osDiskSizeGB: 80
+        osDiskType: 'Ephemeral'
+        osType: 'Linux'
+        minCount: 3
+        maxCount: 4
+        vnetSubnetID: vnetNodePoolSubnetResourceId
+        enableAutoScaling: true
+        type: 'VirtualMachineScaleSets'
+        mode: 'System'
+        scaleSetPriority: 'Regular'
+        scaleSetEvictionPolicy: 'Delete'
+        orchestratorVersion: kubernetesVersion
+        enableNodePublicIP: false
+        maxPods: 30
+        availabilityZones: [
+          '1'
+          '2'
+          '3'
+        ]
+        upgradeSettings: {
+          maxSurge: '33%'
+        }
+        nodeTaints: [
+          'CriticalAddonsOnly=true:NoSchedule'
+        ]
+      }
+    ]
+    agentPools: [
+      {
+        name: 'npuser01'
+        count: 2
+        vmSize: 'Standard_DS3_v2'
+        osDiskSizeGB: 120
+        osDiskType: 'Ephemeral'
+        osType: 'Linux'
+        minCount: 2
+        maxCount: 5
+        vnetSubnetID: vnetNodePoolSubnetResourceId
+        enableAutoScaling: true
+        type: 'VirtualMachineScaleSets'
+        mode: 'User'
+        scaleSetPriority: 'Regular'
+        scaleSetEvictionPolicy: 'Delete'
+        orchestratorVersion: kubernetesVersion
+        enableNodePublicIP: false
+        maxPods: 30
+        availabilityZones: [
+          '1'
+          '2'
+          '3'
+        ]
+        upgradeSettings: {
+          maxSurge: '33%'
+        }
+      }
+    ]
+    aksServicePrincipalProfile: {
+      clientId: 'msi'
+    }
+    httpApplicationRoutingEnabled: false
+    monitoringWorkspaceId: clusterLa.outputs.logAnalyticsResourceId
+    aciConnectorLinuxEnabled: false
+    azurePolicyEnabled: true
+    azurePolicyVersion: 'v2'
+    // azureKeyvaultSecretsProvider: {
+    //   enabled: true
+    //   config: {
+    //     enableSecretRotation: 'false'
+    //   }
+    // }
+    nodeResourceGroup: nodeResourceGroupName
+    aksClusterNetworkPlugin: 'azure'
+    aksClusterNetworkPolicy: 'azure'
+    aksClusterOutboundType: 'userDefinedRouting'
+    aksClusterLoadBalancerSku: 'standard'
+    aksClusterServiceCidr: '172.16.0.0/16'
+    aksClusterDnsServiceIP: '172.16.0.10'
+    aksClusterDockerBridgeCidr: '172.18.0.1/16'
+    aadProfileManaged: true
+    aadProfileEnableAzureRBAC: isUsingAzureRBACasKubernetesRBAC
+    aadProfileAdminGroupObjectIDs: ((!isUsingAzureRBACasKubernetesRBAC) ? array(clusterAdminAadGroupObjectId) : [])
+    aadProfileTenantId: k8sControlPlaneAuthorizationTenantId
+    // autoScalerProfile: {
+    //   'balance-similar-node-groups': 'false'
+    //   expander: 'random'
+    //   'max-empty-bulk-delete': '10'
+    //   'max-node-provision-time': '15m'
+    //   'max-total-unready-percentage': '45'
+    //   'new-pod-scale-up-delay': '0s'
+    //   'ok-total-unready-count': '3'
+    //   'skip-nodes-with-local-storage': 'true'
+    //   'skip-nodes-with-system-pods': 'true'
+    // }
+    autoScalerProfileScanInterval: '10s'
+    autoScalerProfileScaleDownDelayAfterAdd: '10m'
+    autoScalerProfileScaleDownDelayAfterDelete: '20s'
+    autoScalerProfileScaleDownDelayAfterFailure: '3m'
+    autoScalerProfileScaleDownUnneededTime: '10m'
+    autoScalerProfileScaleDownUnreadyTime: '20m'
+    autoScalerProfileUtilizationThreshold: '0.5'
+    autoScalerProfileMaxGracefulTerminationSec: '600'
+    aksClusterEnablePrivateCluster: false
+    // apiServerAccessProfile: {
+    //   authorizedIPRanges: clusterAuthorizedIPRanges
+    // }
+    // podIdentityProfile: {
+    //   enabled: false
+    //   userAssignedIdentities: []
+    //   userAssignedIdentityExceptions: []
+    // }
+    // maxAgentPools: 2
+    // disableLocalAccounts: true
+    userAssignedIdentities: {
+      '${clusterControlPlaneIdentity.outputs.msiPrincipalId}': {}
+    }
+    tags: {
+      'Business unit': 'BU0001'
+      'Application identifier': 'a0008'
+    }
   }
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
