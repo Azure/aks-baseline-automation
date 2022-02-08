@@ -13,28 +13,41 @@ on:
         description: 'AKS Cluster Name'
         type: string
         required: true
+      ACRNAME:
+        required: true
+        type: string
 
 jobs:
   ReusableWF:
     runs-on: ubuntu-latest
-    environment: gord
     outputs:
       RG: ${{ github.event.inputs.ResourceGroup }}
       AKSNAME: ${{ github.event.inputs.AKSNAME }}
+      ACRNAME: ${{ github.event.inputs.ACRNAME }}
 
     steps:
       - name: Dummy step
-        run: echo "Resuable workflows can't be directly passed ENV/INPUTS (yet)"
+        run: echo "Resuable workflows can't be directly reference ENV/INPUTS (yet)"
 
-  AzureVoteApp1:
+  VoteACR:
     needs: [ReusableWF]
-    #environment: gord
-    #uses: ./.github/workflows/App-AzureVote-Actions.yml@gb-builtinactions-azurevote
-    uses: ./.github/workflows/App-AzureVote-Actions.yml
+    uses: ./.github/workflows/App-AzureVote-BuildOnACR-Actions.yml
     with:
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
-      APPNAME: baseVote1
-      GITHUBENVIRONMENT: gord
+      ACRNAME: ${{ needs.ReusableWF.outputs.ACRNAME }}
+      APPNAME: basevote1
     secrets:
-      AZURE_CREDENTIALS: ${{ secrets.GORD_AZURE_CREDENTIALS }}
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      
+  VoteRunCmd:
+    needs: [ReusableWF]
+    uses: ./.github/workflows/App-AzureVote-HelmRunCmd.yml
+    with:
+      RG: ${{ needs.ReusableWF.outputs.RG }}
+      AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
+      APPNAME: basevote2
+      #HELMPACKAGEURI will change to this repo once this repo's visibility is PUBLIC!
+      HELMPACKAGEURI: https://github.com/Gordonby/minihelm/raw/main/samples/AzureVote-0.9.5.tgz
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}

@@ -14,7 +14,7 @@ on:
         type: string
       AGNAME:
         default: ""
-        required: true
+        required: false
         type: string
       APPNAME:
         required: true
@@ -170,6 +170,9 @@ jobs:
 
       - name: Wait for IP
         id: waitforip
+        env:
+          RESOURCENAMEINGRESS: '${{ inputs.APPNAME }}'
+          RESOURCENAMESERVICE: '${{ inputs.APPNAME }}-azure-vote-front'
         run: |
 
           #TODO: When the WAIT command is no longer experimental, shift to use that. REF: https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#wait
@@ -179,7 +182,9 @@ jobs:
           counter=1
           while [ $counter -le 10 ]
           do
-            command="kubectl get ${{ steps.installapp.outputs.RESTYPE}} $APPNAME -n $NAMESP -ojson"
+            commandsvc="kubectl get service $RESOURCENAMESERVICE -n $NAMESP -ojson"
+            commanding="kubectl get ingress $RESOURCENAMEINGRESS -n $NAMESP -ojson"
+            command=$command${{ steps.installapp.outputs.RESTYPE}}
             echo "Sending command $command to AKS"
             cmdOut=$(az aks command invoke -g $RG -n $AKSNAME -o json --command "${command}")
             echo $cmdOut
