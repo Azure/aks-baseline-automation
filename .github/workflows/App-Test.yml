@@ -20,7 +20,6 @@ on:
 jobs:
   ReusableWF:
     runs-on: ubuntu-latest
-    environment: gord
     outputs:
       RG: ${{ github.event.inputs.ResourceGroup }}
       AKSNAME: ${{ github.event.inputs.AKSNAME }}
@@ -38,6 +37,5 @@ jobs:
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
       ACRNAME: ${{ needs.ReusableWF.outputs.ACRNAME }}
       APPNAME: baseVote1
-      GITHUBENVIRONMENT: AKS-CSET-DEV
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
