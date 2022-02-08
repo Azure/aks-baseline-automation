@@ -23,7 +23,7 @@ on:
         required: false
         type: string
       APPREPO:
-        default: "Azure-Samples/azure-voting-app-redis"
+        default: "azure-samples/azure-voting-app-redis"
         required: false
         type: string
       APPREPOREF:
