@@ -8,6 +8,8 @@ on:
   push:
     branches:
       - main
+    paths: 
+      - IaC/terraform
   # issue_comment:
   #   types:
   #   - created
