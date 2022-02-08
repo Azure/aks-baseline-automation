@@ -13,6 +13,9 @@ on:
         description: 'AKS Cluster Name'
         type: string
         required: true
+      ACRNAME:
+        required: true
+        type: string
 
 jobs:
   ReusableWF:
@@ -21,10 +24,11 @@ jobs:
     outputs:
       RG: ${{ github.event.inputs.ResourceGroup }}
       AKSNAME: ${{ github.event.inputs.AKSNAME }}
+      ACRNAME: ${{ github.event.inputs.ACRNAME }}
 
     steps:
       - name: Dummy step
-        run: echo "Resuable workflows can't be directly passed ENV/INPUTS (yet)"
+        run: echo "Resuable workflows can't be directly reference ENV/INPUTS (yet)"
 
   AzureVoteApp:
     needs: [ReusableWF]
@@ -32,6 +36,7 @@ jobs:
     with:
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
+      ACRNAME: ${{ needs.ReusableWF.outputs.ACRNAME }}
       APPNAME: baseVote1
       GITHUBENVIRONMENT: AKS-CSET-DEV
     secrets:
