@@ -110,9 +110,6 @@ jobs:
     steps:
       - name: Get application k8s manifests from repo
         uses: actions/checkout@v2
-        with: 
-          repository: ${{ inputs.APPREPO}}
-          ref: ${{ inputs.APPREPOREF}}
           
       - name: Azure Login
         uses: Azure/login@v1
@@ -135,10 +132,10 @@ jobs:
           ACRNAME: "${{ inputs.ACRNAME}}"
         with:
           manifests: |
-            manifests/decomposed/back-deployment.yml
-            manifests/decomposed/back-service.yml
-            manifests/decomposed/front-deployment.yml
-            manifests/decomposed/front-service.yml
+            workloads/azure-vote/back-deployment.yml
+            workloads/azure-vote/back-service.yml
+            workloads/azure-vote/front-deployment.yml
+            workloads/azure-vote/front-service.yml
           images: |
             ${{ env.ACRNAME }}.azurecr.io/azure-vote-front:${{ github.sha }}
           namespace: ${{ inputs.NAMESPACE }}
