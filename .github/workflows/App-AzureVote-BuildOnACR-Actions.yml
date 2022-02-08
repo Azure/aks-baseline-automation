@@ -23,11 +23,11 @@ on:
         required: false
         type: string
       APPREPO:
-        default: "Gordonby/azure-voting-app-redis"
+        default: "Azure-Samples/azure-voting-app-redis"
         required: false
         type: string
       APPREPOREF:
-        default: "gb-k8smanifests"
+        default: "129888"
         required: false
         type: string
       APPREPOPATH:
