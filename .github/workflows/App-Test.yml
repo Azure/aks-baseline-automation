@@ -26,15 +26,13 @@ jobs:
       - name: Dummy step
         run: echo "Resuable workflows can't be directly passed ENV/INPUTS (yet)"
 
-  AzureVoteApp1:
+  AzureVoteApp:
     needs: [ReusableWF]
-    #environment: gord
-    #uses: ./.github/workflows/App-AzureVote-Actions.yml@gb-builtinactions-azurevote
-    uses: ./.github/workflows/App-AzureVote-Actions.yml
+    uses: ./.github/workflows/App-AzureVote-BuildOnACR-Actions.yml
     with:
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
       APPNAME: baseVote1
-      GITHUBENVIRONMENT: gord
+      GITHUBENVIRONMENT: AKS-CSET-DEV
     secrets:
-      AZURE_CREDENTIALS: ${{ secrets.GORD_AZURE_CREDENTIALS }}
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
