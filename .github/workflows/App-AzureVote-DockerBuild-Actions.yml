@@ -1,4 +1,4 @@
-# This workflow demonstrates ACR building and storing a container image, and deploying to Kubernetes
+# This workflow demonstrates building a container image, pushing to an Azure Container Registry and deploying to Kubernetes
 # It is split into separate jobs for readability but could be squashed into a single job if that best suits your scenario
 
 on:
@@ -65,15 +65,35 @@ jobs:
           environment: azurecloud
           allow-no-subscriptions: false
 
-      - name: ACR build
-        id: acrbuild
-        env:
-          ACRSERVER: "${{ env.ACRNAME }}.azurecr.io"
-          APPREPOPATH: "${{ inputs.APPREPOPATH}}"
-          IMAGEREPO: "${{ inputs.APPNAME }}"
+      - name: Connect to Azure Container Registry (ACR)
+        id: acrconnect
         run: |
           echo "Retrieving access token from $ACRNAME"
-          az acr build -t $ACRSERVER/$IMAGEREPO:${{ github.sha }} -r $ACRNAME $APPREPOPATH/.
+          TOKEN=$(az acr login -n $ACRNAME --expose-token)
+
+          if [ -z "$TOKEN" ]
+          then
+            echo "ACR Token was not retrieved successfully"
+            exit 1
+          fi
+
+          ACRTOKEN=$(echo $TOKEN | jq -r ".accessToken")
+          LOGINSERVER=$(echo $TOKEN | jq -r ".loginServer")
+
+          echo "ACR Login Server: $LOGINSERVER"
+          echo "::set-output name=loginServer::$LOGINSERVER"
+
+          echo "Passing token as stdin to docker login"
+          echo $ACRTOKEN | docker login $LOGINSERVER -u 00000000-0000-0000-0000-000000000000 --password-stdin
+
+      - name: Container build and push to a Azure Container Registry (ACR)
+        env:
+          APPREPOPATH: "${{ inputs.APPREPOPATH}}"
+          ACRSERVER: "${{ steps.acrconnect.outputs.loginServer }}"
+        run: |
+          cd $APPREPOPATH
+          docker build . -t $ACRSERVER/${{ inputs.APPNAME }}:${{ github.sha }}
+          docker push $ACRSERVER/${{ inputs.APPNAME }}:${{ github.sha }}
 
   Deploy:
     runs-on: ubuntu-latest
