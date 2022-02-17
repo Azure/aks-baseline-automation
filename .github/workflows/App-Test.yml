@@ -57,7 +57,7 @@ jobs:
     with:
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
-      APPNAME: basevote3
+      APPNAME: azure-vote-public
       #HELMPACKAGEURI will change to this repo once this repo's visibility is PUBLIC!
       HELMPACKAGEURI: https://github.com/Gordonby/minihelm/raw/main/samples/AzureVote-0.9.5.tgz
     secrets:
