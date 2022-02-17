@@ -75,8 +75,11 @@ jobs:
           echo "Verifying directory contents in repo path $APPREPOPATH"
           ls $APPREPOPATH
 
+          echo "Downcasing $ACRSERVER for valid repository name"
+          $REPOSITORY=$(echo $ACRSERVER | tr '[:upper:]' '[:lower:]')
+
           echo "Requesting ACR build on $ACRSERVER for image $IMAGEREPO:${{ github.sha }}"
-          az acr build -t $ACRSERVER/$IMAGEREPO:${{ github.sha }} -r $ACRNAME $APPREPOPATH/.
+          az acr build -t $REPOSITORY/$IMAGEREPO:${{ github.sha }} -r $ACRNAME $APPREPOPATH/.
 
   Deploy:
     runs-on: ubuntu-latest
