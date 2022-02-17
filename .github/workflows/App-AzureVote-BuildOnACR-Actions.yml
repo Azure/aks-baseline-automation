@@ -113,7 +113,17 @@ jobs:
         with:
           cluster-name: ${{ inputs.AKSNAME }}
           resource-group: ${{ inputs.RG }}
-            
+      
+      #It's not clear why aks-set-context isn't doing a kubelogin.... but hey ho...
+      - name: Kubelogin
+        env:
+          kubeloginversion: 'v0.0.10'
+        run: |
+          wget https://github.com/Azure/kubelogin/releases/download/${{ env.kubeloginversion }}/kubelogin-linux-amd64.zip
+          unzip kubelogin-linux-amd64.zip
+          sudo mv bin/linux_amd64/kubelogin /usr/bin
+          kubelogin convert-kubeconfig -l azurecli
+          
       - name: Deploy app to AKS
         uses: azure/k8s-deploy@v1.5
         env:
