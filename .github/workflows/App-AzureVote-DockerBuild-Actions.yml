@@ -120,8 +120,13 @@ jobs:
           cluster-name: ${{ inputs.AKSNAME }}
           resource-group: ${{ inputs.RG }}
 
+      - name: Install Kubectl
+        uses: azure/setup-kubectl@v2.0
+        with:
+            version: 'latest'
+            
       - name: Deploy app to AKS
-        uses: azure/k8s-deploy@v3.0
+        uses: azure/k8s-deploy@v2.0
         env:
           ACRNAME: "${{ inputs.ACRNAME}}"
         with:
