@@ -58,7 +58,7 @@ jobs:
           echo "AKS name is ${{ inputs.AKSNAME }}"
 
       - name: Azure Login
-        uses: Azure/login@v1
+        uses: Azure/login@v1.4.3
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           enable-AzPSSession: false
@@ -110,7 +110,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Azure Login
-        uses: Azure/login@v1
+        uses: Azure/login@v1.4.3
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           enable-AzPSSession: false
@@ -118,14 +118,14 @@ jobs:
           allow-no-subscriptions: false
 
       - name: Set the target Azure Kubernetes Service (AKS) cluster.
-        uses: azure/aks-set-context@v1
+        uses: azure/aks-set-context@v2.0
         with:
           creds: '${{ secrets.AZURE_CREDENTIALS }}'
           cluster-name: ${{ inputs.AKSNAME }}
           resource-group: ${{ inputs.RG }}
 
       - name: Deploy app to AKS
-        uses: azure/k8s-deploy@v1
+        uses: azure/k8s-deploy@v3.0
         env:
           ACRNAME: "${{ inputs.ACRNAME}}"
         with:
