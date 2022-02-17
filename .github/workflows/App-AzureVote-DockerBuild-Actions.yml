@@ -114,19 +114,22 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Set the target Azure Kubernetes Service (AKS) cluster.
-        uses: azure/aks-set-context@v2.0
-        with:
-          cluster-name: ${{ inputs.AKSNAME }}
-          resource-group: ${{ inputs.RG }}
-
       - name: Install Kubectl
         uses: azure/setup-kubectl@v2.0
         with:
             version: 'latest'
             
+      - name: Set the target Azure Kubernetes Service (AKS) cluster.
+        #uses: azure/aks-set-context@v2.0
+        uses: Azure/aks-set-context@v1
+        with:
+          creds: "${{ secrets.AZURE_CREDENTIALS }}"
+          cluster-name: ${{ inputs.AKSNAME }}
+          resource-group: ${{ inputs.RG }}
+            
       - name: Deploy app to AKS
-        uses: azure/k8s-deploy@v2.0
+        uses: azure/k8s-deploy@v1.4
+        timeout-minutes: 3
         env:
           ACRNAME: "${{ inputs.ACRNAME}}"
         with:
