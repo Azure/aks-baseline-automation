@@ -29,7 +29,7 @@ jobs:
       - name: Dummy step
         run: echo "Resuable workflows can't be directly reference ENV/INPUTS (yet)"
 
-  VoteACR:
+  AcrBuild:
     needs: [ReusableWF]
     uses: ./.github/workflows/App-AzureVote-BuildOnACR-Actions.yml
     with:
@@ -51,7 +51,7 @@ jobs:
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
       
-  VoteRunCmd:
+  RunCmd:
     needs: [ReusableWF]
     uses: ./.github/workflows/App-AzureVote-HelmRunCmd.yml
     with:
