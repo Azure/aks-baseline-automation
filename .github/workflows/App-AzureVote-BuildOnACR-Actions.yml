@@ -72,7 +72,10 @@ jobs:
           APPREPOPATH: "${{ inputs.APPREPOPATH}}"
           IMAGEREPO: "${{ inputs.APPNAME }}"
         run: |
-          echo "Retrieving access token from $ACRNAME"
+          echo "Verifying directory contents in repo path $APPREPOPATH"
+          ls $APPREPOPATH
+
+          echo "Requesting ACR build on $ACRSERVER for image $IMAGEREPO:${{ github.sha }}"
           az acr build -t $ACRSERVER/$IMAGEREPO:${{ github.sha }} -r $ACRNAME $APPREPOPATH/.
 
   Deploy:
