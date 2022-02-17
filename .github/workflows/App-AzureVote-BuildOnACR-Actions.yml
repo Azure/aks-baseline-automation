@@ -111,7 +111,7 @@ jobs:
           resource-group: ${{ inputs.RG }}
 
       - name: Deploy app to AKS
-        uses: azure/k8s-deploy@v1
+        uses: azure/k8s-deploy@v3.0
         env:
           ACRNAME: "${{ inputs.ACRNAME}}"
         with:
