@@ -113,14 +113,10 @@ jobs:
         uses: Azure/login@v1.4.3
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-          enable-AzPSSession: false
-          environment: azurecloud
-          allow-no-subscriptions: false
 
       - name: Set the target Azure Kubernetes Service (AKS) cluster.
         uses: azure/aks-set-context@v2.0
         with:
-          creds: '${{ secrets.AZURE_CREDENTIALS }}'
           cluster-name: ${{ inputs.AKSNAME }}
           resource-group: ${{ inputs.RG }}
 
