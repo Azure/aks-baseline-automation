@@ -116,7 +116,6 @@ jobs:
             
       - name: Deploy app to AKS
         uses: azure/k8s-deploy@v1.5
-        timeout-minutes: 3
         env:
           ACRNAME: "${{ inputs.ACRNAME}}"
         with:
@@ -128,3 +127,4 @@ jobs:
           images: |
             ${{ env.ACRNAME }}.azurecr.io/azure-vote-front:${{ github.sha }}
           namespace: ${{ inputs.NAMESPACE }}
+          action: deploy
