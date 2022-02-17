@@ -1,4 +1,4 @@
-# This workflow demonstrates ACR building and storing a container image, and deploying to Kubernetes
+# This workflow demonstrates building a container image, pushing to an Azure Container Registry and deploying to Kubernetes
 # It is split into separate jobs for readability but could be squashed into a single job if that best suits your scenario
 
 on:
@@ -65,21 +65,35 @@ jobs:
           environment: azurecloud
           allow-no-subscriptions: false
 
-      - name: ACR build
-        id: acrbuild
-        env:
-          ACRSERVER: "${{ env.ACRNAME }}.azurecr.io"
-          APPREPOPATH: "${{ inputs.APPREPOPATH}}"
-          IMAGEREPO: "${{ inputs.APPNAME }}"
+      - name: Connect to Azure Container Registry (ACR)
+        id: acrconnect
         run: |
-          echo "Verifying directory contents in repo path $APPREPOPATH"
-          ls $APPREPOPATH
+          echo "Retrieving access token from $ACRNAME"
+          TOKEN=$(az acr login -n $ACRNAME --expose-token)
 
-          echo "Downcasing $ACRSERVER for valid repository name"
-          REPOSITORY=$(echo $ACRSERVER | tr '[:upper:]' '[:lower:]')
+          if [ -z "$TOKEN" ]
+          then
+            echo "ACR Token was not retrieved successfully"
+            exit 1
+          fi
 
-          echo "Requesting ACR build on $ACRSERVER for image $IMAGEREPO:${{ github.sha }}"
-          az acr build -t $REPOSITORY/$IMAGEREPO:${{ github.sha }} -r $ACRNAME $APPREPOPATH/.
+          ACRTOKEN=$(echo $TOKEN | jq -r ".accessToken")
+          LOGINSERVER=$(echo $TOKEN | jq -r ".loginServer")
+
+          echo "ACR Login Server: $LOGINSERVER"
+          echo "::set-output name=loginServer::$LOGINSERVER"
+
+          echo "Passing token as stdin to docker login"
+          echo $ACRTOKEN | docker login $LOGINSERVER -u 00000000-0000-0000-0000-000000000000 --password-stdin
+
+      - name: Container build and push to a Azure Container Registry (ACR)
+        env:
+          APPREPOPATH: "${{ inputs.APPREPOPATH}}"
+          ACRSERVER: "${{ steps.acrconnect.outputs.loginServer }}"
+        run: |
+          cd $APPREPOPATH
+          docker build . -t $ACRSERVER/${{ inputs.APPNAME }}:${{ github.sha }}
+          docker push $ACRSERVER/${{ inputs.APPNAME }}:${{ github.sha }}
 
   Deploy:
     runs-on: ubuntu-latest
@@ -99,21 +113,18 @@ jobs:
         uses: Azure/login@v1.4.3
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-          enable-AzPSSession: false
-          environment: azurecloud
-          allow-no-subscriptions: false
 
       - name: Install Kubectl
         uses: azure/setup-kubectl@v2.0
         with:
             version: 'latest'
-
+            
       - name: Set the target Azure Kubernetes Service (AKS) cluster.
         uses: azure/aks-set-context@v2.0
         with:
           cluster-name: ${{ inputs.AKSNAME }}
           resource-group: ${{ inputs.RG }}
-      
+          
       #It's not clear why aks-set-context isn't doing a kubelogin.... but hey ho...
       - name: Kubelogin
         env:
@@ -125,7 +136,7 @@ jobs:
           kubelogin convert-kubeconfig -l azurecli
           
       - name: Deploy app to AKS
-        uses: azure/k8s-deploy@v1.5
+        uses: azure/k8s-deploy@v1.4
         env:
           ACRNAME: "${{ inputs.ACRNAME}}"
         with:
@@ -137,4 +148,3 @@ jobs:
           images: |
             ${{ env.ACRNAME }}.azurecr.io/azure-vote-front:${{ github.sha }}
           namespace: ${{ inputs.NAMESPACE }}
-          action: deploy

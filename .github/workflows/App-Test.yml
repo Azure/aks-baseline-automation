@@ -29,7 +29,7 @@ jobs:
       - name: Dummy step
         run: echo "Resuable workflows can't be directly reference ENV/INPUTS (yet)"
 
-  VoteACR:
+  AcrBuild:
     needs: [ReusableWF]
     uses: ./.github/workflows/App-AzureVote-BuildOnACR-Actions.yml
     with:
@@ -39,14 +39,25 @@ jobs:
       APPNAME: basevote1
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+
+  DockerBuildPushACR:
+    needs: [ReusableWF]
+    uses: ./.github/workflows/App-AzureVote-DockerBuild-Actions.yml
+    with:
+      RG: ${{ needs.ReusableWF.outputs.RG }}
+      AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
+      ACRNAME: ${{ needs.ReusableWF.outputs.ACRNAME }}
+      APPNAME: basevote2
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
       
-  VoteRunCmd:
+  RunCmd:
     needs: [ReusableWF]
     uses: ./.github/workflows/App-AzureVote-HelmRunCmd.yml
     with:
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
-      APPNAME: basevote2
+      APPNAME: azure-vote-public
       #HELMPACKAGEURI will change to this repo once this repo's visibility is PUBLIC!
       HELMPACKAGEURI: https://github.com/Gordonby/minihelm/raw/main/samples/AzureVote-0.9.5.tgz
     secrets:
