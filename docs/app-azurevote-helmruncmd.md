@@ -5,7 +5,7 @@
 This sample leverages the AKS Run Command and performs comprehensive validation steps to ensure the application has been deployed properly.
 
 ```mermaid
-%%{init: {'theme': 'forest', "flowchart" : { "curve" : "basis" } } }%%
+%%{init: {'theme': 'neutral', 'themeVariables': {'darkMode': true}, "flowchart" : { "curve" : "basis" } } }%%
 sequenceDiagram
     participant GitHub Runner
     participant Azure
