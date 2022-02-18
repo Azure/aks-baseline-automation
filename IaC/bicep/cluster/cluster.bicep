@@ -69,7 +69,6 @@ var subRgUniqueString = uniqueString('aks', subscription().subscriptionId, resou
 var nodeResourceGroupName = 'rg-${clusterName}-nodepools'
 var clusterName = 'aks-${subRgUniqueString}'
 var logAnalyticsWorkspaceName = 'la-${clusterName}'
-var containerInsightsSolutionName = 'ContainerInsights(${logAnalyticsWorkspaceName})'
 // var defaultAcrName = 'acraks${subRgUniqueString}'
 //var vNetResourceGroup = split(targetVnetResourceId, '/')[4]
 var vnetName = split(targetVnetResourceId, '/')[8]
@@ -130,31 +129,29 @@ module clusterLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep
     dataRetention: 30
     publicNetworkAccessForIngestion: 'Enabled'
     publicNetworkAccessForQuery: 'Enabled'
-    savedSearches: [
-      {
-        name: 'AllPrometheus'
-        category: 'Prometheus'
-        displayName: 'All collected Prometheus information'
-        query: 'InsightsMetrics | where Namespace == \'prometheus\''
-        version: 1
-      }
-      {
-        name: 'NodeRebootRequested'
-        category: 'Prometheus'
-        displayName: 'Nodes reboot required by kured'
-        query: 'InsightsMetrics | where Namespace == \'prometheus\' and Name == \'kured_reboot_required\' | where Val > 0'
-        version: 1
-      }
-    ]
+    // savedSearches: [
+    //   {
+    //     name: 'AllPrometheus'
+    //     category: 'Prometheus'
+    //     displayName: 'All collected Prometheus information'
+    //     query: 'InsightsMetrics | where Namespace == \'prometheus\''
+    //   }
+    //   {
+    //     name: 'NodeRebootRequested'
+    //     category: 'Prometheus'
+    //     displayName: 'Nodes reboot required by kured'
+    //     query: 'InsightsMetrics | where Namespace == \'prometheus\' and Name == \'kured_reboot_required\' | where Val > 0'
+    //   }
+    // ]
     gallerySolutions: [
       {
-        name: containerInsightsSolutionName
-        product: 'OMSGallery/ContainerInsights'
+        name: 'ContainerInsights'
+        product: 'OMSGallery'
         publisher: 'Microsoft'
       }
       {
-        name: 'KeyVaultAnalytics(${logAnalyticsWorkspaceName})'
-        product: 'OMSGallery/KeyVaultAnalytics'
+        name: 'KeyVaultAnalytics'
+        product: 'OMSGallery'
         publisher: 'Microsoft'
       }
     ]
@@ -520,7 +517,6 @@ module PodFailedScheduledQuery '../CARML/Microsoft.Insights/scheduledQueryRules/
     enabled: true
     windowSize: 'PT10M'
     queryTimeRange: 'PT5M'
-
     scopes: [
       clusterLa.outputs.logAnalyticsResourceId
     ]
@@ -698,7 +694,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
     // maxAgentPools: 2
     // disableLocalAccounts: true
     userAssignedIdentities: {
-      '${clusterControlPlaneIdentity.outputs.msiPrincipalId}': {}
+      '${clusterControlPlaneIdentity.outputs.msiResourceId}': {}
     }
     diagnosticWorkspaceId: clusterLa.outputs.logAnalyticsResourceId
     tags: {
