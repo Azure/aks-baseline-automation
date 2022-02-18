@@ -2,9 +2,10 @@
 
 ## Overview
 
-This sample leverages the AKS Run Command and performs comprehensive validation steps to ensure the application has been deployed propery.
+This sample leverages the AKS Run Command and performs comprehensive validation steps to ensure the application has been deployed properly.
 
 ```mermaid
+%%{init: {'theme': 'forest', "flowchart" : { "curve" : "basis" } } }%%
 sequenceDiagram
     participant GitHub Runner
     participant Azure
@@ -35,7 +36,7 @@ sequenceDiagram
 
 This sample is a GitHub Reusable Workflow, as an asset in a public repository it can be targetted directly or simply copied into your own repo.
 
-Location of the [Resuable workflow file](.github/workflows/App-AzureVote-HelmRunCmd.yml)
+Location of the [Reusable workflow file](.github/workflows/App-AzureVote-HelmRunCmd.yml)
 
 ```yaml
   #Here's how to call the reusable workflow from your workflow

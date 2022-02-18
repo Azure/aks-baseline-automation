@@ -4,7 +4,7 @@
 
 This sample is a GitHub Reusable Workflow, as an asset in a public repository it can be targetted directly or simply copied into your own repo.
 
-Location of the [Resuable workflow file](.github/workflows/App-AzureVote-BuildOnACR-Actions.yml)
+Location of the [Reusable workflow file](.github/workflows/App-AzureVote-BuildOnACR-Actions.yml)
 
 ```yaml
   #Here's how to call the reusable workflow from your workflow
