@@ -5,7 +5,26 @@
 This sample leverages the AKS Run Command and performs comprehensive validation steps to ensure the application has been deployed properly.
 
 ```mermaid
-%%{init: {'theme': 'neutral', 'themeVariables': {'darkMode': true}, "flowchart" : { "curve" : "basis" } } }%%
+%%{init:
+{
+  "theme": "default",
+  "themeVariables": {
+    "nodeBorder" : "#004990",
+    "mainBkg" : "#c9d7e4",
+    "actorBkg" : "#01A6F0",
+    "signalColor" : "#F34F1C",
+    "textColor" : "#747474",
+    "loopTextColor" : "#C7C7C7",
+    "labelTextColor" : "#C7C7C7",
+    "labelBoxBorderColor" : "#7FBC00",
+    "labelBoxBkgColor" : "#7FBC00",
+    "noteBkgColor" : "#FFBA01",
+    "noteBorderColor": "#FFBA01",
+    "fontFamily": "Inter",
+    "fontSize": "13px"
+ }
+}
+}%%
 sequenceDiagram
     participant GitHub Runner
     participant Azure
