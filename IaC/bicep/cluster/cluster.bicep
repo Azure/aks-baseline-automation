@@ -354,7 +354,6 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
         name: 'apw-frontend-ip-configuration'
         properties: {
           publicIPAddress: {
-            //id: resourceId('Microsoft.Network/publicIpAddresses', 'pip-BU0001A0008-00')
             id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/publicIpAddresses/pip-BU0001A0008-00'
           }
         }
@@ -789,13 +788,10 @@ resource clusterName_Microsoft_KubernetesConfiguration_bootstrap 'Microsoft.Cont
     }
   }
   dependsOn: [
+    cluster
     clusterName_Microsoft_KubernetesConfiguration_flux
-    resourceId('Microsoft.ContainerRegistry/registries/providers/roleAssignments', defaultAcrName, 'Microsoft.Authorization', guid(clusterName.id, acrPullRole))
-    clusterName
   ]
 }
-
-
 
 output aksClusterName string = clusterName
 output aksIngressControllerPodManagedIdentityResourceId string = podmi_ingress_controller.outputs.msiResourceId
