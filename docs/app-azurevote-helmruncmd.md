@@ -1,5 +1,36 @@
 # Azure Vote - Helm Run Command Scenario
 
+## Overview
+
+This sample leverages the AKS Run Command and performs comprehensive validation steps to ensure the application has been deployed propery.
+
+```mermaid
+sequenceDiagram
+    participant GitHub Runner
+    participant Azure
+    participant AKS
+    participant MCR
+    participant App
+    GitHub Runner->>Azure: Login
+    Azure-->>GitHub Runner: Token
+    GitHub Runner->>AKS: RunCmd: Check for existing install
+    Note right of AKS: Conditionally<br/>Force Uninstall
+    GitHub Runner->>AKS: RunCmd: Helm Install dry run
+    GitHub Runner->>AKS: RunCmd: Helm Install
+    AKS-->>App: Deploy App
+    GitHub Runner->>AKS: RunCmd: Check deployment
+    loop WaitForIP
+        AKS->>AKS: Wait for IP Address
+    end
+    GitHub Runner->>App: Verify app reachable
+    loop WaitFor200
+        App->>App: Wait for App response
+    end
+    GitHub Runner->>App: Run Playwright UI tests
+    Note right of App: Conditionally Uninstall
+    GitHub Runner->>GitHub Runner: Store logs as artifacts
+```
+
 ## Sample info
 
 This sample is a GitHub Reusable Workflow, as an asset in a public repository it can be targetted directly or simply copied into your own repo.

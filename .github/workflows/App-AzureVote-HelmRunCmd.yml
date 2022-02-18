@@ -77,32 +77,29 @@ jobs:
         uses: Azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-          enable-AzPSSession: false
-          environment: azurecloud
-          allow-no-subscriptions: false
-          
+
       - name: Check for and uninstall the Vote app
         if: inputs.FORCEHELMCLEANINSTALL == true
         run: |
-        
+
           command="helm list --namespace $NAMESP -o json -f $APPNAME"
           echo "Sending command $command to AKS"
           cmdOut=$(az aks command invoke -g $RG -n $AKSNAME -o json --command "${command}")
           echo $cmdOut
-          
+
           voteAppInstalled=$(echo $cmdOut | jq -r '.logs' | jq 'length')
           echo "voteAppInstalled is $voteAppInstalled"
-          
-          if [ $voteAppInstalled -gt 0 ]; 
+
+          if [ $voteAppInstalled -gt 0 ];
           then
             command="helm uninstall --namespace $NAMESP $APPNAME"
             echo "Sending command $command to AKS"
             cmdOut=$(az aks command invoke -g $RG -n $AKSNAME -o json --command "${command}")
             echo $cmdOut
-            
+
             sleep 20s
           fi
-          
+
       - name: Install the Vote app
         id: installapp
         env:
