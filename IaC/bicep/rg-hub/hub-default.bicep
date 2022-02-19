@@ -46,6 +46,9 @@ param azureGatewaySubnetAddressSpace string = '10.200.0.64/27'
 @maxLength(18)
 param azureBastionSubnetAddressSpace string = '10.200.0.96/27'
 
+@description('Allow egress traffic for cluster nodes. See https://docs.microsoft.com/en-us/azure/aks/limit-egress-traffic#required-outbound-network-rules-and-fqdns-for-aks-clusters')
+param enableOutboundInternet bool = false
+
 var baseFwPipName = 'pip-fw-${location}'
 var hubFwPipNames = [
   '${baseFwPipName}-default'
@@ -59,6 +62,236 @@ var fwPoliciesName = 'fw-policies-${location}'
 var hubVNetName = 'vnet-${location}-hub'
 var bastionNetworkNsgName = 'nsg-${location}-bastion'
 var hubLaName = 'la-hub-${location}-${uniqueString(resourceId('Microsoft.Network/virtualNetworks', hubVNetName))}'
+
+var networkRuleCollectionGroup = [
+  {
+    name: 'NetworkRuleCollection'
+    priority: 100
+    action: {
+      type: 'Allow'
+    }
+    rules: [
+      {
+        name: 'SecureTunnel01'
+        ipProtocols: [
+          'UDP'
+        ]
+        destinationPorts: [
+          '1194'
+        ]
+        sourceAddresses: [
+          '*'
+        ]
+        sourceIpGroups: []
+        ruleType: 'NetworkRule'
+        destinationIpGroups: []
+        destinationAddresses: [
+          'AzureCloud.${replace(location, ' ', '')}'
+        ]
+        destinationFqdns: []
+      }
+      {
+        name: 'SecureTunnel02'
+        ipProtocols: [
+          'TCP'
+        ]
+        destinationPorts: [
+          '9000'
+        ]
+        sourceAddresses: [
+          '*'
+        ]
+        sourceIpGroups: []
+        ruleType: 'NetworkRule'
+        destinationIpGroups: []
+        destinationAddresses: [
+          'AzureCloud.${replace(location, ' ', '')}'
+        ]
+        destinationFqdns: []
+      }
+      {
+        name: 'NTP'
+        ipProtocols: [
+          'UDP'
+        ]
+        destinationPorts: [
+          '123'
+        ]
+        sourceAddresses: [
+          '*'
+        ]
+        sourceIpGroups: []
+        ruleType: 'NetworkRule'
+        destinationIpGroups: []
+        destinationAddresses: [
+          '*'
+        ]
+        destinationFqdns: []
+      }
+    ]
+    ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+  }
+]
+
+var applicationRuleCollectionGroup = [
+  {
+    name: 'AppRuleCollection'
+    priority: 110
+    action: {
+      type: 'Allow'
+    }
+    rules: [
+      {
+        name: 'NodeToApiServer'
+        protocols: [
+          {
+            protocolType: 'Https'
+            port: 443
+          }
+        ]
+        terminateTLS: false
+        sourceAddresses: [
+          '*'
+        ]
+        sourceIpGroups: []
+        targetFqdns: [
+          '*.hcp.${replace(location, ' ', '')}.azmk8s.io'
+        ]
+        targetUrls: []
+        fqdnTags: []
+        webCategories: []
+        ruleType: 'ApplicationRule'
+      }
+      {
+        name: 'MCR'
+        protocols: [
+          {
+            protocolType: 'Https'
+            port: 443
+          }
+        ]
+        terminateTLS: false
+        sourceAddresses: [
+          '*'
+        ]
+        sourceIpGroups: []
+        targetFqdns: [
+          'mcr.microsoft.com'
+        ]
+        targetUrls: []
+        fqdnTags: []
+        webCategories: []
+        ruleType: 'ApplicationRule'
+      }
+      {
+        name: 'McrStorage'
+        protocols: [
+          {
+            protocolType: 'Https'
+            port: 443
+          }
+        ]
+        terminateTLS: false
+        sourceAddresses: [
+          '*'
+        ]
+        sourceIpGroups: []
+        targetFqdns: [
+          '*.data.mcr.microsoft.com'
+        ]
+        targetUrls: []
+        fqdnTags: []
+        webCategories: []
+        ruleType: 'ApplicationRule'
+      }
+      {
+        name: 'Ops'
+        protocols: [
+          {
+            protocolType: 'Https'
+            port: 443
+          }
+        ]
+        terminateTLS: false
+        sourceAddresses: [
+          '*'
+        ]
+        sourceIpGroups: []
+        targetFqdns: [
+          'management.azure.com'
+        ]
+        targetUrls: []
+        fqdnTags: []
+        webCategories: []
+        ruleType: 'ApplicationRule'
+      }
+      {
+        name: 'AAD'
+        protocols: [
+          {
+            protocolType: 'Https'
+            port: 443
+          }
+        ]
+        terminateTLS: false
+        sourceAddresses: [
+          '*'
+        ]
+        sourceIpGroups: []
+        targetFqdns: [
+          'login.microsoftonline.com'
+        ]
+        targetUrls: []
+        fqdnTags: []
+        webCategories: []
+        ruleType: 'ApplicationRule'
+      }
+      {
+        name: 'Packages'
+        protocols: [
+          {
+            protocolType: 'Https'
+            port: 443
+          }
+        ]
+        terminateTLS: false
+        sourceAddresses: [
+          '*'
+        ]
+        sourceIpGroups: []
+        targetFqdns: [
+          'packages.microsoft.com'
+        ]
+        targetUrls: []
+        fqdnTags: []
+        webCategories: []
+        ruleType: 'ApplicationRule'
+      }
+      {
+        name: 'Repositories'
+        protocols: [
+          {
+            protocolType: 'Https'
+            port: 443
+          }
+        ]
+        terminateTLS: false
+        sourceAddresses: [
+          '*'
+        ]
+        sourceIpGroups: []
+        targetFqdns: [
+          'acs-mirror.azureedge.net'
+        ]
+        targetUrls: []
+        fqdnTags: []
+        webCategories: []
+        ruleType: 'ApplicationRule'
+      }
+    ]
+    ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+  }
+]
 
 module rg '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
   name: resourceGroupName
@@ -219,12 +452,12 @@ module fwPolicies '../CARML/Microsoft.Network/firewallPolicies/deploy.bicep' = {
       {
         name: 'DefaultNetworkRuleCollectionGroup'
         priority: 200
-        ruleCollections: []
+        ruleCollections: enableOutboundInternet ? networkRuleCollectionGroup : []
       }
       {
         name: 'DefaultApplicationRuleCollectionGroup'
         priority: 300
-        ruleCollections: []
+        ruleCollections: enableOutboundInternet ? applicationRuleCollectionGroup : []
       }
     ]
   }
