@@ -694,7 +694,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
     // maxAgentPools: 2
     // disableLocalAccounts: true
     userAssignedIdentities: {
-      '${clusterControlPlaneIdentity.outputs.msiResourceId}': {}
+      '${clusterControlPlaneIdentity.outputs.msiPrincipalId}': {}
     }
     diagnosticWorkspaceId: clusterLa.outputs.logAnalyticsResourceId
     tags: {
