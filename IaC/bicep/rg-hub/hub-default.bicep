@@ -65,7 +65,7 @@ var hubLaName = 'la-hub-${location}-${uniqueString(resourceId('Microsoft.Network
 
 var networkRuleCollectionGroup = [
   {
-    name: 'NetworkRuleCollection'
+    name: 'aks-allow-outbound-network'
     priority: 100
     action: {
       type: 'Allow'
@@ -135,7 +135,7 @@ var networkRuleCollectionGroup = [
 
 var applicationRuleCollectionGroup = [
   {
-    name: 'AppRuleCollection'
+    name: 'aks-allow-outbound-app'
     priority: 110
     action: {
       type: 'Allow'
