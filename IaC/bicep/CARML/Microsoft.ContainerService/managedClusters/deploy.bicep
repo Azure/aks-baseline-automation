@@ -425,3 +425,6 @@ output controlPlaneFQDN string = (aksClusterEnablePrivateCluster ? managedCluste
 
 @description('The principal ID of the system assigned identity.')
 output systemAssignedPrincipalId string = systemAssignedIdentity && contains(managedCluster.identity, 'principalId') ? managedCluster.identity.principalId : ''
+
+@description('The Object ID of the AKS identity.')
+output kubeletidentityObjectId string = managedCluster.properties.identityProfile.kubeletidentity.objectId

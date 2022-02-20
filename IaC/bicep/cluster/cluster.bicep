@@ -694,7 +694,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
     // maxAgentPools: 2
     // disableLocalAccounts: true
     userAssignedIdentities: {
-      '${clusterControlPlaneIdentity.outputs.msiPrincipalId}': {}
+      '${clusterControlPlaneIdentity.outputs.msiResourceId}': {}
     }
     diagnosticWorkspaceId: clusterLa.outputs.logAnalyticsResourceId
     tags: {
@@ -712,7 +712,7 @@ module acrPullRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/n
   name: 'acrPullRole'
   params: {
     principalIds: [
-      cluster.outputs.systemAssignedPrincipalId
+      cluster.outputs.kubeletidentityObjectId
     ]
     roleDefinitionIdOrName: '/providers/Microsoft.Authorization/roleDefinitions/7f951dda-4ed3-4680-a7ca-43fe172d538d'
     resourceId: cluster.outputs.azureKubernetesServiceResourceId
@@ -723,71 +723,71 @@ module acrPullRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/n
   ]
 }
 
-resource clusterName_Microsoft_KubernetesConfiguration_flux 'Microsoft.ContainerService/managedClusters/providers/extensions@2021-09-01' = {
-  name: '${clusterName}/Microsoft.KubernetesConfiguration/flux'
-  properties: {
-    extensionType: 'Microsoft.Flux'
-    autoUpgradeMinorVersion: true
-    releaseTrain: 'Stable'
-    scope: {
-      cluster: {
-        releaseNamespace: 'flux-system'
-        configurationSettings: {
-          'helm-controller.enabled': 'false'
-          'source-controller.enabled': 'true'
-          'kustomize-controller.enabled': 'true'
-          'notification-controller.enabled': 'false'
-          'image-automation-controller.enabled': 'false'
-          'image-reflector-controller.enabled': 'false'
-        }
-        configurationProtectedSettings: {}
-      }
-    }
-  }
-  dependsOn: [
-    cluster
-    acrPullRole
-  ]
-}
+// resource clusterName_Microsoft_KubernetesConfiguration_flux 'Microsoft.ContainerService/managedClusters/providers/extensions@2021-09-01' = {
+//   name: '${clusterName}/Microsoft.KubernetesConfiguration/flux'
+//   properties: {
+//     extensionType: 'Microsoft.Flux'
+//     autoUpgradeMinorVersion: true
+//     releaseTrain: 'Stable'
+//     scope: {
+//       cluster: {
+//         releaseNamespace: 'flux-system'
+//         configurationSettings: {
+//           'helm-controller.enabled': 'false'
+//           'source-controller.enabled': 'true'
+//           'kustomize-controller.enabled': 'true'
+//           'notification-controller.enabled': 'false'
+//           'image-automation-controller.enabled': 'false'
+//           'image-reflector-controller.enabled': 'false'
+//         }
+//         configurationProtectedSettings: {}
+//       }
+//     }
+//   }
+//   dependsOn: [
+//     cluster
+//     acrPullRole
+//   ]
+// }
 
-resource clusterName_Microsoft_KubernetesConfiguration_bootstrap 'Microsoft.ContainerService/managedClusters/providers/fluxConfigurations@2022-01-01-preview' = {
-  name: '${clusterName}/Microsoft.KubernetesConfiguration/bootstrap'
-  properties: {
-    scope: 'cluster'
-    namespace: 'flux-system'
-    sourceKind: 'GitRepository'
-    gitRepository: {
-      url: gitOpsBootstrappingRepoHttpsUrl
-      timeoutInSeconds: 180
-      syncIntervalInSeconds: 300
-      repositoryRef: {
-        branch: gitOpsBootstrappingRepoBranch
-        tag: null
-        semver: null
-        commit: null
-      }
-      sshKnownHosts: ''
-      httpsUser: null
-      httpsCACert: null
-      localAuthRef: null
-    }
-    kustomizations: {
-      unified: {
-        path: './cluster-manifests'
-        dependsOn: []
-        timeoutInSeconds: 300
-        syncIntervalInSeconds: 300
-        retryIntervalInSeconds: null
-        prune: true
-        force: false
-      }
-    }
-  }
-  dependsOn: [
-    cluster
-    clusterName_Microsoft_KubernetesConfiguration_flux
-  ]
-}
+// resource clusterName_Microsoft_KubernetesConfiguration_bootstrap 'Microsoft.ContainerService/managedClusters/providers/fluxConfigurations@2022-01-01-preview' = {
+//   name: '${clusterName}/Microsoft.KubernetesConfiguration/bootstrap'
+//   properties: {
+//     scope: 'cluster'
+//     namespace: 'flux-system'
+//     sourceKind: 'GitRepository'
+//     gitRepository: {
+//       url: gitOpsBootstrappingRepoHttpsUrl
+//       timeoutInSeconds: 180
+//       syncIntervalInSeconds: 300
+//       repositoryRef: {
+//         branch: gitOpsBootstrappingRepoBranch
+//         tag: null
+//         semver: null
+//         commit: null
+//       }
+//       sshKnownHosts: ''
+//       httpsUser: null
+//       httpsCACert: null
+//       localAuthRef: null
+//     }
+//     kustomizations: {
+//       unified: {
+//         path: './cluster-manifests'
+//         dependsOn: []
+//         timeoutInSeconds: 300
+//         syncIntervalInSeconds: 300
+//         retryIntervalInSeconds: null
+//         prune: true
+//         force: false
+//       }
+//     }
+//   }
+//   dependsOn: [
+//     cluster
+//     clusterName_Microsoft_KubernetesConfiguration_flux
+//   ]
+// }
 
 output aksClusterName string = clusterName
 output aksIngressControllerPodManagedIdentityResourceId string = podmi_ingress_controller.outputs.msiResourceId
