@@ -723,6 +723,21 @@ module acrPullRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/n
   ]
 }
 
+module monitoringMetricsPublisherRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/nested_rbac.bicep' = {
+  name: 'monitoringMetricsPublisherRole'
+  params: {
+    principalIds: [
+      cluster.outputs.omsagentIdentityObjectId
+    ]
+    roleDefinitionIdOrName: '/providers/Microsoft.Authorization/roleDefinitions/3913510d-42f4-4e42-8a64-420c390055eb'
+    resourceId: cluster.outputs.azureKubernetesServiceResourceId
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+  ]
+}
+
 // resource clusterName_Microsoft_KubernetesConfiguration_flux 'Microsoft.ContainerService/managedClusters/providers/extensions@2021-09-01' = {
 //   name: '${clusterName}/Microsoft.KubernetesConfiguration/flux'
 //   properties: {

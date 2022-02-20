@@ -428,3 +428,6 @@ output systemAssignedPrincipalId string = systemAssignedIdentity && contains(man
 
 @description('The Object ID of the AKS identity.')
 output kubeletidentityObjectId string = managedCluster.properties.identityProfile.kubeletidentity.objectId
+
+@description('The Object ID of the OMS agent identity.')
+output omsagentIdentityObjectId string = managedCluster.properties.addonProfiles.omsagent.identity.objectId
