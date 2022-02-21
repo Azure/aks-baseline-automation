@@ -49,13 +49,13 @@ param kubernetesVersion string = '1.22.4'
 @description('Domain name to use for App Gateway and AKS ingress.')
 param domainName string = 'contoso.com'
 
-@description('Your cluster will be bootstrapped from this git repo.')
-@minLength(9)
-param gitOpsBootstrappingRepoHttpsUrl string = 'https://github.com/mspnp/aks-baseline'
+// @description('Your cluster will be bootstrapped from this git repo.')
+// @minLength(9)
+// param gitOpsBootstrappingRepoHttpsUrl string = 'https://github.com/mspnp/aks-baseline'
 
-@description('You cluster will be bootstrapped from this branch in the identifed git repo.')
-@minLength(1)
-param gitOpsBootstrappingRepoBranch string = 'main'
+// @description('You cluster will be bootstrapped from this branch in the identifed git repo.')
+// @minLength(1)
+// param gitOpsBootstrappingRepoBranch string = 'main'
 
 // var networkContributorRole = '${subscription().id}/providers/Microsoft.Authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7'
 // var monitoringMetricsPublisherRole = '${subscription().id}/providers/Microsoft.Authorization/roleDefinitions/3913510d-42f4-4e42-8a64-420c390055eb'
@@ -129,20 +129,20 @@ module clusterLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep
     dataRetention: 30
     publicNetworkAccessForIngestion: 'Enabled'
     publicNetworkAccessForQuery: 'Enabled'
-    // savedSearches: [
-    //   {
-    //     name: 'AllPrometheus'
-    //     category: 'Prometheus'
-    //     displayName: 'All collected Prometheus information'
-    //     query: 'InsightsMetrics | where Namespace == \'prometheus\''
-    //   }
-    //   {
-    //     name: 'NodeRebootRequested'
-    //     category: 'Prometheus'
-    //     displayName: 'Nodes reboot required by kured'
-    //     query: 'InsightsMetrics | where Namespace == \'prometheus\' and Name == \'kured_reboot_required\' | where Val > 0'
-    //   }
-    // ]
+    savedSearches: [
+      {
+        name: 'AllPrometheus'
+        category: 'Prometheus'
+        displayName: 'All collected Prometheus information'
+        query: 'InsightsMetrics | where Namespace == \'prometheus\''
+      }
+      {
+        name: 'NodeRebootRequested'
+        category: 'Prometheus'
+        displayName: 'Nodes reboot required by kured'
+        query: 'InsightsMetrics | where Namespace == \'prometheus\' and Name == \'kured_reboot_required\' | where Val > 0'
+      }
+    ]
     gallerySolutions: [
       {
         name: 'ContainerInsights'
@@ -536,7 +536,6 @@ module clusterIdentityRbac2 '../CARML/Microsoft.Network/virtualNetworks/subnets/
 //       ]
 //     }
 //   }
-
 //   scope: resourceGroup(resourceGroupName)
 //   dependsOn: [
 //     rg
