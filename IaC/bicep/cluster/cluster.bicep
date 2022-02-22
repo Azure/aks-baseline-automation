@@ -129,20 +129,20 @@ module clusterLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep
     dataRetention: 30
     publicNetworkAccessForIngestion: 'Enabled'
     publicNetworkAccessForQuery: 'Enabled'
-    savedSearches: [
-      {
-        name: 'AllPrometheus'
-        category: 'Prometheus'
-        displayName: 'All collected Prometheus information'
-        query: 'InsightsMetrics | where Namespace == \'prometheus\''
-      }
-      {
-        name: 'NodeRebootRequested'
-        category: 'Prometheus'
-        displayName: 'Nodes reboot required by kured'
-        query: 'InsightsMetrics | where Namespace == \'prometheus\' and Name == \'kured_reboot_required\' | where Val > 0'
-      }
-    ]
+    // savedSearches: [
+    //   {
+    //     name: 'AllPrometheus'
+    //     category: 'Prometheus'
+    //     displayName: 'All collected Prometheus information'
+    //     query: 'InsightsMetrics | where Namespace == \'prometheus\''
+    //   }
+    //   {
+    //     name: 'NodeRebootRequested'
+    //     category: 'Prometheus'
+    //     displayName: 'Nodes reboot required by kured'
+    //     query: 'InsightsMetrics | where Namespace == \'prometheus\' and Name == \'kured_reboot_required\' | where Val > 0'
+    //   }
+    // ]
     gallerySolutions: [
       {
         name: 'ContainerInsights'
@@ -546,6 +546,7 @@ module AllAzureAdvisorAlert '../CARML/Microsoft.Insights/activityLogAlerts/deplo
   name: 'AllAzureAdvisorAlert'
   params: {
     name: 'AllAzureAdvisorAlert'
+    location: 'global'
     alertDescription: 'All azure advisor alerts'
     enabled: true
     scopes: [
@@ -572,6 +573,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
   name: clusterName
   params: {
     name: clusterName
+    location: location
     aksClusterSkuTier: 'Paid'
     aksClusterKubernetesVersion: kubernetesVersion
     aksClusterDnsPrefix: uniqueString(rg.outputs.resourceGroupResourceId, clusterName)
@@ -811,6 +813,612 @@ module monitoringMetricsPublisherRole '../CARML/Microsoft.ContainerService/manag
 //     topicType: 'Microsoft.ContainerService.ManagedClusters'
 //   }
 // }
+
+// resource Microsoft_EventGrid_systemTopics_providers_diagnosticSettings_clusterName_Microsoft_Insights_default 'Microsoft.EventGrid/systemTopics/providers/diagnosticSettings@2017-05-01-preview' = {
+//   name: '${clusterName_var}/Microsoft.Insights/default'
+//   properties: {
+//     workspaceId: resourceId('Microsoft.OperationalInsights/workspaces', logAnalyticsWorkspaceName)
+//     logs: [
+//       {
+//         category: 'DeliveryFailures'
+//         enabled: true
+//       }
+//     ]
+//     metrics: [
+//       {
+//         category: 'AllMetrics'
+//         enabled: true
+//       }
+//     ]
+//   }
+//   dependsOn: [
+//     Microsoft_EventGrid_systemTopics_clusterName
+//   ]
+// }
+
+module Node_CPU_utilization_high_for_cluster '../CARML/Microsoft.Insights/metricAlerts/deploy.bicep' = {
+  name: 'Node_CPU_utilization_high_for_cluster'
+  params: {
+    name: 'Node_CPU_utilization_high_for_cluster'
+    location: 'global'
+    alertCriteriaType: 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
+    alertDescription: 'Node CPU utilization across the cluster.'
+    enabled: true
+    evaluationFrequency: 'PT1M'
+    severity: 3
+    targetResourceType: 'microsoft.containerservice/managedclusters'
+    windowSize: 'PT5M'
+    scopes: [
+      cluster.outputs.azureKubernetesServiceResourceId
+    ]
+    criterias: [
+      {
+        criterionType: 'StaticThresholdCriterion'
+        dimensions: [
+          {
+            name: 'host'
+            operator: 'Include'
+            values: [
+              '*'
+            ]
+          }
+        ]
+        metricName: 'cpuUsagePercentage'
+        metricNamespace: 'Insights.Container/nodes'
+        name: 'Metric1'
+        operator: 'GreaterThan'
+        threshold: '80'
+        timeAggregation: 'Average'
+        skipMetricValidation: true
+      }
+    ]
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+    clusterLa
+  ]
+}
+
+module Node_working_set_memory_utilization_high_for_cluster '../CARML/Microsoft.Insights/metricAlerts/deploy.bicep' = {
+  name: 'Node_working_set_memory_utilization_high_for_cluster'
+  params: {
+    name: 'Node_working_set_memory_utilization_high_for_cluster'
+    location: 'global'
+    alertCriteriaType: 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
+    alertDescription: 'Node working set memory utilization across the cluster.'
+    enabled: true
+    evaluationFrequency: 'PT1M'
+    severity: 3
+    targetResourceType: 'microsoft.containerservice/managedclusters'
+    windowSize: 'PT5M'
+    scopes: [
+      cluster.outputs.azureKubernetesServiceResourceId
+    ]
+    criterias: [
+      {
+        criterionType: 'StaticThresholdCriterion'
+        dimensions: [
+          {
+            name: 'host'
+            operator: 'Include'
+            values: [
+              '*'
+            ]
+          }
+        ]
+        metricName: 'memoryWorkingSetPercentage'
+        metricNamespace: 'Insights.Container/nodes'
+        name: 'Metric1'
+        operator: 'GreaterThan'
+        threshold: '80'
+        timeAggregation: 'Average'
+        skipMetricValidation: true
+      }
+    ]
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+    clusterLa
+  ]
+}
+
+module Jobs_completed_more_than_6_hours_ago_for_cluster '../CARML/Microsoft.Insights/metricAlerts/deploy.bicep' = {
+  name: 'Jobs_completed_more_than_6_hours_ago_for_cluster'
+  params: {
+    name: 'Jobs_completed_more_than_6_hours_ago_for_cluster'
+    location: 'global'
+    alertCriteriaType: 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
+    alertDescription: 'This alert monitors completed jobs (more than 6 hours ago).'
+    enabled: true
+    evaluationFrequency: 'PT1M'
+    severity: 3
+    targetResourceType: 'microsoft.containerservice/managedclusters'
+    windowSize: 'PT1M'
+    scopes: [
+      cluster.outputs.azureKubernetesServiceResourceId
+    ]
+    criterias: [
+      {
+        criterionType: 'StaticThresholdCriterion'
+        dimensions: [
+          {
+            name: 'controllerName'
+            operator: 'Include'
+            values: [
+              '*'
+            ]
+          }
+          {
+            name: 'kubernetes namespace'
+            operator: 'Include'
+            values: [
+              '*'
+            ]
+          }
+        ]
+        metricName: 'completedJobsCount'
+        metricNamespace: 'Insights.Container/pods'
+        name: 'Metric1'
+        operator: 'GreaterThan'
+        threshold: 0
+        timeAggregation: 'Average'
+        skipMetricValidation: true
+      }
+    ]
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+    clusterLa
+  ]
+}
+
+module Container_CPU_usage_high_for_cluster '../CARML/Microsoft.Insights/metricAlerts/deploy.bicep' = {
+  name: 'Container_CPU_usage_high_for_cluster'
+  params: {
+    name: 'Container_CPU_usage_high_for_cluster'
+    location: 'global'
+    alertCriteriaType: 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
+    alertDescription: 'This alert monitors container CPU utilization.'
+    enabled: true
+    evaluationFrequency: 'PT1M'
+    severity: 3
+    targetResourceType: 'microsoft.containerservice/managedclusters'
+    windowSize: 'PT5M'
+    scopes: [
+      cluster.outputs.azureKubernetesServiceResourceId
+    ]
+    criterias: [
+      {
+        criterionType: 'StaticThresholdCriterion'
+        dimensions: [
+          {
+            name: 'controllerName'
+            operator: 'Include'
+            values: [
+              '*'
+            ]
+          }
+          {
+            name: 'kubernetes namespace'
+            operator: 'Include'
+            values: [
+              '*'
+            ]
+          }
+        ]
+        metricName: 'cpuExceededPercentage'
+        metricNamespace: 'Insights.Container/containers'
+        name: 'Metric1'
+        operator: 'GreaterThan'
+        threshold: 90
+        timeAggregation: 'Average'
+        skipMetricValidation: true
+      }
+    ]
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+    clusterLa
+  ]
+}
+
+module Container_working_set_memory_usage_high_for_cluster '../CARML/Microsoft.Insights/metricAlerts/deploy.bicep' = {
+  name: 'Container_working_set_memory_usage_high_for_cluster'
+  params: {
+    name: 'Container_working_set_memory_usage_high_for_cluster'
+    location: 'global'
+    alertCriteriaType: 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
+    alertDescription: 'This alert monitors container working set memory utilization.'
+    enabled: true
+    evaluationFrequency: 'PT1M'
+    severity: 3
+    targetResourceType: 'microsoft.containerservice/managedclusters'
+    windowSize: 'PT5M'
+    scopes: [
+      cluster.outputs.azureKubernetesServiceResourceId
+    ]
+    criterias: [
+      {
+        criterionType: 'StaticThresholdCriterion'
+        dimensions: [
+          {
+            name: 'controllerName'
+            operator: 'Include'
+            values: [
+              '*'
+            ]
+          }
+          {
+            name: 'kubernetes namespace'
+            operator: 'Include'
+            values: [
+              '*'
+            ]
+          }
+        ]
+        metricName: 'memoryWorkingSetExceededPercentage'
+        metricNamespace: 'Insights.Container/containers'
+        name: 'Metric1'
+        operator: 'GreaterThan'
+        threshold: 90
+        timeAggregation: 'Average'
+        skipMetricValidation: true
+      }
+    ]
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+    clusterLa
+  ]
+}
+
+module Pods_in_failed_state_for_cluster '../CARML/Microsoft.Insights/metricAlerts/deploy.bicep' = {
+  name: 'Pods_in_failed_state_for_cluster'
+  params: {
+    name: 'Pods_in_failed_state_for_cluster'
+    location: 'global'
+    alertCriteriaType: 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
+    alertDescription: 'Pod status monitoring.'
+    enabled: true
+    evaluationFrequency: 'PT1M'
+    severity: 3
+    targetResourceType: 'microsoft.containerservice/managedclusters'
+    windowSize: 'PT5M'
+    scopes: [
+      cluster.outputs.azureKubernetesServiceResourceId
+    ]
+    criterias: [
+      {
+        criterionType: 'StaticThresholdCriterion'
+        dimensions: [
+          {
+            name: 'phase'
+            operator: 'Include'
+            values: [
+              'Failed'
+            ]
+          }
+        ]
+        metricName: 'podCount'
+        metricNamespace: 'Insights.Container/pods'
+        name: 'Metric1'
+        operator: 'GreaterThan'
+        threshold: 0
+        timeAggregation: 'Average'
+        skipMetricValidation: true
+      }
+    ]
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+    clusterLa
+  ]
+}
+
+module Disk_usage_high_for_cluster '../CARML/Microsoft.Insights/metricAlerts/deploy.bicep' = {
+  name: 'Disk_usage_high_for_cluster'
+  params: {
+    name: 'Disk_usage_high_for_cluster'
+    location: 'global'
+    alertCriteriaType: 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
+    alertDescription: 'This alert monitors disk usage for all nodes and storage devices.'
+    enabled: true
+    evaluationFrequency: 'PT1M'
+    severity: 3
+    targetResourceType: 'microsoft.containerservice/managedclusters'
+    windowSize: 'PT5M'
+    scopes: [
+      cluster.outputs.azureKubernetesServiceResourceId
+    ]
+    criterias: [
+      {
+        criterionType: 'StaticThresholdCriterion'
+        dimensions: [
+          {
+            name: 'host'
+            operator: 'Include'
+            values: [
+              '*'
+            ]
+          }
+          {
+            name: 'device'
+            operator: 'Include'
+            values: [
+              '*'
+            ]
+          }
+        ]
+        metricName: 'DiskUsedPercentage'
+        metricNamespace: 'Insights.Container/nodes'
+        name: 'Metric1'
+        operator: 'GreaterThan'
+        threshold: 80
+        timeAggregation: 'Average'
+        skipMetricValidation: true
+      }
+    ]
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+    clusterLa
+  ]
+}
+
+module Nodes_in_not_ready_status_for_cluster '../CARML/Microsoft.Insights/metricAlerts/deploy.bicep' = {
+  name: 'Nodes_in_not_ready_status_for_cluster'
+  params: {
+    name: 'Nodes_in_not_ready_status_for_cluster'
+    location: 'global'
+    alertCriteriaType: 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
+    alertDescription: 'Node status monitoring.'
+    enabled: true
+    evaluationFrequency: 'PT1M'
+    severity: 3
+    targetResourceType: 'microsoft.containerservice/managedclusters'
+    windowSize: 'PT5M'
+    scopes: [
+      cluster.outputs.azureKubernetesServiceResourceId
+    ]
+    criterias: [
+      {
+        criterionType: 'StaticThresholdCriterion'
+        dimensions: [
+          {
+            name: 'status'
+            operator: 'Include'
+            values: [
+              'NotReady'
+            ]
+          }
+        ]
+        metricName: 'nodesCount'
+        metricNamespace: 'Insights.Container/nodes'
+        name: 'Metric1'
+        operator: 'GreaterThan'
+        threshold: 0
+        timeAggregation: 'Average'
+        skipMetricValidation: true
+      }
+    ]
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+    clusterLa
+  ]
+}
+
+module Containers_getting_OOM_killed_for_cluster '../CARML/Microsoft.Insights/metricAlerts/deploy.bicep' = {
+  name: 'Containers_getting_OOM_killed_for_cluster'
+  params: {
+    name: 'Containers_getting_OOM_killed_for_cluster'
+    location: 'global'
+    alertCriteriaType: 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
+    alertDescription: 'This alert monitors number of containers killed due to out of memory (OOM) error.'
+    enabled: true
+    evaluationFrequency: 'PT1M'
+    severity: 3
+    targetResourceType: 'microsoft.containerservice/managedclusters'
+    windowSize: 'PT1M'
+    scopes: [
+      cluster.outputs.azureKubernetesServiceResourceId
+    ]
+    criterias: [
+      {
+        criterionType: 'StaticThresholdCriterion'
+        dimensions: [
+          {
+            name: 'kubernetes namespace'
+            operator: 'Include'
+            values: [
+              '*'
+            ]
+          }
+          {
+            name: 'controllerName'
+            operator: 'Include'
+            values: [
+              '*'
+            ]
+          }
+        ]
+        metricName: 'oomKilledContainerCount'
+        metricNamespace: 'Insights.Container/pods'
+        name: 'Metric1'
+        operator: 'GreaterThan'
+        threshold: 0
+        timeAggregation: 'Average'
+        skipMetricValidation: true
+      }
+    ]
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+    clusterLa
+  ]
+}
+
+module Persistent_volume_usage_high_for_cluster '../CARML/Microsoft.Insights/metricAlerts/deploy.bicep' = {
+  name: 'Persistent_volume_usage_high_for_cluster'
+  params: {
+    name: 'Persistent_volume_usage_high_for_cluster'
+    location: 'global'
+    alertCriteriaType: 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
+    alertDescription: 'This alert monitors persistent volume utilization.'
+    enabled: false
+    evaluationFrequency: 'PT1M'
+    severity: 3
+    targetResourceType: 'microsoft.containerservice/managedclusters'
+    windowSize: 'PT5M'
+    scopes: [
+      cluster.outputs.azureKubernetesServiceResourceId
+    ]
+    criterias: [
+      {
+        criterionType: 'StaticThresholdCriterion'
+        dimensions: [
+          {
+            name: 'podName'
+            operator: 'Include'
+            values: [
+              '*'
+            ]
+          }
+          {
+            name: 'kubernetesNamespace'
+            operator: 'Include'
+            values: [
+              '*'
+            ]
+          }
+        ]
+        metricName: 'pvUsageExceededPercentage'
+        metricNamespace: 'Insights.Container/persistentvolumes'
+        name: 'Metric1'
+        operator: 'GreaterThan'
+        threshold: 80
+        timeAggregation: 'Average'
+        skipMetricValidation: true
+      }
+    ]
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+    clusterLa
+  ]
+}
+
+module Pods_not_in_ready_state_for_cluster '../CARML/Microsoft.Insights/metricAlerts/deploy.bicep' = {
+  name: 'Pods_not_in_ready_state_for_cluster'
+  params: {
+    name: 'Pods_not_in_ready_state_for_cluster'
+    location: 'global'
+    alertCriteriaType: 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
+    alertDescription: 'This alert monitors for excessive pods not in the ready state.'
+    enabled: true
+    evaluationFrequency: 'PT1M'
+    severity: 3
+    targetResourceType: 'microsoft.containerservice/managedclusters'
+    windowSize: 'PT5M'
+    scopes: [
+      cluster.outputs.azureKubernetesServiceResourceId
+    ]
+    criterias: [
+      {
+        criterionType: 'StaticThresholdCriterion'
+        dimensions: [
+          {
+            name: 'controllerName'
+            operator: 'Include'
+            values: [
+              '*'
+            ]
+          }
+          {
+            name: 'kubernetes namespace'
+            operator: 'Include'
+            values: [
+              '*'
+            ]
+          }
+        ]
+        metricName: 'PodReadyPercentage'
+        metricNamespace: 'Insights.Container/pods'
+        name: 'Metric1'
+        operator: 'LessThan'
+        threshold: 80
+        timeAggregation: 'Average'
+        skipMetricValidation: true
+      }
+    ]
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+    clusterLa
+  ]
+}
+
+module Restarting_container_count_for_cluster '../CARML/Microsoft.Insights/metricAlerts/deploy.bicep' = {
+  name: 'Restarting_container_count_for_cluster'
+  params: {
+    name: 'Restarting_container_count_for_cluster'
+    location: 'global'
+    alertCriteriaType: 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
+    alertDescription: 'This alert monitors number of containers restarting across the cluster.'
+    enabled: true
+    evaluationFrequency: 'PT1M'
+    severity: 3
+    targetResourceType: 'microsoft.containerservice/managedclusters'
+    windowSize: 'PT1M'
+    scopes: [
+      cluster.outputs.azureKubernetesServiceResourceId
+    ]
+    criterias: [
+      {
+        criterionType: 'StaticThresholdCriterion'
+        dimensions: [
+          {
+            name: 'kubernetes namespace'
+            operator: 'Include'
+            values: [
+              '*'
+            ]
+          }
+          {
+            name: 'controllerName'
+            operator: 'Include'
+            values: [
+              '*'
+            ]
+          }
+        ]
+        metricName: 'restartingContainerCount'
+        metricNamespace: 'Insights.Container/pods'
+        name: 'Metric1'
+        operator: 'GreaterThan'
+        threshold: 0
+        timeAggregation: 'Average'
+        skipMetricValidation: true
+      }
+    ]
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+    clusterLa
+  ]
+}
 
 output aksClusterName string = clusterName
 output aksIngressControllerPodManagedIdentityResourceId string = podmi_ingress_controller.outputs.msiResourceId
