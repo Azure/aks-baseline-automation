@@ -803,6 +803,15 @@ module monitoringMetricsPublisherRole '../CARML/Microsoft.ContainerService/manag
 //   ]
 // }
 
+// resource Microsoft_EventGrid_systemTopics_clusterName 'Microsoft.EventGrid/systemTopics@2020-10-15-preview' = {
+//   name: clusterName_var
+//   location: location
+//   properties: {
+//     source: clusterName.id
+//     topicType: 'Microsoft.ContainerService.ManagedClusters'
+//   }
+// }
+
 output aksClusterName string = clusterName
 output aksIngressControllerPodManagedIdentityResourceId string = podmi_ingress_controller.outputs.msiResourceId
 // output aksIngressControllerPodManagedIdentityClientId string = podmi_ingress_controller.outputs.msiClientId
