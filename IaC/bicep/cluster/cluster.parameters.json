@@ -13,6 +13,9 @@
         },
         "clusterAdminAadGroupObjectId":{
             "value": "50f1138f-1d8c-4eab-b643-e3a02820f244"
+        },
+        "a0008NamespaceReaderAadGroupObjectId":{
+            "value": "50f1138f-1d8c-4eab-b643-e3a02820f244"
         }
     }
 }

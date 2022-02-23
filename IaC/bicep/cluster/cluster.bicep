@@ -10,8 +10,8 @@ param targetVnetResourceId string
 @description('Azure AD Group in the identified tenant that will be granted the highly privileged cluster-admin role. If Azure RBAC is used, then this group will get a role assignment to Azure RBAC, else it will be assigned directly to the cluster\'s admin group.')
 param clusterAdminAadGroupObjectId string
 
-// @description('Azure AD Group in the identified tenant that will be granted the read only privileges in the a0008 namespace that exists in the cluster. This is only used when Azure RBAC is used for Kubernetes RBAC.')
-// param a0008NamespaceReaderAadGroupObjectId string
+@description('Azure AD Group in the identified tenant that will be granted the read only privileges in the a0008 namespace that exists in the cluster. This is only used when Azure RBAC is used for Kubernetes RBAC.')
+param a0008NamespaceReaderAadGroupObjectId string
 
 @description('Your AKS control plane Cluster API authentication tenant')
 param k8sControlPlaneAuthorizationTenantId string
@@ -694,6 +694,32 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
     // }
     // maxAgentPools: 2
     // disableLocalAccounts: true
+    roleAssignments: [
+      {
+        roleDefinitionIdOrName: 'Azure Kubernetes Service RBAC Cluster Admin'
+        principalIds: [
+          clusterAdminAadGroupObjectId
+        ]
+      }
+      {
+        roleDefinitionIdOrName: 'Azure Kubernetes Service Cluster User Role'
+        principalIds: [
+          clusterAdminAadGroupObjectId
+        ]
+      }
+      {
+        roleDefinitionIdOrName: 'Azure Kubernetes Service RBAC Reader'
+        principalIds: [
+          a0008NamespaceReaderAadGroupObjectId
+        ]
+      }
+      {
+        roleDefinitionIdOrName: 'Azure Kubernetes Service Cluster User Role'
+        principalIds: [
+          a0008NamespaceReaderAadGroupObjectId
+        ]
+      }
+    ]
     userAssignedIdentities: {
       '${clusterControlPlaneIdentity.outputs.msiResourceId}': {}
     }
@@ -724,13 +750,28 @@ module acrPullRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/n
   ]
 }
 
+module managedIdentityOperatorRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/nested_rbac.bicep' = {
+  name: 'managedIdentityOperatorRole'
+  params: {
+    principalIds: [
+      cluster.outputs.kubeletidentityObjectId
+    ]
+    roleDefinitionIdOrName: '/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830'
+    resourceId: cluster.outputs.azureKubernetesServiceResourceId
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+  ]
+}
+
 module monitoringMetricsPublisherRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/nested_rbac.bicep' = {
   name: 'monitoringMetricsPublisherRole'
   params: {
     principalIds: [
       cluster.outputs.omsagentIdentityObjectId
     ]
-    roleDefinitionIdOrName: '/providers/Microsoft.Authorization/roleDefinitions/3913510d-42f4-4e42-8a64-420c390055eb'
+    roleDefinitionIdOrName: 'Monitoring Metrics Publisher'
     resourceId: cluster.outputs.azureKubernetesServiceResourceId
   }
   scope: resourceGroup(resourceGroupName)
