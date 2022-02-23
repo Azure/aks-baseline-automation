@@ -479,6 +479,7 @@ module clusterIdentityRbac1 '../CARML/Microsoft.Network/virtualNetworks/subnets/
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
     rg
+    clusterControlPlaneIdentity
   ]
 }
 
@@ -494,6 +495,7 @@ module clusterIdentityRbac2 '../CARML/Microsoft.Network/virtualNetworks/subnets/
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
     rg
+    clusterControlPlaneIdentity
   ]
 }
 
@@ -722,6 +724,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
     rg
+    clusterControlPlaneIdentity
   ]
 }
 
