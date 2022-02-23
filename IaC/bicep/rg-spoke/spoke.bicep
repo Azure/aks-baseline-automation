@@ -199,23 +199,23 @@ module clusterVNet '../CARML/Microsoft.Network/virtualNetworks/deploy.bicep' = {
       {
         name: 'snet-clusternodes'
         addressPrefix: '10.240.0.0/22'
-        routeTableName: routeTable.outputs.routeTableName
-        networkSecurityGroupName: nsgNodePools.outputs.networkSecurityGroupName
+        routeTableName: routeTable.outputs.name
+        networkSecurityGroupName: nsgNodePools.outputs.name
         privateEndpointNetworkPolicies: 'Disabled'
         privateLinkServiceNetworkPolicies: 'Enabled'
       }
       {
         name: 'snet-clusteringressservices'
         addressPrefix: '10.240.4.0/28'
-        routeTableName: routeTable.outputs.routeTableName
-        networkSecurityGroupName: nsgAksiLb.outputs.networkSecurityGroupName
+        routeTableName: routeTable.outputs.name
+        networkSecurityGroupName: nsgAksiLb.outputs.name
         privateEndpointNetworkPolicies: 'Disabled'
         privateLinkServiceNetworkPolicies: 'Disabled'
       }
       {
         name: 'snet-applicationgateway'
         addressPrefix: '10.240.4.16/28'
-        networkSecurityGroupName: nsgAppGw.outputs.networkSecurityGroupName
+        networkSecurityGroupName: nsgAppGw.outputs.name
         privateEndpointNetworkPolicies: 'Disabled'
         privateLinkServiceNetworkPolicies: 'Disabled'
       }
@@ -258,5 +258,5 @@ module primaryClusterPip '../CARML/Microsoft.Network/publicIPAddresses/deploy.bi
   ]
 }
 
-output clusterVnetResourceId string = clusterVNet.outputs.virtualNetworkResourceId
+output clusterVnetResourceId string = clusterVNet.outputs.resourceId
 output nodepoolSubnetResourceIds array = clusterVNet.outputs.subnetResourceIds

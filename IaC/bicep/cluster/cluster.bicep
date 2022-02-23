@@ -101,7 +101,7 @@ module nodeResourceGroup '../CARML/Microsoft.Resources/resourceGroups/deploy.bic
       {
         'roleDefinitionIdOrName': 'Virtual Machine Contributor'
         'principalIds': [
-          cluster.outputs.azureKubernetesServiceResourceId
+          cluster.outputs.resourceId
         ]
       }
     ]
@@ -204,30 +204,32 @@ module keyVault '../CARML/Microsoft.KeyVault/vaults/deploy.bicep' = {
     enableVaultForDiskEncryption: false
     enableVaultForTemplateDeployment: false
     enableSoftDelete: true
-    diagnosticWorkspaceId: clusterLa.outputs.logAnalyticsResourceId
-    secrets: [
-      {
-        name: 'gateway-public-cert'
-        value: appGatewayListenerCertificate
-      }
-      {
-        name: 'appgw-ingress-internal-aks-ingress-tls'
-        value: aksIngressControllerCertificate
-      }
-    ]
+    diagnosticWorkspaceId: clusterLa.outputs.resourceId
+    secrets: {
+      secureList: [
+        {
+          name: 'gateway-public-cert'
+          value: appGatewayListenerCertificate
+        }
+        {
+          name: 'appgw-ingress-internal-aks-ingress-tls'
+          value: aksIngressControllerCertificate
+        }
+      ]
+    }
     roleAssignments: [
       {
         roleDefinitionIdOrName: 'Key Vault Secrets User (preview)'
         principalIds: [
-          mi_appgateway_frontend.outputs.msiPrincipalId
-          podmi_ingress_controller.outputs.msiPrincipalId
+          mi_appgateway_frontend.outputs.principalId
+          podmi_ingress_controller.outputs.principalId
         ]
       }
       {
         roleDefinitionIdOrName: 'Key Vault Reader (preview)'
         principalIds: [
-          mi_appgateway_frontend.outputs.msiPrincipalId
-          podmi_ingress_controller.outputs.msiPrincipalId
+          mi_appgateway_frontend.outputs.principalId
+          podmi_ingress_controller.outputs.principalId
         ]
       }
     ]
@@ -237,7 +239,7 @@ module keyVault '../CARML/Microsoft.KeyVault/vaults/deploy.bicep' = {
         subnetResourceId: vnetNodePoolSubnetResourceId
         service: 'vault'
         privateDnsZoneResourceIds: [
-          akvPrivateDnsZones.outputs.privateDnsZoneResourceId
+          akvPrivateDnsZones.outputs.resourceId
         ]
       }
     ]
@@ -307,7 +309,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
     name: agwName
     location: location
     userAssignedIdentities: {
-      '${mi_appgateway_frontend.outputs.msiResourceId}': {}
+      '${mi_appgateway_frontend.outputs.resourceId}': {}
     }
     sku: 'WAF_v2'
     sslPolicyType: 'Custom'
@@ -320,7 +322,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       {
         name: 'root-cert-wildcard-aks-ingress'
         properties: {
-          keyVaultSecretId: '${keyVault.outputs.keyVaultUrl}secrets/appgw-ingress-internal-aks-ingress-tls'
+          keyVaultSecretId: '${keyVault.outputs.uri}secrets/appgw-ingress-internal-aks-ingress-tls'
         }
       }
     ]
@@ -368,7 +370,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       {
         name: '${agwName}-ssl-certificate'
         properties: {
-          keyVaultSecretId: '${keyVault.outputs.keyVaultUrl}secrets/gateway-public-cert'
+          keyVaultSecretId: '${keyVault.outputs.uri}secrets/gateway-public-cert'
         }
       }
     ]
@@ -457,7 +459,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       }
     ]
     zones: pickZones('Microsoft.Network', 'applicationGateways', location, 3)
-    diagnosticWorkspaceId: clusterLa.outputs.logAnalyticsResourceId
+    diagnosticWorkspaceId: clusterLa.outputs.resourceId
   }
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
@@ -469,7 +471,7 @@ module clusterIdentityRbac1 '../CARML/Microsoft.Network/virtualNetworks/subnets/
   name: 'clusterIdentityRbac1'
   params: {
     principalIds: [
-      clusterControlPlaneIdentity.outputs.msiPrincipalId
+      clusterControlPlaneIdentity.outputs.principalId
     ]
     roleDefinitionIdOrName: 'Network Contributor'
     resourceId: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/virtualNetworks/${vnetName}/subnets/${clusterNodesSubnetName}'
@@ -484,7 +486,7 @@ module clusterIdentityRbac2 '../CARML/Microsoft.Network/virtualNetworks/subnets/
   name: 'clusterIdentityRbac2'
   params: {
     principalIds: [
-      clusterControlPlaneIdentity.outputs.msiPrincipalId
+      clusterControlPlaneIdentity.outputs.principalId
     ]
     roleDefinitionIdOrName: 'Network Contributor'
     resourceId: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/virtualNetworks/${vnetName}/subnets/${clusterIngressSubnetName}'
@@ -506,7 +508,7 @@ module clusterIdentityRbac2 '../CARML/Microsoft.Network/virtualNetworks/subnets/
 //     windowSize: 'PT10M'
 //     queryTimeRange: 'PT5M'
 //     scopes: [
-//       clusterLa.outputs.logAnalyticsResourceId
+//       clusterLa.outputs.resourceId
 //     ]
 //     criterias: {
 //       'allOf': [
@@ -538,7 +540,7 @@ module AllAzureAdvisorAlert '../CARML/Microsoft.Insights/activityLogAlerts/deplo
     alertDescription: 'All azure advisor alerts'
     enabled: true
     scopes: [
-      rg.outputs.resourceGroupResourceId
+      rg.outputs.resourceId
     ]
     conditions: [
       {
@@ -564,7 +566,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
     location: location
     aksClusterSkuTier: 'Paid'
     aksClusterKubernetesVersion: kubernetesVersion
-    aksClusterDnsPrefix: uniqueString(rg.outputs.resourceGroupResourceId, clusterName)
+    aksClusterDnsPrefix: uniqueString(rg.outputs.name)
     primaryAgentPoolProfile: [
       {
         name: 'npsystem'
@@ -630,7 +632,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
       clientId: 'msi'
     }
     httpApplicationRoutingEnabled: false
-    monitoringWorkspaceId: clusterLa.outputs.logAnalyticsResourceId
+    monitoringWorkspaceId: clusterLa.outputs.resourceId
     aciConnectorLinuxEnabled: false
     azurePolicyEnabled: true
     azurePolicyVersion: 'v2'
@@ -709,9 +711,9 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
       }
     ]
     userAssignedIdentities: {
-      '${clusterControlPlaneIdentity.outputs.msiResourceId}': {}
+      '${clusterControlPlaneIdentity.outputs.resourceId}': {}
     }
-    diagnosticWorkspaceId: clusterLa.outputs.logAnalyticsResourceId
+    diagnosticWorkspaceId: clusterLa.outputs.resourceId
     tags: {
       'Business unit': 'BU0001'
       'Application identifier': 'a0008'
@@ -730,7 +732,7 @@ module acrPullRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/n
       cluster.outputs.kubeletidentityObjectId
     ]
     roleDefinitionIdOrName: '/providers/Microsoft.Authorization/roleDefinitions/7f951dda-4ed3-4680-a7ca-43fe172d538d'
-    resourceId: cluster.outputs.azureKubernetesServiceResourceId
+    resourceId: cluster.outputs.resourceId
   }
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
@@ -745,7 +747,7 @@ module managedIdentityOperatorRole '../CARML/Microsoft.ContainerService/managedC
       cluster.outputs.kubeletidentityObjectId
     ]
     roleDefinitionIdOrName: '/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830'
-    resourceId: cluster.outputs.azureKubernetesServiceResourceId
+    resourceId: cluster.outputs.resourceId
   }
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
@@ -760,7 +762,7 @@ module monitoringMetricsPublisherRole '../CARML/Microsoft.ContainerService/manag
       cluster.outputs.omsagentIdentityObjectId
     ]
     roleDefinitionIdOrName: 'Monitoring Metrics Publisher'
-    resourceId: cluster.outputs.azureKubernetesServiceResourceId
+    resourceId: cluster.outputs.resourceId
   }
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
@@ -878,7 +880,7 @@ module Node_CPU_utilization_high_for_cluster '../CARML/Microsoft.Insights/metric
     targetResourceType: 'microsoft.containerservice/managedclusters'
     windowSize: 'PT5M'
     scopes: [
-      cluster.outputs.azureKubernetesServiceResourceId
+      cluster.outputs.resourceId
     ]
     criterias: [
       {
@@ -922,7 +924,7 @@ module Node_working_set_memory_utilization_high_for_cluster '../CARML/Microsoft.
     targetResourceType: 'microsoft.containerservice/managedclusters'
     windowSize: 'PT5M'
     scopes: [
-      cluster.outputs.azureKubernetesServiceResourceId
+      cluster.outputs.resourceId
     ]
     criterias: [
       {
@@ -966,7 +968,7 @@ module Jobs_completed_more_than_6_hours_ago_for_cluster '../CARML/Microsoft.Insi
     targetResourceType: 'microsoft.containerservice/managedclusters'
     windowSize: 'PT1M'
     scopes: [
-      cluster.outputs.azureKubernetesServiceResourceId
+      cluster.outputs.resourceId
     ]
     criterias: [
       {
@@ -1017,7 +1019,7 @@ module Container_CPU_usage_high_for_cluster '../CARML/Microsoft.Insights/metricA
     targetResourceType: 'microsoft.containerservice/managedclusters'
     windowSize: 'PT5M'
     scopes: [
-      cluster.outputs.azureKubernetesServiceResourceId
+      cluster.outputs.resourceId
     ]
     criterias: [
       {
@@ -1068,7 +1070,7 @@ module Container_working_set_memory_usage_high_for_cluster '../CARML/Microsoft.I
     targetResourceType: 'microsoft.containerservice/managedclusters'
     windowSize: 'PT5M'
     scopes: [
-      cluster.outputs.azureKubernetesServiceResourceId
+      cluster.outputs.resourceId
     ]
     criterias: [
       {
@@ -1119,7 +1121,7 @@ module Pods_in_failed_state_for_cluster '../CARML/Microsoft.Insights/metricAlert
     targetResourceType: 'microsoft.containerservice/managedclusters'
     windowSize: 'PT5M'
     scopes: [
-      cluster.outputs.azureKubernetesServiceResourceId
+      cluster.outputs.resourceId
     ]
     criterias: [
       {
@@ -1163,7 +1165,7 @@ module Disk_usage_high_for_cluster '../CARML/Microsoft.Insights/metricAlerts/dep
     targetResourceType: 'microsoft.containerservice/managedclusters'
     windowSize: 'PT5M'
     scopes: [
-      cluster.outputs.azureKubernetesServiceResourceId
+      cluster.outputs.resourceId
     ]
     criterias: [
       {
@@ -1214,7 +1216,7 @@ module Nodes_in_not_ready_status_for_cluster '../CARML/Microsoft.Insights/metric
     targetResourceType: 'microsoft.containerservice/managedclusters'
     windowSize: 'PT5M'
     scopes: [
-      cluster.outputs.azureKubernetesServiceResourceId
+      cluster.outputs.resourceId
     ]
     criterias: [
       {
@@ -1258,7 +1260,7 @@ module Containers_getting_OOM_killed_for_cluster '../CARML/Microsoft.Insights/me
     targetResourceType: 'microsoft.containerservice/managedclusters'
     windowSize: 'PT1M'
     scopes: [
-      cluster.outputs.azureKubernetesServiceResourceId
+      cluster.outputs.resourceId
     ]
     criterias: [
       {
@@ -1309,7 +1311,7 @@ module Persistent_volume_usage_high_for_cluster '../CARML/Microsoft.Insights/met
     targetResourceType: 'microsoft.containerservice/managedclusters'
     windowSize: 'PT5M'
     scopes: [
-      cluster.outputs.azureKubernetesServiceResourceId
+      cluster.outputs.resourceId
     ]
     criterias: [
       {
@@ -1360,7 +1362,7 @@ module Pods_not_in_ready_state_for_cluster '../CARML/Microsoft.Insights/metricAl
     targetResourceType: 'microsoft.containerservice/managedclusters'
     windowSize: 'PT5M'
     scopes: [
-      cluster.outputs.azureKubernetesServiceResourceId
+      cluster.outputs.resourceId
     ]
     criterias: [
       {
@@ -1411,7 +1413,7 @@ module Restarting_container_count_for_cluster '../CARML/Microsoft.Insights/metri
     targetResourceType: 'microsoft.containerservice/managedclusters'
     windowSize: 'PT1M'
     scopes: [
-      cluster.outputs.azureKubernetesServiceResourceId
+      cluster.outputs.resourceId
     ]
     criterias: [
       {
@@ -1616,6 +1618,6 @@ module EnforceImageSource '../CARML/Microsoft.Authorization/policyAssignments/.b
 }
 
 output aksClusterName string = clusterName
-output aksIngressControllerPodManagedIdentityResourceId string = podmi_ingress_controller.outputs.msiResourceId
+output aksIngressControllerPodManagedIdentityResourceId string = podmi_ingress_controller.outputs.resourceId
 // output aksIngressControllerPodManagedIdentityClientId string = podmi_ingress_controller.outputs.msiClientId
 output keyVaultName string = keyVaultName

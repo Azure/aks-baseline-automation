@@ -323,7 +323,7 @@ module bastionNsg '../CARML/Microsoft.Network/networkSecurityGroups/deploy.bicep
     name: bastionNetworkNsgName
     location: location
     networkSecurityGroupSecurityRules: networkSecurityGroupSecurityRules
-    diagnosticWorkspaceId: hubLa.outputs.logAnalyticsResourceId
+    diagnosticWorkspaceId: hubLa.outputs.resourceId
   }
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
@@ -335,8 +335,9 @@ module hubVNet '../CARML/Microsoft.Network/virtualNetworks/deploy.bicep' = {
   name: hubVNetName
   params: {
     name: hubVNetName
+    location: location
     addressPrefixes: array(hubVnetAddressSpace)
-    diagnosticWorkspaceId: hubLa.outputs.logAnalyticsResourceId
+    diagnosticWorkspaceId: hubLa.outputs.resourceId
     subnets: [
       {
         name: 'AzureFirewallSubnet'
@@ -349,7 +350,7 @@ module hubVNet '../CARML/Microsoft.Network/virtualNetworks/deploy.bicep' = {
       {
         name: 'AzureBastionSubnet'
         addressPrefix: azureBastionSubnetAddressSpace
-        networkSecurityGroupName: bastionNsg.outputs.networkSecurityGroupName
+        networkSecurityGroupName: bastionNsg.outputs.name
       }
     ]
   }
@@ -437,7 +438,7 @@ module fwPolicies '../CARML/Microsoft.Network/firewallPolicies/deploy.bicep' = {
   params: {
     name: fwPoliciesName
     location: location
-    basePolicyResourceId: fwPoliciesBase.outputs.firewallPolicyResourceId
+    basePolicyResourceId: fwPoliciesBase.outputs.resourceId
     tier: 'Standard'
     threatIntelMode: 'Deny'
     ipAddresses: []
@@ -485,27 +486,27 @@ module hubFw '../CARML/Microsoft.Network/azureFirewalls/deploy.bicep' = {
     ipConfigurations: [
       {
         name: hubFwPipNames[0]
-        publicIPAddressResourceId: hubFwPips[0].outputs.publicIPAddressResourceId
+        publicIPAddressResourceId: hubFwPips[0].outputs.resourceId
         subnetResourceId: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/virtualNetworks/${hubVNetName}/subnets/AzureFirewallSubnet'
       }
       {
         name: hubFwPipNames[1]
-        publicIPAddressResourceId: hubFwPips[1].outputs.publicIPAddressResourceId
+        publicIPAddressResourceId: hubFwPips[1].outputs.resourceId
       }
       {
         name: hubFwPipNames[2]
-        publicIPAddressResourceId: hubFwPips[2].outputs.publicIPAddressResourceId
+        publicIPAddressResourceId: hubFwPips[2].outputs.resourceId
       }
     ]
     natRuleCollections: []
     networkRuleCollections: []
     applicationRuleCollections: []
-    firewallPolicyId: fwPolicies.outputs.firewallPolicyResourceId
-    diagnosticWorkspaceId: hubLa.outputs.logAnalyticsResourceId
+    firewallPolicyId: fwPolicies.outputs.resourceId
+    diagnosticWorkspaceId: hubLa.outputs.resourceId
   }
   dependsOn: [
     rg
   ]
 }
 
-output hubVnetId string = hubVNet.outputs.virtualNetworkResourceId
+output hubVnetId string = hubVNet.outputs.resourceId
