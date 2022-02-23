@@ -82,18 +82,6 @@ var clusterControlPlaneIdentityName = 'mi-${clusterName}-controlplane'
 var keyVaultName = 'kv-${clusterName}'
 var aksIngressDomainName = 'aks-ingress.${domainName}'
 var aksBackendDomainName = 'bu0001a0008-00.${aksIngressDomainName}'
-// var policyResourceIdAKSLinuxRestrictive = '/providers/Microsoft.Authorization/policySetDefinitions/42b8ef37-b724-4e24-bbc8-7a7708edfe00'
-// var policyResourceIdEnforceHttpsIngress = '/providers/Microsoft.Authorization/policyDefinitions/1a5b4dca-0b6f-4cf5-907c-56316bc1bf3d'
-// var policyResourceIdEnforceInternalLoadBalancers = '/providers/Microsoft.Authorization/policyDefinitions/3fc4dc25-5baf-40d8-9b05-7fe74c1bc64e'
-// var policyResourceIdRoRootFilesystem = '/providers/Microsoft.Authorization/policyDefinitions/df49d893-a74c-421d-bc95-c663042e5b80'
-// var policyResourceIdEnforceResourceLimits = '/providers/Microsoft.Authorization/policyDefinitions/e345eecc-fa47-480f-9e88-67dcc122b164'
-// var policyResourceIdEnforceImageSource = '/providers/Microsoft.Authorization/policyDefinitions/febd0533-8e55-448f-b837-bd0e06f16469'
-// var policyAssignmentNameAKSLinuxRestrictive = guid(policyResourceIdAKSLinuxRestrictive, resourceGroup().name, clusterName)
-// var policyAssignmentNameEnforceHttpsIngress = guid(policyResourceIdEnforceHttpsIngress, resourceGroup().name, clusterName)
-// var policyAssignmentNameEnforceInternalLoadBalancers = guid(policyResourceIdEnforceInternalLoadBalancers, resourceGroup().name, clusterName)
-// var policyAssignmentNameRoRootFilesystem = guid(policyResourceIdRoRootFilesystem, resourceGroup().name, clusterName)
-// var policyAssignmentNameEnforceResourceLimits = guid(policyResourceIdEnforceResourceLimits, resourceGroup().name, clusterName)
-// var policyAssignmentNameEnforceImageSource = guid(policyResourceIdEnforceImageSource, resourceGroup().name, clusterName)
 var isUsingAzureRBACasKubernetesRBAC = (subscription().tenantId == k8sControlPlaneAuthorizationTenantId)
 
 module rg '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
@@ -1461,10 +1449,10 @@ module Restarting_container_count_for_cluster '../CARML/Microsoft.Insights/metri
   ]
 }
 
-module policyResourceIdAKSLinuxRestrictive '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
-  name: 'policyResourceIdAKSLinuxRestrictive'
+module AKSLinuxRestrictive '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
+  name: 'AKSLinuxRestrictive'
   params: {
-    name: 'policyResourceIdAKSLinuxRestrictive'
+    name: 'AKSLinuxRestrictive'
     location: location
     policyDefinitionId: '/providers/Microsoft.Authorization/policySetDefinitions/42b8ef37-b724-4e24-bbc8-7a7708edfe00'
     subscriptionId: subscription().subscriptionId
@@ -1489,10 +1477,10 @@ module policyResourceIdAKSLinuxRestrictive '../CARML/Microsoft.Authorization/pol
   ]
 }
 
-module policyResourceIdEnforceHttpsIngress '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
-  name: 'policyResourceIdEnforceHttpsIngress'
+module EnforceHttpsIngress '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
+  name: 'EnforceHttpsIngress'
   params: {
-    name: 'policyResourceIdEnforceHttpsIngress'
+    name: 'EnforceHttpsIngress'
     location: location
     policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/1a5b4dca-0b6f-4cf5-907c-56316bc1bf3d'
     subscriptionId: subscription().subscriptionId
@@ -1512,10 +1500,10 @@ module policyResourceIdEnforceHttpsIngress '../CARML/Microsoft.Authorization/pol
   ]
 }
 
-module policyResourceIdEnforceInternalLoadBalancers '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
-  name: 'policyResourceIdEnforceInternalLoadBalancers'
+module EnforceInternalLB '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
+  name: 'EnforceInternalLB'
   params: {
-    name: 'policyResourceIdEnforceInternalLoadBalancers'
+    name: 'EnforceInternalLB'
     location: location
     policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/3fc4dc25-5baf-40d8-9b05-7fe74c1bc64e'
     subscriptionId: subscription().subscriptionId
@@ -1535,10 +1523,10 @@ module policyResourceIdEnforceInternalLoadBalancers '../CARML/Microsoft.Authoriz
   ]
 }
 
-module policyResourceIdRootFilesystem '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
-  name: 'policyResourceIdRootFilesystem'
+module RootFilesystem '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
+  name: 'RootFilesystem'
   params: {
-    name: 'policyResourceIdRootFilesystem'
+    name: 'RootFilesystem'
     location: location
     policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/df49d893-a74c-421d-bc95-c663042e5b80'
     subscriptionId: subscription().subscriptionId
@@ -1562,10 +1550,10 @@ module policyResourceIdRootFilesystem '../CARML/Microsoft.Authorization/policyAs
   ]
 }
 
-module policyResourceIdEnforceResourceLimits '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
-  name: 'policyResourceIdEnforceResourceLimits'
+module EnforceResourceLimits '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
+  name: 'EnforceResourceLimits'
   params: {
-    name: 'policyResourceIdEnforceResourceLimits'
+    name: 'EnforceResourceLimits'
     location: location
     policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/e345eecc-fa47-480f-9e88-67dcc122b164'
     subscriptionId: subscription().subscriptionId
@@ -1597,10 +1585,10 @@ module policyResourceIdEnforceResourceLimits '../CARML/Microsoft.Authorization/p
   ]
 }
 
-module policyResourceIdEnforceImageSource '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
-  name: 'policyResourceIdEnforceImageSource'
+module EnforceImageSource '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
+  name: 'EnforceImageSource'
   params: {
-    name: 'policyResourceIdEnforceImageSource'
+    name: 'EnforceImageSource'
     location: location
     policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/febd0533-8e55-448f-b837-bd0e06f16469'
     subscriptionId: subscription().subscriptionId
