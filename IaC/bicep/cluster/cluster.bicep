@@ -69,7 +69,7 @@ var subRgUniqueString = uniqueString('aks', subscription().subscriptionId, resou
 var nodeResourceGroupName = 'rg-${clusterName}-nodepools'
 var clusterName = 'aks-${subRgUniqueString}'
 var logAnalyticsWorkspaceName = 'la-${clusterName}'
-// var defaultAcrName = 'acraks${subRgUniqueString}'
+var defaultAcrName = 'acraks${subRgUniqueString}'
 //var vNetResourceGroup = split(targetVnetResourceId, '/')[4]
 var vnetName = split(targetVnetResourceId, '/')[8]
 var clusterNodesSubnetName = 'snet-clusternodes'
@@ -1594,6 +1594,9 @@ module EnforceImageSource '../CARML/Microsoft.Authorization/policyAssignments/.b
     subscriptionId: subscription().subscriptionId
     resourceGroupName: resourceGroupName
     parameters: {
+      allowedContainerImagesRegex: {
+        value: '${defaultAcrName}.azurecr.io/.+$|mcr.microsoft.com/.+$|azurearcfork8s.azurecr.io/azurearcflux/images/stable/.+$|docker.io/weaveworks/kured.+$|docker.io/library/.+$'
+      }
       excludedNamespaces: {
         value: [
           'kube-system'
