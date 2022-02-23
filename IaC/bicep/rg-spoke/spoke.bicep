@@ -192,6 +192,7 @@ module clusterVNet '../CARML/Microsoft.Network/virtualNetworks/deploy.bicep' = {
   name: clusterVNetName
   params: {
     name: clusterVNetName
+    location: location
     addressPrefixes: array(clusterVnetAddressSpace)
     diagnosticWorkspaceId: hubLaWorkspaceResourceId
     subnets: [

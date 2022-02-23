@@ -1461,6 +1461,169 @@ module Restarting_container_count_for_cluster '../CARML/Microsoft.Insights/metri
   ]
 }
 
+// module policyResourceIdAKSLinuxRestrictive '../CARML/Microsoft.Authorization/policyAssignments/deploy.bicep' = {
+//   name: 'policyResourceIdAKSLinuxRestrictive'
+//   params: {
+//     name: 'policyResourceIdAKSLinuxRestrictive'
+//     location: location
+//     policyDefinitionId: '/providers/Microsoft.Authorization/policySetDefinitions/42b8ef37-b724-4e24-bbc8-7a7708edfe00'
+//     subscriptionId: subscription().subscriptionId
+//     resourceGroupName: resourceGroupName
+//     parameters: {
+//       excludedNamespaces: {
+//         value: [
+//           'kube-system'
+//           'gatekeeper-system'
+//           'azure-arc'
+//           'cluster-baseline-settings'
+//         ]
+//       }
+//       effect: {
+//         value: 'audit'
+//       }
+//     }
+//   }
+//   scope: managementGroup('246f55de-f13f-4d18-afeb-b5ad7be41265')
+//   dependsOn: [
+//     rg
+//   ]
+// }
+
+// module policyResourceIdEnforceHttpsIngress '../CARML/Microsoft.Authorization/policyAssignments/deploy.bicep' = {
+//   name: 'policyResourceIdEnforceHttpsIngress'
+//   params: {
+//     name: 'policyResourceIdEnforceHttpsIngress'
+//     location: location
+//     policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/1a5b4dca-0b6f-4cf5-907c-56316bc1bf3d'
+//     subscriptionId: subscription().subscriptionId
+//     resourceGroupName: resourceGroupName
+//     parameters: {
+//       excludedNamespaces: {
+//         value: []
+//       }
+//       effect: {
+//         value: 'deny'
+//       }
+//     }
+//   }
+//   scope: managementGroup('246f55de-f13f-4d18-afeb-b5ad7be41265')
+//   dependsOn: [
+//     rg
+//   ]
+// }
+
+// module policyResourceIdEnforceInternalLoadBalancers '../CARML/Microsoft.Authorization/policyAssignments/deploy.bicep' = {
+//   name: 'policyResourceIdEnforceInternalLoadBalancers'
+//   params: {
+//     name: 'policyResourceIdEnforceInternalLoadBalancers'
+//     location: location
+//     policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/3fc4dc25-5baf-40d8-9b05-7fe74c1bc64e'
+//     subscriptionId: subscription().subscriptionId
+//     resourceGroupName: resourceGroupName
+//     parameters: {
+//       excludedNamespaces: {
+//         value: []
+//       }
+//       effect: {
+//         value: 'deny'
+//       }
+//     }
+//   }
+//   scope: managementGroup('246f55de-f13f-4d18-afeb-b5ad7be41265')
+//   dependsOn: [
+//     rg
+//   ]
+// }
+
+// module policyResourceIdRootFilesystem '../CARML/Microsoft.Authorization/policyAssignments/deploy.bicep' = {
+//   name: 'policyResourceIdRootFilesystem'
+//   params: {
+//     name: 'policyResourceIdRootFilesystem'
+//     location: location
+//     policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/df49d893-a74c-421d-bc95-c663042e5b80'
+//     subscriptionId: subscription().subscriptionId
+//     resourceGroupName: resourceGroupName
+//     parameters: {
+//       excludedNamespaces: {
+//         value: [
+//           'kube-system'
+//           'gatekeeper-system'
+//           'azure-arc'
+//         ]
+//       }
+//       effect: {
+//         value: 'audit'
+//       }
+//     }
+//   }
+//   scope: managementGroup('246f55de-f13f-4d18-afeb-b5ad7be41265')
+//   dependsOn: [
+//     rg
+//   ]
+// }
+
+// module policyResourceIdEnforceResourceLimits '../CARML/Microsoft.Authorization/policyAssignments/deploy.bicep' = {
+//   name: 'policyResourceIdEnforceResourceLimits'
+//   params: {
+//     name: 'policyResourceIdEnforceResourceLimits'
+//     location: location
+//     policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/e345eecc-fa47-480f-9e88-67dcc122b164'
+//     subscriptionId: subscription().subscriptionId
+//     resourceGroupName: resourceGroupName
+//     parameters: {
+//       cpuLimit: {
+//         value: '1000m'
+//       }
+//       memoryLimit: {
+//         value: '512Mi'
+//       }
+//       excludedNamespaces: {
+//         value: [
+//           'kube-system'
+//           'gatekeeper-system'
+//           'azure-arc'
+//           'cluster-baseline-settings'
+//           'flux-system'
+//         ]
+//       }
+//       effect: {
+//         value: 'deny'
+//       }
+//     }
+//   }
+//   scope: managementGroup('246f55de-f13f-4d18-afeb-b5ad7be41265')
+//   dependsOn: [
+//     rg
+//   ]
+// }
+
+// module policyResourceIdEnforceImageSource '../CARML/Microsoft.Authorization/policyAssignments/deploy.bicep' = {
+//   name: 'policyResourceIdEnforceImageSource'
+//   params: {
+//     name: 'policyResourceIdEnforceImageSource'
+//     location: location
+//     policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/febd0533-8e55-448f-b837-bd0e06f16469'
+//     subscriptionId: subscription().subscriptionId
+//     resourceGroupName: resourceGroupName
+//     parameters: {
+//       excludedNamespaces: {
+//         value: [
+//           'kube-system'
+//           'gatekeeper-system'
+//           'azure-arc'
+//         ]
+//       }
+//       effect: {
+//         value: 'deny'
+//       }
+//     }
+//   }
+//   scope: managementGroup('246f55de-f13f-4d18-afeb-b5ad7be41265')
+//   dependsOn: [
+//     rg
+//   ]
+// }
+
 output aksClusterName string = clusterName
 output aksIngressControllerPodManagedIdentityResourceId string = podmi_ingress_controller.outputs.msiResourceId
 // output aksIngressControllerPodManagedIdentityClientId string = podmi_ingress_controller.outputs.msiClientId
