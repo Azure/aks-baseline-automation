@@ -54,9 +54,6 @@ param ipAllocations array = []
 @description('Optional. An array of service endpoint policies.')
 param serviceEndpointPolicies array = []
 
-@description('Optional. Array of role assignment objects that contain the \'roleDefinitionIdOrName\' and \'principalId\' to define RBAC role assignments on this resource. In the roleDefinitionIdOrName attribute, you can provide either the display name of the role definition, or its fully qualified ID in the following format: \'/providers/Microsoft.Authorization/roleDefinitions/c2f4ef07-c644-48eb-af81-4b1b4947fb11\'')
-param roleAssignments array = []
-
 var formattedServiceEndpoints = [for serviceEndpoint in serviceEndpoints: {
   service: serviceEndpoint
 }]
@@ -111,23 +108,14 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-03-01' = {
   }
 }
 
-module subnet_rbac '.bicep/nested_rbac.bicep' = [for (roleAssignment, index) in roleAssignments: {
-  name: '${deployment().name}-Rbac-${index}'
-  params: {
-    principalIds: roleAssignment.principalIds
-    roleDefinitionIdOrName: roleAssignment.roleDefinitionIdOrName
-    resourceId: subnet.id
-  }
-}]
-
 @description('The resource group the virtual network peering was deployed into')
-output subnetResourceGroup string = resourceGroup().name
+output resourceGroupName string = resourceGroup().name
 
 @description('The name of the virtual network peering')
-output subnetName string = subnet.name
+output name string = subnet.name
 
 @description('The resource ID of the virtual network peering')
-output subnetResourceId string = subnet.id
+output resourceId string = subnet.id
 
 @description('The address prefix for the subnet')
 output subnetAddressPrefix string = subnet.properties.addressPrefix

@@ -4,7 +4,7 @@ param name string
 @description('Optional. Location for all resources.')
 param location string = resourceGroup().location
 
-@description('Required. Service Tier: PerGB2018, Free, Standalone, PerGB or PerNode')
+@description('Optional. Service Tier: PerGB2018, Free, Standalone, PerGB or PerNode')
 @allowed([
   'Free'
   'Standalone'
@@ -28,7 +28,7 @@ param dataSources array = []
 @description('Optional. LAW gallerySolutions from the gallery.')
 param gallerySolutions array = []
 
-@description('Required. Number of days data will be retained for')
+@description('Optional. Number of days data will be retained for')
 @minValue(0)
 @maxValue(730)
 param dataRetention int = 365
@@ -249,13 +249,13 @@ module logAnalyticsWorkspace_rbac '.bicep/nested_rbac.bicep' = [for (roleAssignm
 }]
 
 @description('The resource ID of the deployed log analytics workspace')
-output logAnalyticsResourceId string = logAnalyticsWorkspace.id
+output resourceId string = logAnalyticsWorkspace.id
 
 @description('The resource group of the deployed log analytics workspace')
-output logAnalyticsResourceGroup string = resourceGroup().name
+output resourceGroupName string = resourceGroup().name
 
 @description('The name of the deployed log analytics workspace')
-output logAnalyticsName string = logAnalyticsWorkspace.name
+output name string = logAnalyticsWorkspace.name
 
 @description('The ID associated with the workspace')
 output logAnalyticsWorkspaceId string = logAnalyticsWorkspace.properties.customerId

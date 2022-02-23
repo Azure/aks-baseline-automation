@@ -69,7 +69,7 @@ module pid_cuaId '.bicep/nested_cuaId.bicep' = if (!empty(cuaId)) {
   params: {}
 }
 
-resource publicIPAddressExisting 'Microsoft.Network/publicIPAddresses@2021-02-01' existing = if (!empty(publicIPAddressId)) {
+resource publicIPAddressExisting 'Microsoft.Network/publicIPAddresses@2021-05-01' existing = if (!empty(publicIPAddressId)) {
   name: last(split(publicIPAddressId, '/'))
   scope: resourceGroup(split(publicIPAddressId, '/')[2], split(publicIPAddressId, '/')[4])
 }
@@ -108,7 +108,7 @@ module publicIPAddress '.bicep/nested_publicIPAddress.bicep' = if (empty(publicI
   }
 }
 
-resource azureBastion 'Microsoft.Network/bastionHosts@2021-02-01' = {
+resource azureBastion 'Microsoft.Network/bastionHosts@2021-05-01' = {
   name: name
   location: location
   tags: tags
@@ -121,7 +121,7 @@ resource azureBastion 'Microsoft.Network/bastionHosts@2021-02-01' = {
             id: '${vNetId}/subnets/AzureBastionSubnet'
           }
           publicIPAddress: {
-            id: !(empty(publicIPAddressId)) ? publicIPAddressId : publicIPAddress.outputs.publicIPAddressResourceId
+            id: !(empty(publicIPAddressId)) ? publicIPAddressId : publicIPAddress.outputs.resourceId
           }
         }
       }
@@ -160,10 +160,10 @@ module azureBastion_rbac '.bicep/nested_rbac.bicep' = [for (roleAssignment, inde
 }]
 
 @description('The resource group the Azure Bastion was deployed into')
-output azureBastionResourceGroup string = resourceGroup().name
+output resourceGroupName string = resourceGroup().name
 
 @description('The name the Azure Bastion')
-output azureBastionName string = azureBastion.name
+output name string = azureBastion.name
 
 @description('The resource ID the Azure Bastion')
-output azureBastionResourceId string = azureBastion.id
+output resourceId string = azureBastion.id

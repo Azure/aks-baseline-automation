@@ -8,7 +8,7 @@ This module deploys Azure Kubernetes Cluster (AKS).
 | :-- | :-- |
 | `Microsoft.Authorization/locks` | 2017-04-01 |
 | `Microsoft.Authorization/roleAssignments` | 2021-04-01-preview |
-| `Microsoft.ContainerService/managedClusters` | 2021-07-01 |
+| `Microsoft.ContainerService/managedClusters` | 2021-10-01 |
 | `Microsoft.ContainerService/managedClusters/agentPools` | 2021-08-01 |
 | `Microsoft.Insights/diagnosticSettings` | 2021-05-01-preview |
 
@@ -199,16 +199,16 @@ You can specify multiple user assigned identities to a resource by providing add
 
 | Output Name | Type | Description |
 | :-- | :-- | :-- |
-| `azureKubernetesServiceName` | string | The name of the managed cluster |
-| `azureKubernetesServiceResourceGroup` | string | The resource group the managed cluster was deployed into |
-| `azureKubernetesServiceResourceId` | string | The resource ID of the managed cluster |
 | `controlPlaneFQDN` | string | The control plane FQDN of the managed cluster |
+| `name` | string | The name of the managed cluster |
+| `resourceGroupName` | string | The resource group the managed cluster was deployed into |
+| `resourceId` | string | The resource ID of the managed cluster |
 | `systemAssignedPrincipalId` | string | The principal ID of the system assigned identity. |
 
 ## Template references
 
 - [Diagnosticsettings](https://docs.microsoft.com/en-us/azure/templates/Microsoft.Insights/2021-05-01-preview/diagnosticSettings)
 - [Locks](https://docs.microsoft.com/en-us/azure/templates/Microsoft.Authorization/2017-04-01/locks)
-- [Managedclusters](https://docs.microsoft.com/en-us/azure/templates/Microsoft.ContainerService/2021-07-01/managedClusters)
+- [Managedclusters](https://docs.microsoft.com/en-us/azure/templates/Microsoft.ContainerService/2021-10-01/managedClusters)
 - [Managedclusters/Agentpools](https://docs.microsoft.com/en-us/azure/templates/Microsoft.ContainerService/2021-08-01/managedClusters/agentPools)
-- [Roleassignments](https://docs.microsoft.com/en-us/azure/templates/Microsoft.Authorization/2021-04-01-preview/roleAssignments)
+- [Roleassignments](https://docs.microsoft.com/en-us/azure/templates/Microsoft.Authorization/roleAssignments)
