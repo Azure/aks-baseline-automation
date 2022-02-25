@@ -275,6 +275,17 @@ module aksIngressDomain '../CARML/Microsoft.Network/privateDnsZones/deploy.bicep
   name: aksIngressDomainName
   params: {
     name: aksIngressDomainName
+    a: [
+      {
+        name: 'bu0001a0008-00'
+        ttl: 3600
+        aRecords: [
+          {
+            ipv4Address: '10.240.4.4'
+          }
+        ]
+      }
+    ]
     location: 'global'
     virtualNetworkLinks: [
       {
@@ -289,19 +300,6 @@ module aksIngressDomain '../CARML/Microsoft.Network/privateDnsZones/deploy.bicep
     rg
   ]
 }
-
-// resource aksIngressDomain_bu0001a0008_00 'Microsoft.Network/privateDnsZones/A@2018-09-01' = {
-//   parent: aksIngressDomain
-//   name: 'bu0001a0008-00'
-//   properties: {
-//     ttl: 3600
-//     aRecords: [
-//       {
-//         ipv4Address: '10.240.4.4'
-//       }
-//     ]
-//   }
-// }
 
 module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
   name: agwName
