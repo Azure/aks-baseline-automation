@@ -72,6 +72,16 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Debugging
+        id: acrbuild
+        env:
+          ACRSERVER: "${{ env.ACRNAME }}.azurecr.io"
+          APPREPOPATH: "${{ inputs.APPREPOPATH}}"
+          IMAGEREPO: "${{ inputs.APPNAME }}"
+        run: |
+          echo "Debugging"
+          az acr list
+
       - name: ACR build
         id: acrbuild
         env:
