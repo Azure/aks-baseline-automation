@@ -41,6 +41,10 @@ on:
       AZURE_SUBSCRIPTION_ID:
         required: true
 
+permissions:
+      id-token: write
+      contents: read
+
 jobs:
   BuildPush:
     runs-on: ubuntu-latest

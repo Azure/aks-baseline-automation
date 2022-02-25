@@ -60,6 +60,10 @@ on:
       AZURE_SUBSCRIPTION_ID:
         required: true
 
+permissions:
+      id-token: write
+      contents: read
+
 jobs:
   App_Create:
     runs-on: ubuntu-latest
