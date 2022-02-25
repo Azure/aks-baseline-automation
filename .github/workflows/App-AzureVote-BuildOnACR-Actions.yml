@@ -73,11 +73,6 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Debugging
-        id: acrbuild
-        env:
-          ACRSERVER: "${{ env.ACRNAME }}.azurecr.io"
-          APPREPOPATH: "${{ inputs.APPREPOPATH}}"
-          IMAGEREPO: "${{ inputs.APPNAME }}"
         run: |
           echo "Debugging"
           az acr list
