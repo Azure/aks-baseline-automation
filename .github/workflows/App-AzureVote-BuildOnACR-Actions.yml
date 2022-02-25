@@ -34,7 +34,11 @@ on:
         type: string
         description: The directory in the repo containing the Dockerfile
     secrets:
-      AZURE_CREDENTIALS:
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_SUBSCRIPTION_ID:
         required: true
 
 jobs:
