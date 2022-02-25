@@ -10,6 +10,8 @@ The application is the Aks Voting app which is used in the Aks Getting Started g
 
 This sample is a GitHub Reusable Workflow, as an asset in a public repository it can be targetted directly or simply copied into your own repo.
 
+The Azure Credentials required are that of OpenID Connect (OIDC) based Federated Identity Credentials, please see [here](/docs/oidc-federated-credentials.md) for more information.
+
 Location of the [Reusable workflow file](/.github/workflows/App-AzureVote-HelmRunCmd.yml)
 
 ```yaml
@@ -22,7 +24,9 @@ Location of the [Reusable workflow file](/.github/workflows/App-AzureVote-HelmRu
       ACRNAME: MyAzureContainerRegistry
       APPNAME: azure-vote
     secrets:
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 ```
 
 ## Scenario Components

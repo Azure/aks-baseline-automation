@@ -61,6 +61,8 @@ sequenceDiagram
 
 This sample is a GitHub Reusable Workflow, as an asset in a public repository it can be targetted directly or simply copied into your own repo.
 
+The Azure Credentials required are that of OpenID Connect (OIDC) based Federated Identity Credentials, please see [here](/docs/oidc-federated-credentials.md) for more information.
+
 Location of the [Reusable workflow file](/.github/workflows/App-AzureVote-HelmRunCmd.yml)
 
 ```yaml
@@ -73,7 +75,9 @@ Location of the [Reusable workflow file](/.github/workflows/App-AzureVote-HelmRu
       APPNAME: azure-vote-public
       INGRESSTYPE: "PublicLoadBalancer"
     secrets:
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 ```
 
 > This sample is directly leveraged in the [AKS Bicep Accelerator](https://github.com/Azure/Aks-Construction) for smoke-testing new Kubernetes clusters.
