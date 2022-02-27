@@ -837,36 +837,20 @@ module monitoringMetricsPublisherRole '../CARML/Microsoft.ContainerService/manag
 //   ]
 // }
 
-// resource Microsoft_EventGrid_systemTopics_clusterName 'Microsoft.EventGrid/systemTopics@2020-10-15-preview' = {
-//   name: clusterName_var
-//   location: location
-//   properties: {
-//     source: clusterName.id
-//     topicType: 'Microsoft.ContainerService.ManagedClusters'
-//   }
-// }
-
-// resource Microsoft_EventGrid_systemTopics_providers_diagnosticSettings_clusterName_Microsoft_Insights_default 'Microsoft.EventGrid/systemTopics/providers/diagnosticSettings@2017-05-01-preview' = {
-//   name: '${clusterName_var}/Microsoft.Insights/default'
-//   properties: {
-//     workspaceId: resourceId('Microsoft.OperationalInsights/workspaces', logAnalyticsWorkspaceName)
-//     logs: [
-//       {
-//         category: 'DeliveryFailures'
-//         enabled: true
-//       }
-//     ]
-//     metrics: [
-//       {
-//         category: 'AllMetrics'
-//         enabled: true
-//       }
-//     ]
-//   }
-//   dependsOn: [
-//     Microsoft_EventGrid_systemTopics_clusterName
-//   ]
-// }
+module clusterSystemTopic '../CARML/Microsoft.EventGrid/systemTopics/deploy.bicep' = {
+  name: 'clusterSystemTopic'
+  params: {
+    name: 'clusterSystemTopic'
+    location: location
+    source: cluster.outputs.resourceId
+    topicType: 'Microsoft.ContainerService.ManagedClusters'
+    diagnosticWorkspaceId: clusterLa.outputs.resourceId
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+  ]
+}
 
 module Node_CPU_utilization_high_for_cluster '../CARML/Microsoft.Insights/metricAlerts/deploy.bicep' = {
   name: 'Node_CPU_utilization_high_for_cluster'
