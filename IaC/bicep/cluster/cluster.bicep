@@ -637,7 +637,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
     azurePolicyEnabled: true
     azurePolicyVersion: 'v2'
     enableKeyvaultSecretsProvider: true
-    enableSecretRotation: false
+    enableSecretRotation: 'false'
     nodeResourceGroup: nodeResourceGroupName
     aksClusterNetworkPlugin: 'azure'
     aksClusterNetworkPolicy: 'azure'
