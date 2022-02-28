@@ -22,8 +22,8 @@ param appGatewayListenerCertificate string
 @description('The Base64 encoded AKS Ingress Controller public certificate (as .crt or .cer) to be stored in Azure Key Vault as secret and referenced by Azure Application Gateway as a trusted root certificate.')
 param aksIngressControllerCertificate string
 
-// @description('IP ranges authorized to contact the Kubernetes API server. Passing an empty array will result in no IP restrictions. If any are provided, remember to also provide the public IP of the egress Azure Firewall otherwise your nodes will not be able to talk to the API server (e.g. Flux).')
-// param clusterAuthorizedIPRanges array = []
+@description('IP ranges authorized to contact the Kubernetes API server. Passing an empty array will result in no IP restrictions. If any are provided, remember to also provide the public IP of the egress Azure Firewall otherwise your nodes will not be able to talk to the API server (e.g. Flux).')
+param clusterAuthorizedIPRanges array = []
 
 @description('AKS Service, Node Pool, and supporting services (KeyVault, App Gateway, etc) region. This needs to be the same region as the vnet provided in these parameters.')
 @allowed([
@@ -636,12 +636,8 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
     aciConnectorLinuxEnabled: false
     azurePolicyEnabled: true
     azurePolicyVersion: 'v2'
-    // azureKeyvaultSecretsProvider: {
-    //   enabled: true
-    //   config: {
-    //     enableSecretRotation: 'false'
-    //   }
-    // }
+    enableKeyvaultSecretsProvider: true
+    enableSecretRotation: false
     nodeResourceGroup: nodeResourceGroupName
     aksClusterNetworkPlugin: 'azure'
     aksClusterNetworkPolicy: 'azure'
@@ -654,17 +650,15 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
     aadProfileEnableAzureRBAC: isUsingAzureRBACasKubernetesRBAC
     aadProfileAdminGroupObjectIDs: ((!isUsingAzureRBACasKubernetesRBAC) ? array(clusterAdminAadGroupObjectId) : [])
     aadProfileTenantId: k8sControlPlaneAuthorizationTenantId
-    // autoScalerProfile: {
-    //   'balance-similar-node-groups': 'false'
-    //   expander: 'random'
-    //   'max-empty-bulk-delete': '10'
-    //   'max-node-provision-time': '15m'
-    //   'max-total-unready-percentage': '45'
-    //   'new-pod-scale-up-delay': '0s'
-    //   'ok-total-unready-count': '3'
-    //   'skip-nodes-with-local-storage': 'true'
-    //   'skip-nodes-with-system-pods': 'true'
-    // }
+    autoScalerProfileBalanceSimilarNodeGroups: 'false'
+    autoScalerProfileExpander: 'random'
+    autoScalerProfileMaxEmptyBulkDelete: '10'
+    autoScalerProfileMaxNodeProvisionTime: '15m'
+    autoScalerProfileMaxTotalUnreadyPercentage: '45'
+    autoScalerProfileNewPodScaleUpDelay: '0s'
+    autoScalerProfileOkTotalUnreadyCount: '3'
+    autoScalerProfileSkipNodesWithLocalStorage: 'true'
+    autoScalerProfileSkipNodesWithSystemPods: 'true'
     autoScalerProfileScanInterval: '10s'
     autoScalerProfileScaleDownDelayAfterAdd: '10m'
     autoScalerProfileScaleDownDelayAfterDelete: '20s'
@@ -673,17 +667,10 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
     autoScalerProfileScaleDownUnreadyTime: '20m'
     autoScalerProfileUtilizationThreshold: '0.5'
     autoScalerProfileMaxGracefulTerminationSec: '600'
-    aksClusterEnablePrivateCluster: false
-    // apiServerAccessProfile: {
-    //   authorizedIPRanges: clusterAuthorizedIPRanges
-    // }
-    // podIdentityProfile: {
-    //   enabled: false
-    //   userAssignedIdentities: []
-    //   userAssignedIdentityExceptions: []
-    // }
+    enablePrivateCluster: false
+    authorizedIPRanges: clusterAuthorizedIPRanges
     // maxAgentPools: 2
-    // disableLocalAccounts: true
+    disableLocalAccounts: true
     roleAssignments: [
       {
         roleDefinitionIdOrName: 'Azure Kubernetes Service RBAC Cluster Admin'
