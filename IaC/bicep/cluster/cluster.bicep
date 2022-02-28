@@ -719,7 +719,7 @@ module acrPullRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/n
     principalIds: [
       cluster.outputs.kubeletidentityObjectId
     ]
-    roleDefinitionIdOrName: '/providers/Microsoft.Authorization/roleDefinitions/7f951dda-4ed3-4680-a7ca-43fe172d538d'
+    roleDefinitionIdOrName: 'AcrPull'
     resourceId: cluster.outputs.resourceId
   }
   scope: resourceGroup(resourceGroupName)
@@ -734,7 +734,7 @@ module managedIdentityOperatorRole '../CARML/Microsoft.ContainerService/managedC
     principalIds: [
       cluster.outputs.kubeletidentityObjectId
     ]
-    roleDefinitionIdOrName: '/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830'
+    roleDefinitionIdOrName: 'Managed Identity Operator'
     resourceId: cluster.outputs.resourceId
   }
   scope: resourceGroup(resourceGroupName)
