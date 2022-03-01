@@ -34,16 +34,22 @@ on:
         type: string
         description: The directory in the repo containing the Dockerfile
     secrets:
-      AZURE_CREDENTIALS:
+      AZURE_CLIENT_ID:
         required: true
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_SUBSCRIPTION_ID:
+        required: true
+
+permissions:
+      id-token: write
+      contents: read
 
 jobs:
   BuildPush:
     runs-on: ubuntu-latest
     env:
-      APPNAME: "${{ inputs.APPNAME }}"
       ACRNAME: "${{ inputs.ACRNAME}}"
-      RG: "${{ inputs.RG }}"
 
     steps:
       - name: Get application code from repo
@@ -56,14 +62,14 @@ jobs:
         run: |
           echo "RG is ${{ inputs.RG }}"
           echo "AKS name is ${{ inputs.AKSNAME }}"
+          echo "ACR name is ${{ inputs.ACRNAME }}"
 
       - name: Azure Login
         uses: Azure/login@v1.4.3
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-          enable-AzPSSession: false
-          environment: azurecloud
-          allow-no-subscriptions: false
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Connect to Azure Container Registry (ACR)
         id: acrconnect
@@ -90,20 +96,15 @@ jobs:
         env:
           APPREPOPATH: "${{ inputs.APPREPOPATH}}"
           ACRSERVER: "${{ steps.acrconnect.outputs.loginServer }}"
+          APPNAME: "${{ inputs.APPNAME }}"
         run: |
           cd $APPREPOPATH
-          docker build . -t $ACRSERVER/${{ inputs.APPNAME }}:${{ github.sha }}
-          docker push $ACRSERVER/${{ inputs.APPNAME }}:${{ github.sha }}
+          docker build . -t $ACRSERVER/$APPNAME:${{ github.sha }}
+          docker push $ACRSERVER/$APPNAME:${{ github.sha }}
 
   Deploy:
     runs-on: ubuntu-latest
     needs: [BuildPush]
-    env:
-      APPNAME: "${{ inputs.APPNAME }}"
-      NAMESP: "${{ inputs.NAMESPACE }}"
-      AKSNAME: "${{ inputs.AKSNAME}}"
-      ACRNAME: "${{ inputs.ACRNAME}}"
-      RG: "${{ inputs.RG }}"
 
     steps:
       - name: Get application k8s manifests from repo
@@ -112,31 +113,32 @@ jobs:
       - name: Azure Login
         uses: Azure/login@v1.4.3
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Install Kubectl
         uses: azure/setup-kubectl@v2.0
         with:
             version: 'latest'
-            
+
       - name: Set the target Azure Kubernetes Service (AKS) cluster.
         uses: azure/aks-set-context@v2.0
         with:
           cluster-name: ${{ inputs.AKSNAME }}
           resource-group: ${{ inputs.RG }}
-          
-      #It's not clear why aks-set-context isn't doing a kubelogin.... but hey ho...
+
       - name: Kubelogin
         env:
-          kubeloginversion: 'v0.0.10'
+          kubeloginversion: 'v0.0.11'
         run: |
           wget https://github.com/Azure/kubelogin/releases/download/${{ env.kubeloginversion }}/kubelogin-linux-amd64.zip
           unzip kubelogin-linux-amd64.zip
           sudo mv bin/linux_amd64/kubelogin /usr/bin
           kubelogin convert-kubeconfig -l azurecli
-          
+
       - name: Deploy app to AKS
-        uses: azure/k8s-deploy@v1.4
+        uses: azure/k8s-deploy@v1.5
         env:
           ACRNAME: "${{ inputs.ACRNAME}}"
         with:

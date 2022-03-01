@@ -34,8 +34,16 @@ on:
         type: string
         description: The directory in the repo containing the Dockerfile
     secrets:
-      AZURE_CREDENTIALS:
+      AZURE_CLIENT_ID:
         required: true
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_SUBSCRIPTION_ID:
+        required: true
+
+permissions:
+      id-token: write
+      contents: read
 
 jobs:
   BuildPush:
@@ -60,10 +68,14 @@ jobs:
       - name: Azure Login
         uses: Azure/login@v1.4.3
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-          enable-AzPSSession: false
-          environment: azurecloud
-          allow-no-subscriptions: false
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Debugging
+        run: |
+          echo "Debugging"
+          az acr list
 
       - name: ACR build
         id: acrbuild
@@ -98,10 +110,9 @@ jobs:
       - name: Azure Login
         uses: Azure/login@v1.4.3
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-          enable-AzPSSession: false
-          environment: azurecloud
-          allow-no-subscriptions: false
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Install Kubectl
         uses: azure/setup-kubectl@v2.0
@@ -113,17 +124,17 @@ jobs:
         with:
           cluster-name: ${{ inputs.AKSNAME }}
           resource-group: ${{ inputs.RG }}
-      
+
       #It's not clear why aks-set-context isn't doing a kubelogin.... but hey ho...
       - name: Kubelogin
         env:
-          kubeloginversion: 'v0.0.10'
+          kubeloginversion: 'v0.0.11'
         run: |
           wget https://github.com/Azure/kubelogin/releases/download/${{ env.kubeloginversion }}/kubelogin-linux-amd64.zip
           unzip kubelogin-linux-amd64.zip
           sudo mv bin/linux_amd64/kubelogin /usr/bin
           kubelogin convert-kubeconfig -l azurecli
-          
+
       - name: Deploy app to AKS
         uses: azure/k8s-deploy@v1.5
         env:
