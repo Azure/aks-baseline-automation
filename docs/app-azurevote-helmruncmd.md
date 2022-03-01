@@ -34,7 +34,7 @@ sequenceDiagram
     participant Azure
     participant AKS
     participant MCR
-    participant App
+    participant Voting App
     GitHub Runner->>Azure: Login
     Azure-->>GitHub Runner: Token
     GitHub Runner->>AKS: RunCmd: Check for existing install
