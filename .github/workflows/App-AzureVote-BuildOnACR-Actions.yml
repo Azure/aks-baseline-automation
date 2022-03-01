@@ -128,7 +128,7 @@ jobs:
       #It's not clear why aks-set-context isn't doing a kubelogin.... but hey ho...
       - name: Kubelogin
         env:
-          kubeloginversion: 'v0.0.10'
+          kubeloginversion: 'v0.0.11'
         run: |
           wget https://github.com/Azure/kubelogin/releases/download/${{ env.kubeloginversion }}/kubelogin-linux-amd64.zip
           unzip kubelogin-linux-amd64.zip

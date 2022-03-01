@@ -21,6 +21,7 @@ GHENV=prod
 #Create App/Service Principal
 APP=$(az ad app create --display-name $APPNAME)
 appId=$(echo $APP | jq -r ".appId"); echo $appId
+applicationObjectId=$(echo $APP | jq -r ".objectId")
 SP=$(az ad sp create --id $appId)
 assigneeObjectId=$(echo $SP | jq -r ".objectId"); echo $assigneeObjectId
 
@@ -48,7 +49,6 @@ az rest --method POST --uri $fedReqUrl --body "$fedReqBody"
 
 #Retrieving values needed for GitHub secret creation
 subscriptionId=$(az account show --query id -o tsv)
-applicationObjectId=$(echo $APP | jq -r ".objectId")
 clientId=$appId
 tenantId=$(az account show --query tenantId -o tsv)
 

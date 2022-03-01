@@ -41,19 +41,19 @@ sequenceDiagram
     Note right of AKS: Conditionally<br/>Force Uninstall
     GitHub Runner->>AKS: RunCmd: Helm Install dry run
     GitHub Runner->>AKS: RunCmd: Helm Install
-    AKS->>App: Deploy App
     AKS-->>MCR: Retrieve Container Images
+    AKS->>Voting App: Application Creation
+
     GitHub Runner->>AKS: RunCmd: Check deployment
     loop WaitForIP
-        AKS->>AKS: Wait for IP Address
+        GitHub Runner->>AKS: Wait for IP Address
     end
-    GitHub Runner->>App: Verify app reachable
     loop WaitFor200
-        App->>App: Wait for App response
+        GitHub Runner->>Voting App: Verify app reachable
+
     end
-    GitHub Runner->>App: Run Playwright UI tests
-    GitHub Runner->>AKS: (optionally) RunCmd: Helm UnInstall
-    AKS-->>App: (optionally) Uninstall App
+    GitHub Runner->>Voting App: Run Playwright UI tests
+    GitHub Runner->>AKS: (optionally) RunCmd: Helm UnInstall App
     GitHub Runner->>GitHub Runner: Store logs as artifacts
 ```
 

@@ -49,9 +49,7 @@ jobs:
   BuildPush:
     runs-on: ubuntu-latest
     env:
-      APPNAME: "${{ inputs.APPNAME }}"
       ACRNAME: "${{ inputs.ACRNAME}}"
-      RG: "${{ inputs.RG }}"
 
     steps:
       - name: Get application code from repo
@@ -64,6 +62,7 @@ jobs:
         run: |
           echo "RG is ${{ inputs.RG }}"
           echo "AKS name is ${{ inputs.AKSNAME }}"
+          echo "ACR name is ${{ inputs.ACRNAME }}"
 
       - name: Azure Login
         uses: Azure/login@v1.4.3
@@ -97,20 +96,15 @@ jobs:
         env:
           APPREPOPATH: "${{ inputs.APPREPOPATH}}"
           ACRSERVER: "${{ steps.acrconnect.outputs.loginServer }}"
+          APPNAME: "${{ inputs.APPNAME }}"
         run: |
           cd $APPREPOPATH
-          docker build . -t $ACRSERVER/${{ inputs.APPNAME }}:${{ github.sha }}
-          docker push $ACRSERVER/${{ inputs.APPNAME }}:${{ github.sha }}
+          docker build . -t $ACRSERVER/$APPNAME:${{ github.sha }}
+          docker push $ACRSERVER/$APPNAME:${{ github.sha }}
 
   Deploy:
     runs-on: ubuntu-latest
     needs: [BuildPush]
-    env:
-      APPNAME: "${{ inputs.APPNAME }}"
-      NAMESP: "${{ inputs.NAMESPACE }}"
-      AKSNAME: "${{ inputs.AKSNAME}}"
-      ACRNAME: "${{ inputs.ACRNAME}}"
-      RG: "${{ inputs.RG }}"
 
     steps:
       - name: Get application k8s manifests from repo
@@ -134,10 +128,9 @@ jobs:
           cluster-name: ${{ inputs.AKSNAME }}
           resource-group: ${{ inputs.RG }}
 
-      #It's not clear why aks-set-context isn't doing a kubelogin.... but hey ho...
       - name: Kubelogin
         env:
-          kubeloginversion: 'v0.0.10'
+          kubeloginversion: 'v0.0.11'
         run: |
           wget https://github.com/Azure/kubelogin/releases/download/${{ env.kubeloginversion }}/kubelogin-linux-amd64.zip
           unzip kubelogin-linux-amd64.zip
