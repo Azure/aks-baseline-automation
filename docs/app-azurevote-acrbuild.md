@@ -33,7 +33,7 @@ Location of the [Reusable workflow file](/.github/workflows/App-AzureVote-HelmRu
 
 ## ACR Build
 
-The primary responsibility of the Azure Container Registry is to store a container image. ACR can also take a DockerFile and associated files to [build a container image](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-quickstart-task-cli).
+The primary responsibility of the Azure Container Registry is to store a container image. ACR can also take a DockerFile and associated files to [build a container image](https://docs.microsoft.com/azure/container-registry/container-registry-quickstart-task-cli).
 
 Using ACR to build the container image offloads build agent responsibility and allows the build to happen in isolation (if using a [dedicated agent pool](https://docs.microsoft.com/en-us/azure/container-registry/tasks-agent-pools)). It also eliminates the need for storing extra credentials which are normally leveraged to do a Docker Push.
 
