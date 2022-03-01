@@ -91,7 +91,7 @@ The Helm chart is written using [subcharts](https://helm.sh/docs/topics/charts/)
 
 ## Aks Run Command
 
-The [Aks Run Command allows](https://docs.microsoft.com/en-us/azure/aks/command-invoke) you to remotely invoke commands in an AKS cluster through the AKS API. This can greatly assist with access to a private cluster when the client is not on the cluster private network while still retaining and enforcing full RBAC controls and a private API server.
+The [AKS Run Command](https://docs.microsoft.com/azure/aks/command-invoke) allows you to remotely invoke commands in an AKS cluster through the AKS API. This can greatly assist with access to a private cluster when the client is not on the cluster private network while still retaining and enforcing full RBAC controls and a private API server.
 
 ## Key Steps in the Action Workflow
 
