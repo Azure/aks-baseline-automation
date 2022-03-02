@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
+      - users/hieumoscow/terraform
     paths: 
       - IaC/terraform
   # issue_comment:
@@ -67,7 +67,7 @@ jobs:
 
           terraform init -upgrade
           eval terraform apply ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -auto-approve
-          
+
       - name: Destroy Standalone
         if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad') || github.event_name != 'issue_comment'     
         run: |
