@@ -39,15 +39,22 @@ jobs:
           git fetch origin ${{ env.event_sha }}
           git checkout FETCH_HEAD
 
+      # - name: Azure Login
+      #   if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad') || github.event_name != 'issue_comment'     
+      #   uses: azure/login@v1
+      #   with:
+      #     creds: ${{ env.AZURE_CREDENTIALS }}
+      
       - name: Azure Login
-        if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad') || github.event_name != 'issue_comment'     
-        uses: azure/login@v1
+        uses: Azure/login@v1.4.3
         with:
-          creds: ${{ env.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.0.3
+          terraform_version: 1.1.6
           terraform_wrapper: false
           # https://stackoverflow.com/questions/65170927/terraform-output-value-failed-formatted-by-jq-in-github-actions
 
@@ -55,27 +62,12 @@ jobs:
         if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad') || github.event_name != 'issue_comment'     
         run: |
           pwd
-          cd IaC/terraform/standalone//
-          configuration_folder=configuration
-          parameter_files=$(find $configuration_folder -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
+          cd IaC/terraform
+          parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
+
           terraform init -upgrade
           eval terraform apply ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -auto-approve
-      - name: Test
-        id: test
-        if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad') || github.event_name != 'issue_comment'     
-        run: |
-          pwd
-          cd IaC/terraform/standalone//
-          ls -lta
-          export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
-          export PREFIX=$(terraform output -json | jq -r '.global_settings.value.prefixes[0]')
-          echo $(terraform output -json | jq -r .aks_clusters_kubeconfig.value.cluster_re1.aks_kubeconfig_admin_cmd) | bash
-
-          cd ../test
-          go mod tidy
-          go test -v  shared_services/shared_services_test.go
-          go test -v  aks/aks_test.go
-          go test -v  flux/flux_test.go
+          
       - name: Destroy Standalone
         if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad') || github.event_name != 'issue_comment'     
         run: |
