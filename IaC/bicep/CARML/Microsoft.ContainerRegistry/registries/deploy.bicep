@@ -18,7 +18,6 @@ param privateEndpoints array = []
 @description('Optional. Tier of your Azure container registry.')
 @allowed([
   'Basic'
-  'Classic'
   'Premium'
   'Standard'
 ])
@@ -194,14 +193,14 @@ resource registry 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
   }
   properties: {
     adminUserEnabled: acrAdminUserEnabled
-    encryption: {
+    encryption: acrSku == 'Premium' ? {
       keyVaultProperties: !empty(keyVaultProperties) ? keyVaultProperties : null
       status: encryptionStatus
-    }
+    } : null
     policies: {
-      exportPolicy: {
+      exportPolicy: acrSku == 'Premium' ? {
         status: exportPolicyStatus
-      }
+      } : null
       quarantinePolicy: {
         status: quarantinePolicyStatus
       }
@@ -209,10 +208,10 @@ resource registry 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
         type: 'Notary'
         status: trustPolicyStatus
       }
-      retentionPolicy: {
+      retentionPolicy: acrSku == 'Premium' ? {
         days: retentionPolicyDays
         status: retentionPolicyStatus
-      }
+      } : null
     }
     dataEndpointEnabled: dataEndpointEnabled
     publicNetworkAccess: publicNetworkAccess
@@ -221,7 +220,7 @@ resource registry 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
       defaultAction: networkRuleSetDefaultAction
       ipRules: networkRuleSetIpRules
     } : null
-    zoneRedundancy: zoneRedundancy
+    zoneRedundancy: acrSku == 'Premium' ? zoneRedundancy : null
   }
 }
 
