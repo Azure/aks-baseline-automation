@@ -4,8 +4,8 @@ param name string
 @description('Optional. Customer Usage Attribution ID (GUID). This GUID must be previously registered')
 param cuaId string = ''
 
-@description('Optional. Use when creating an extension resource at a scope that is different than the deployment scope.')
-param scope object
+@description('Optional. The name of the AKS cluster that should be configured.')
+param clusterName string
 
 @description('Optional. Flag to note if this extension participates in auto upgrade of minor version, or not.')
 param autoUpgradeMinorVersion bool = true
@@ -39,9 +39,13 @@ module pid_cuaId '.bicep/nested_cuaId.bicep' = if (!empty(cuaId)) {
   params: {}
 }
 
+resource managedCluster 'Microsoft.ContainerService/managedClusters@2021-07-01' existing = {
+  name: clusterName
+}
+
 resource extension 'Microsoft.KubernetesConfiguration/extensions@2021-09-01' = {
   name: name
-  scope: scope
+  scope: managedCluster
   identity: {
     type: 'SystemAssigned'
   }

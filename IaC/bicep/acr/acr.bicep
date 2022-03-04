@@ -126,27 +126,23 @@ module acrAks '../CARML/Microsoft.ContainerRegistry/registries/deploy.bicep' = {
     location: location
     acrSku: 'Premium'
     acrAdminUserEnabled: false
-    // networkRuleSet: {
-    //   defaultAction: 'Deny'
-    //   ipRules: []
-    // }
+    networkRuleSetDefaultAction: 'Deny'
+    networkRuleSetIpRules: []
     quarantinePolicyStatus: 'disabled'
     trustPolicyStatus: 'disabled'
-    retentionPolicyDays: '15'
+    retentionPolicyDays: 15
     retentionPolicyStatus: 'enabled'
     publicNetworkAccess: 'Disabled'
-    // encryption: {
-    //   status: 'disabled'
-    // }
+    encryptionStatus: 'disabled'
     dataEndpointEnabled: true
     networkRuleBypassOptions: 'AzureServices'
-    // zoneRedundancy: 'Disabled' // This Preview feature only supports three regions at this time, and eastus2's paired region (centralus), does not support this. So disabling for now.
-    
-    // resource acrReplication 'replications@2021-09-01' = {
-    //   name: geoRedundancyLocation
-    //   location: geoRedundancyLocation
-    //   properties: {}
-    // }
+    zoneRedundancy: 'Disabled' // This Preview feature only supports three regions at this time, and eastus2's paired region (centralus), does not support this. So disabling for now.
+    replications: [
+      {
+        name: geoRedundancyLocation
+        location: geoRedundancyLocation
+      }
+    ]
     diagnosticWorkspaceId: laAks.outputs.resourceId
     privateEndpoints: [
       {

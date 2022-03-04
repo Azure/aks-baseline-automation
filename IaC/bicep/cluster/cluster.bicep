@@ -758,32 +758,32 @@ module monitoringMetricsPublisherRole '../CARML/Microsoft.ContainerService/manag
   ]
 }
 
-// resource clusterName_Microsoft_KubernetesConfiguration_flux 'Microsoft.ContainerService/managedClusters/providers/extensions@2021-09-01' = {
-//   name: '${clusterName}/Microsoft.KubernetesConfiguration/flux'
-//   properties: {
-//     extensionType: 'Microsoft.Flux'
-//     autoUpgradeMinorVersion: true
-//     releaseTrain: 'Stable'
-//     scope: {
-//       cluster: {
-//         releaseNamespace: 'flux-system'
-//         configurationSettings: {
-//           'helm-controller.enabled': 'false'
-//           'source-controller.enabled': 'true'
-//           'kustomize-controller.enabled': 'true'
-//           'notification-controller.enabled': 'false'
-//           'image-automation-controller.enabled': 'false'
-//           'image-reflector-controller.enabled': 'false'
-//         }
-//         configurationProtectedSettings: {}
-//       }
-//     }
-//   }
-//   dependsOn: [
-//     cluster
-//     acrPullRole
-//   ]
-// }
+module kubernetesConfigurationFlux '../CARML/Microsoft.KubernetesConfiguration/fluxConfigurations/deploy.bicep' = {
+  name: '${clusterName}/Microsoft.KubernetesConfiguration/flux'
+  params: {
+    name: '${clusterName}/Microsoft.KubernetesConfiguration/flux'
+    extensionType: 'Microsoft.Flux'
+    clusterName: cluster.name
+    autoUpgradeMinorVersion: true
+    releaseTrain: 'Stable'
+    releaseNamespace: 'flux-system'
+    configurationSettings: {
+      'helm-controller.enabled': 'false'
+      'source-controller.enabled': 'true'
+      'kustomize-controller.enabled': 'true'
+      'notification-controller.enabled': 'false'
+      'image-automation-controller.enabled': 'false'
+      'image-reflector-controller.enabled': 'false'
+    }
+    configurationProtectedSettings: {}
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+    cluster
+    acrPullRole
+  ]
+}
 
 // resource clusterName_Microsoft_KubernetesConfiguration_bootstrap 'Microsoft.ContainerService/managedClusters/providers/fluxConfigurations@2022-01-01-preview' = {
 //   name: '${clusterName}/Microsoft.KubernetesConfiguration/bootstrap'
