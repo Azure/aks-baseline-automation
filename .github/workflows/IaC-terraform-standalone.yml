@@ -23,7 +23,11 @@ env:
   ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
   ARM_PARTNER_ID: "451dc593-a3a3-4d41-91e7-3aadf93e1a78"
   ENVIRONMENT: "1${{ github.run_id }}"
-
+  
+permissions:
+  id-token: write
+  contents: read
+  
 jobs:
   deploy-standalone:
     runs-on: ubuntu-latest
