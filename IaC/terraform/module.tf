@@ -1,7 +1,11 @@
 module "caf" {
-  source  = "aztfmod/caf/azurerm"
-  version = "~> 5.4.0"
+  # source  = "aztfmod/caf/azurerm"
+  # version = "~> 5.5.0"
+  source = "./public"
 
+  providers = {
+    azurerm.vhub = azurerm.vhub
+  }
   global_settings      = merge((var.override_prefix == "" ? {} : { prefix = var.override_prefix }), var.global_settings)
   logged_user_objectId = var.logged_user_objectId
   tags                 = var.tags
