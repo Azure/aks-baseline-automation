@@ -758,7 +758,7 @@ module monitoringMetricsPublisherRole '../CARML/Microsoft.ContainerService/manag
   ]
 }
 
-module kubernetesConfigurationFlux '../CARML/Microsoft.KubernetesConfiguration/fluxConfigurations/deploy.bicep' = {
+module kubernetesConfigurationFlux '../CARML/Microsoft.KubernetesConfiguration/extensions/deploy.bicep' = {
   name: 'flux'
   params: {
     name: 'flux'
