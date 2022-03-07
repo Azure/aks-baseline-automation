@@ -759,9 +759,9 @@ module monitoringMetricsPublisherRole '../CARML/Microsoft.ContainerService/manag
 }
 
 module kubernetesConfigurationFlux '../CARML/Microsoft.KubernetesConfiguration/fluxConfigurations/deploy.bicep' = {
-  name: '${clusterName}/Microsoft.KubernetesConfiguration/flux'
+  name: 'flux'
   params: {
-    name: '${clusterName}/Microsoft.KubernetesConfiguration/flux'
+    name: 'flux'
     extensionType: 'Microsoft.Flux'
     clusterName: cluster.name
     autoUpgradeMinorVersion: true

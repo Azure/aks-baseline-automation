@@ -1,4 +1,4 @@
-@description('Required. The name of the Event Grid Topic')
+@description('Required. The name of the Flux Configuration')
 param name string
 
 @description('Optional. Customer Usage Attribution ID (GUID). This GUID must be previously registered')

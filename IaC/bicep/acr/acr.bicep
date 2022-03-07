@@ -158,6 +158,7 @@ module acrAks '../CARML/Microsoft.ContainerRegistry/registries/deploy.bicep' = {
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
     rg
+    dnsPrivateZoneAcr
   ]
 }
 
