@@ -8,10 +8,16 @@
         "acrAdminUserEnabled": {
             "value": false
         },
+        "acrSku": {
+            "value": "Premium"
+        },
+        "exportPolicyStatus": {
+            "value": "enabled"
+        },
         "replications": {
             "value": [
                 {
-                    "name": "North Europe",
+                    "name": "northeurope",
                     "location": "northeurope"
                 }
             ]

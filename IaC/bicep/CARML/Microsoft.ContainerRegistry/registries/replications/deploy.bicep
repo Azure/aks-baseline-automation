@@ -11,7 +11,7 @@ param location string = resourceGroup().location
 param tags object = {}
 
 @description('Optional. Specifies whether the replication regional endpoint is enabled. Requests will not be routed to a replication whose regional endpoint is disabled, however its data will continue to be synced with other replications.')
-param regionEndpointEnabled bool = false
+param regionEndpointEnabled bool = true
 
 @allowed([
   'Disabled'
@@ -32,7 +32,7 @@ resource registry 'Microsoft.ContainerRegistry/registries@2021-09-01' existing =
   name: registryName
 }
 
-resource replication 'Microsoft.ContainerRegistry/registries/replications@2021-09-01' = {
+resource replication 'Microsoft.ContainerRegistry/registries/replications@2021-12-01-preview' = {
   name: name
   parent: registry
   location: location
