@@ -17,13 +17,17 @@ on:
 env:
   AZURE_CREDENTIALS: '{"clientId":"${{ secrets.ARM_CLIENT_ID }}", "clientSecret":"${{ secrets.ARM_CLIENT_SECRET }}", "subscriptionId":"${{ secrets.ARM_SUBSCRIPTION_ID }}", "tenantId":"${{ secrets.ARM_TENANT_ID }}"}' 
   event_sha: +refs/pull/${{ github.event.issue.number }}/merge
-  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}            
-  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}            
+  ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
   ARM_PARTNER_ID: "451dc593-a3a3-4d41-91e7-3aadf93e1a78"
   ENVIRONMENT: "1${{ github.run_id }}"
-
+  
+permissions:
+  id-token: write
+  contents: read
+  
 jobs:
   deploy-standalone:
     runs-on: ubuntu-latest
@@ -31,13 +35,7 @@ jobs:
       prefix: ${{ steps.test.outputs.PREFIX }}
     steps:
       - name: Checkout Repository
-        if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad') || github.event_name != 'issue_comment'      
         uses: actions/checkout@v2
-      - name: Checkout PR code
-        if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad')
-        run: |
-          git fetch origin ${{ env.event_sha }}
-          git checkout FETCH_HEAD
 
       # - name: Azure Login
       #   if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad') || github.event_name != 'issue_comment'     
