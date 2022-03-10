@@ -144,12 +144,38 @@ module acrAks '../CARML/Microsoft.ContainerRegistry/registries/deploy.bicep' = {
       }
     ]
     diagnosticWorkspaceId: laAks.outputs.resourceId
-    privateEndpoints: [
+    // unfortunately deploying the endpoint here will fail for the first run
+    // privateEndpoints: [
+    //   {
+    //     name: 'nodepools'
+    //     subnetResourceId: spokeVirtualNetwork::snetClusterNodes.id
+    //     service: 'registry'
+    //     privateDnsZoneResourceIds: [
+    //       dnsPrivateZoneAcr.outputs.resourceId
+    //     ]
+    //   }
+    // ]
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+    dnsPrivateZoneAcr
+  ]
+}
+
+module acrPrivateEndpoint '../CARML/Microsoft.Network/privateEndpoints/deploy.bicep' = {
+  name: 'nodepools'
+  params: {
+    name: 'nodepools'
+    location: location
+    targetSubnetResourceId: spokeVirtualNetwork::snetClusterNodes.id
+    groupId: [
+      'registry'
+    ]
+    serviceResourceId: acrAks.outputs.resourceId
+    privateDnsZoneGroups: [
       {
-        name: 'nodepools'
-        subnetResourceId: spokeVirtualNetwork::snetClusterNodes.id
-        service: 'registry'
-        privateDnsZoneResourceIds: [
+        privateDNSResourceIds: [
           dnsPrivateZoneAcr.outputs.resourceId
         ]
       }
@@ -159,6 +185,7 @@ module acrAks '../CARML/Microsoft.ContainerRegistry/registries/deploy.bicep' = {
   dependsOn: [
     rg
     dnsPrivateZoneAcr
+    acrAks
   ]
 }
 
