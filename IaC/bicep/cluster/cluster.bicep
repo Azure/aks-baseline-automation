@@ -219,14 +219,14 @@ module keyVault '../CARML/Microsoft.KeyVault/vaults/deploy.bicep' = {
     }
     roleAssignments: [
       {
-        roleDefinitionIdOrName: 'Key Vault Secrets User (preview)'
+        roleDefinitionIdOrName: 'Key Vault Secrets User'
         principalIds: [
           mi_appgateway_frontend.outputs.principalId
           podmi_ingress_controller.outputs.principalId
         ]
       }
       {
-        roleDefinitionIdOrName: 'Key Vault Reader (preview)'
+        roleDefinitionIdOrName: 'Key Vault Reader'
         principalIds: [
           mi_appgateway_frontend.outputs.principalId
           podmi_ingress_controller.outputs.principalId
