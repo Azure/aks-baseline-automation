@@ -2,7 +2,7 @@
 dns_zones = {
   dns_zone1 = {
     name               = "" // Set as empty for CI. this will creation a random_domain_name.com
-    resource_group_key = "agw_re1"
+    resource_group_key = "aks_re1"
 
     # You can create dns records using the following nested structure
     records = {
@@ -28,7 +28,7 @@ domain_name_registrations = {
   #
   random_domain = {
     name               = "" // Set as empty for CI. this will creation a random_domain_name.com
-    resource_group_key = "agw_re1"
+    resource_group_key = "aks_re1"
 
     auto_renew    = true
     privacy       = true
