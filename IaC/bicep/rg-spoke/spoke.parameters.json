@@ -6,7 +6,7 @@
             "value": "rg-spoke"
         },
         "location": {
-            "value": "westeurope"
+            "value": "eastus"
         },
         "clusterVnetAddressSpace": {
             "value": "10.240.0.0/16"

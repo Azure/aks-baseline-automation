@@ -6,7 +6,7 @@
             "value": "rg-enterprise-networking-hubs"
         },
         "location": {
-            "value": "westeurope"
+            "value": "eastus"
         },
         "hubVnetAddressSpace": {
             "value": "10.200.0.0/24"
