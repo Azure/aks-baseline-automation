@@ -8,7 +8,7 @@ This module deploys Azure Kubernetes Cluster (AKS).
 | :-- | :-- |
 | `Microsoft.Authorization/locks` | 2017-04-01 |
 | `Microsoft.Authorization/roleAssignments` | 2021-04-01-preview |
-| `Microsoft.ContainerService/managedClusters` | 2021-10-01 |
+| `Microsoft.ContainerService/managedClusters` | 2021-11-01-preview |
 | `Microsoft.ContainerService/managedClusters/agentPools` | 2021-08-01 |
 | `Microsoft.Insights/diagnosticSettings` | 2021-05-01-preview |
 
@@ -59,7 +59,6 @@ This module deploys Azure Kubernetes Cluster (AKS).
 | `autoScalerProfileUtilizationThreshold` | string | `0.5` |  | Optional. Specifies the utilization threshold of the auto-scaler of the AKS cluster. |
 | `azurePolicyEnabled` | bool | `True` |  | Optional. Specifies whether the azurepolicy add-on is enabled or not. |
 | `azurePolicyVersion` | string | `v2` |  | Optional. Specifies the azure policy version to use. |
-| `cuaId` | string |  |  | Optional. Customer Usage Attribution ID (GUID). This GUID must be previously registered |
 | `diagnosticEventHubAuthorizationRuleId` | string |  |  | Optional. Resource ID of the diagnostic event hub authorization rule for the Event Hubs namespace in which the event hub should be created or streamed to. |
 | `diagnosticEventHubName` | string |  |  | Optional. Name of the diagnostic event hub within the namespace to which logs are streamed. Without this, an event hub is created for each log category. |
 | `diagnosticLogsRetentionInDays` | int | `365` |  | Optional. Specifies the number of days that logs will be kept for; a value of 0 will retain data indefinitely. |
@@ -67,7 +66,11 @@ This module deploys Azure Kubernetes Cluster (AKS).
 | `diagnosticWorkspaceId` | string |  |  | Optional. Resource ID of the diagnostic log analytics workspace. |
 | `disableLocalAccounts` | bool | `False` |  | Optional. If set to true, getting static credentials will be disabled for this cluster. This must only be used on Managed Clusters that are AAD enabled. |
 | `disableRunCommand` | bool | `False` |  | Optional. Whether to disable run command for the cluster or not. |
+| `enableAzureDefender` | bool | `False` |  | Optional. Whether to enable Azure Defender. |
+| `enableDefaultTelemetry` | bool | `True` |  | Optional. Enable telemetry via the Customer Usage Attribution ID (GUID). |
 | `enableKeyvaultSecretsProvider` | bool | `False` |  | Optional. Specifies whether the KeyvaultSecretsProvider add-on is enabled or not. |
+| `enableOidcIssuerProfile` | bool | `False` |  | Optional. Whether the The OIDC issuer profile of the Managed Cluster is enabled. |
+| `enablePodSecurityPolicy` | bool | `False` |  | Optional. Whether to enable Kubernetes pod security policy. |
 | `enablePrivateCluster` | bool | `False` |  | Optional. Specifies whether to create the cluster as a private cluster or not. |
 | `enablePrivateClusterPublicFQDN` | bool | `False` |  | Optional. Whether to create additional public FQDN for private cluster or not. |
 | `enableSecretRotation` | string | `false` | `[false, true]` | Optional. Specifies whether the KeyvaultSecretsProvider add-on uses secret rotation. |
@@ -87,10 +90,10 @@ This module deploys Azure Kubernetes Cluster (AKS).
 | `podIdentityProfileUserAssignedIdentities` | array | `[]` |  | Optional. The pod identities to use in the cluster. |
 | `podIdentityProfileUserAssignedIdentityExceptions` | array | `[]` |  | Optional. The pod identity exceptions to allow. |
 | `primaryAgentPoolProfile` | array |  |  | Required. Properties of the primary agent pool. |
-| `privateDNSZone` | string | `system` | `[system, none]` | Optional. If AKS will create a Private DNS Zone in the Node Resource Group. |
 | `roleAssignments` | array | `[]` |  | Optional. Array of role assignment objects that contain the 'roleDefinitionIdOrName' and 'principalId' to define RBAC role assignments on this resource. In the roleDefinitionIdOrName attribute, you can provide either the display name of the role definition, or its fully qualified ID in the following format: '/providers/Microsoft.Authorization/roleDefinitions/c2f4ef07-c644-48eb-af81-4b1b4947fb11' |
 | `systemAssignedIdentity` | bool | `False` |  | Optional. Enables system assigned managed identity on the resource. |
 | `tags` | object | `{object}` |  | Optional. Tags of the resource. |
+| `usePrivateDNSZone` | bool | `False` |  | Optional. If AKS will create a Private DNS Zone in the Node Resource Group. |
 | `userAssignedIdentities` | object | `{object}` |  | Optional. The ID(s) to assign to the resource. |
 
 ### Parameter Usage: `roleAssignments`
@@ -100,6 +103,7 @@ This module deploys Azure Kubernetes Cluster (AKS).
     "value": [
         {
             "roleDefinitionIdOrName": "Reader",
+            "description": "Reader Role Assignment",
             "principalIds": [
                 "12345678-1234-1234-1234-123456789012", // object 1
                 "78945612-1234-1234-1234-123456789012" // object 2
@@ -231,6 +235,6 @@ You can specify multiple user assigned identities to a resource by providing add
 
 - [Diagnosticsettings](https://docs.microsoft.com/en-us/azure/templates/Microsoft.Insights/2021-05-01-preview/diagnosticSettings)
 - [Locks](https://docs.microsoft.com/en-us/azure/templates/Microsoft.Authorization/2017-04-01/locks)
-- [Managedclusters](https://docs.microsoft.com/en-us/azure/templates/Microsoft.ContainerService/2021-10-01/managedClusters)
+- [Managedclusters](https://docs.microsoft.com/en-us/azure/templates/Microsoft.ContainerService/2021-11-01-preview/managedClusters)
 - [Managedclusters/Agentpools](https://docs.microsoft.com/en-us/azure/templates/Microsoft.ContainerService/2021-08-01/managedClusters/agentPools)
 - [Roleassignments](https://docs.microsoft.com/en-us/azure/templates/Microsoft.Authorization/roleAssignments)

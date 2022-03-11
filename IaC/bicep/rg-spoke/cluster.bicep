@@ -566,7 +566,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
     location: location
     aksClusterSkuTier: 'Paid'
     aksClusterKubernetesVersion: kubernetesVersion
-    aksClusterDnsPrefix: uniqueString(rg.outputs.name)
+    aksClusterDnsPrefix: uniqueString(subscription().subscriptionId, rg.outputs.name, clusterName)
     primaryAgentPoolProfile: [
       {
         name: 'npsystem'
@@ -669,7 +669,13 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
     autoScalerProfileMaxGracefulTerminationSec: '600'
     enablePrivateCluster: false
     authorizedIPRanges: clusterAuthorizedIPRanges
+    podIdentityProfileEnable: false
+    podIdentityProfileUserAssignedIdentities: []
+    podIdentityProfileUserAssignedIdentityExceptions: []
+    enableAzureDefender: true
+    enableOidcIssuerProfile:true
     // maxAgentPools: 2
+    enablePodSecurityPolicy: false
     disableLocalAccounts: true
     roleAssignments: [
       {
