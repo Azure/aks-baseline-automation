@@ -81,23 +81,23 @@ aks_clusters = {
 
     node_resource_group_name = "aks-nodes-re1"
 
-    # node_pools = {
-    #   pool1 = {
-    #     name                = "npuser01"
-    #     mode                = "User"
-    #     subnet_key          = "aks_nodepool_user1"
-    #     max_pods            = 30
-    #     vm_size             = "Standard_DS3_v2"
-    #     node_count          = 3
-    #     os_disk_type        = "Ephemeral"
-    #     enable_auto_scaling = false
-    #     os_disk_size_gb     = 120
-    #     # orchestrator_version = "1.20.5"
-    #     tags = {
-    #       "project" = "user services"
-    #     }
-    #   }
-    # }
+    node_pools = {
+      pool1 = {
+        name                = "npuser01"
+        mode                = "User"
+        subnet_key          = "aks_nodepool_system"
+        max_pods            = 30
+        vm_size             = "Standard_DS3_v2"
+        node_count          = 3
+        os_disk_type        = "Ephemeral"
+        enable_auto_scaling = false
+        os_disk_size_gb     = 120
+        # orchestrator_version = "1.20.5"
+        tags = {
+          "project" = "user services"
+        }
+      }
+    }
 
   }
 }
