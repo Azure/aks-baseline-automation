@@ -10,15 +10,6 @@
         },
         "clusterVnetAddressSpace": {
             "value": "10.240.0.0/16"
-        },
-        "hubVnetResourceId": {
-            "value": "/subscriptions/7ce5fff6-aaaa-4a71-88b4-12b48eecfb1f/resourceGroups/rg-enterprise-networking-hubs/providers/Microsoft.Network/virtualNetworks/vnet-eastus-hub"
-        },
-        "hubLaWorkspaceResourceId": {
-            "value": "/subscriptions/7ce5fff6-aaaa-4a71-88b4-12b48eecfb1f/resourcegroups/rg-enterprise-networking-hubs/providers/microsoft.operationalinsights/workspaces/la-hub-eastus-uqskybk6chh56"
-        },
-        "hubFwResourceId": {
-            "value": "/subscriptions/7ce5fff6-aaaa-4a71-88b4-12b48eecfb1f/resourceGroups/rg-enterprise-networking-hubs/providers/Microsoft.Network/azureFirewalls/fw-eastus"
         }
     }
 }

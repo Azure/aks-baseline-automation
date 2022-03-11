@@ -510,3 +510,5 @@ module hubFw '../CARML/Microsoft.Network/azureFirewalls/deploy.bicep' = {
 }
 
 output hubVnetId string = hubVNet.outputs.resourceId
+output hubLaWorkspaceResourceId string = hubLa.outputs.resourceId
+output hubFwResourceId string = hubFw.outputs.resourceId
