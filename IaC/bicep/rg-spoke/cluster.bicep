@@ -764,32 +764,32 @@ module monitoringMetricsPublisherRole '../CARML/Microsoft.ContainerService/manag
   ]
 }
 
-module kubernetesConfigurationFlux '../CARML/Microsoft.KubernetesConfiguration/extensions/deploy.bicep' = {
-  name: 'flux'
-  params: {
-    name: 'flux'
-    extensionType: 'microsoft.flux'
-    clusterName: cluster.name
-    autoUpgradeMinorVersion: true
-    releaseTrain: 'Stable'
-    releaseNamespace: 'flux-system'
-    configurationSettings: {
-      'helm-controller.enabled': 'false'
-      'source-controller.enabled': 'true'
-      'kustomize-controller.enabled': 'true'
-      'notification-controller.enabled': 'false'
-      'image-automation-controller.enabled': 'false'
-      'image-reflector-controller.enabled': 'false'
-    }
-    configurationProtectedSettings: {}
-  }
-  scope: resourceGroup(resourceGroupName)
-  dependsOn: [
-    rg
-    cluster
-    acrPullRole
-  ]
-}
+// module kubernetesConfigurationFlux '../CARML/Microsoft.KubernetesConfiguration/extensions/deploy.bicep' = {
+//   name: 'flux'
+//   params: {
+//     name: 'flux'
+//     extensionType: 'microsoft.flux'
+//     clusterName: cluster.name
+//     autoUpgradeMinorVersion: true
+//     releaseTrain: 'Stable'
+//     releaseNamespace: 'flux-system'
+//     configurationSettings: {
+//       'helm-controller.enabled': 'false'
+//       'source-controller.enabled': 'true'
+//       'kustomize-controller.enabled': 'true'
+//       'notification-controller.enabled': 'false'
+//       'image-automation-controller.enabled': 'false'
+//       'image-reflector-controller.enabled': 'false'
+//     }
+//     configurationProtectedSettings: {}
+//   }
+//   scope: resourceGroup(resourceGroupName)
+//   dependsOn: [
+//     rg
+//     cluster
+//     acrPullRole
+//   ]
+// }
 
 // resource clusterName_Microsoft_KubernetesConfiguration_bootstrap 'Microsoft.ContainerService/managedClusters/providers/fluxConfigurations@2022-01-01-preview' = {
 //   name: '${clusterName}/Microsoft.KubernetesConfiguration/bootstrap'
