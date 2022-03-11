@@ -9,7 +9,7 @@ private_dns = {
         ingress = {
           name    = "bu0001a0008-00"
           ttl     = 3600
-          records = ["10.100.82.10"]
+          records = ["10.240.4.10"]
         }
       }
     }
