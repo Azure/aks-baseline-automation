@@ -507,7 +507,6 @@ module PodFailedScheduledQuery '../CARML/Microsoft.Insights/scheduledQueryRules/
     evaluationFrequency: 'PT5M'
     enabled: true
     windowSize: 'PT10M'
-    //queryTimeRange: 'PT5M'
     scopes: [
       clusterLa.outputs.resourceId
     ]
