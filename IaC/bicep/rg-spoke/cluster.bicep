@@ -497,40 +497,41 @@ module clusterIdentityRbac2 '../CARML/Microsoft.Network/virtualNetworks/subnets/
   ]
 }
 
-// module PodFailedScheduledQuery '../CARML/Microsoft.Insights/scheduledQueryRules/deploy.bicep' = {
-//   name: 'PodFailedScheduledQuery'
-//   params: {
-//     name: 'PodFailedScheduledQuery'
-//     alertDescription: 'Alert on pod Failed phase.'
-//     severity: 3
-//     evaluationFrequency: 'PT5M'
-//     enabled: true
-//     windowSize: 'PT10M'
-//     queryTimeRange: 'PT5M'
-//     scopes: [
-//       clusterLa.outputs.resourceId
-//     ]
-//     criterias: {
-//       'allOf': [
-//         {
-//           query: '//https://docs.microsoft.com/azure/azure-monitor/insights/container-insights-alerts \r\n let endDateTime = now(); let startDateTime = ago(1h); let trendBinSize = 1m; let clusterName = "${clusterName}"; KubePodInventory | where TimeGenerated < endDateTime | where TimeGenerated >= startDateTime | where ClusterName == clusterName | distinct ClusterName, TimeGenerated | summarize ClusterSnapshotCount = count() by bin(TimeGenerated, trendBinSize), ClusterName | join hint.strategy=broadcast ( KubePodInventory | where TimeGenerated < endDateTime | where TimeGenerated >= startDateTime | distinct ClusterName, Computer, PodUid, TimeGenerated, PodStatus | summarize TotalCount = count(), PendingCount = sumif(1, PodStatus =~ "Pending"), RunningCount = sumif(1, PodStatus =~ "Running"), SucceededCount = sumif(1, PodStatus =~ "Succeeded"), FailedCount = sumif(1, PodStatus =~ "Failed") by ClusterName, bin(TimeGenerated, trendBinSize) ) on ClusterName, TimeGenerated | extend UnknownCount = TotalCount - PendingCount - RunningCount - SucceededCount - FailedCount | project TimeGenerated, TotalCount = todouble(TotalCount) / ClusterSnapshotCount, PendingCount = todouble(PendingCount) / ClusterSnapshotCount, RunningCount = todouble(RunningCount) / ClusterSnapshotCount, SucceededCount = todouble(SucceededCount) / ClusterSnapshotCount, FailedCount = todouble(FailedCount) / ClusterSnapshotCount, UnknownCount = todouble(UnknownCount) / ClusterSnapshotCount| summarize AggregatedValue = avg(FailedCount) by bin(TimeGenerated, trendBinSize)'
-//           timeAggregation: 'Average'
-//           metricMeasureColumn: 'AggregatedValue'
-//           operator: 'GreaterThan'
-//           threshold: 3
-//           failingPeriods: {
-//             numberOfEvaluationPeriods: 3
-//             minFailingPeriodsToAlert: 3
-//           }
-//         }
-//       ]
-//     }
-//   }
-//   scope: resourceGroup(resourceGroupName)
-//   dependsOn: [
-//     rg
-//   ]
-// }
+module PodFailedScheduledQuery '../CARML/Microsoft.Insights/scheduledQueryRules/deploy.bicep' = {
+  name: 'PodFailedScheduledQuery'
+  params: {
+    name: 'PodFailedScheduledQuery'
+    location: location
+    alertDescription: 'Alert on pod Failed phase.'
+    severity: 3
+    evaluationFrequency: 'PT5M'
+    enabled: true
+    windowSize: 'PT10M'
+    queryTimeRange: 'PT5M'
+    scopes: [
+      clusterLa.outputs.resourceId
+    ]
+    criterias: {
+      'allOf': [
+        {
+          query: '//https://docs.microsoft.com/azure/azure-monitor/insights/container-insights-alerts \r\n let endDateTime = now(); let startDateTime = ago(1h); let trendBinSize = 1m; let clusterName = "${clusterName}"; KubePodInventory | where TimeGenerated < endDateTime | where TimeGenerated >= startDateTime | where ClusterName == clusterName | distinct ClusterName, TimeGenerated | summarize ClusterSnapshotCount = count() by bin(TimeGenerated, trendBinSize), ClusterName | join hint.strategy=broadcast ( KubePodInventory | where TimeGenerated < endDateTime | where TimeGenerated >= startDateTime | distinct ClusterName, Computer, PodUid, TimeGenerated, PodStatus | summarize TotalCount = count(), PendingCount = sumif(1, PodStatus =~ "Pending"), RunningCount = sumif(1, PodStatus =~ "Running"), SucceededCount = sumif(1, PodStatus =~ "Succeeded"), FailedCount = sumif(1, PodStatus =~ "Failed") by ClusterName, bin(TimeGenerated, trendBinSize) ) on ClusterName, TimeGenerated | extend UnknownCount = TotalCount - PendingCount - RunningCount - SucceededCount - FailedCount | project TimeGenerated, TotalCount = todouble(TotalCount) / ClusterSnapshotCount, PendingCount = todouble(PendingCount) / ClusterSnapshotCount, RunningCount = todouble(RunningCount) / ClusterSnapshotCount, SucceededCount = todouble(SucceededCount) / ClusterSnapshotCount, FailedCount = todouble(FailedCount) / ClusterSnapshotCount, UnknownCount = todouble(UnknownCount) / ClusterSnapshotCount| summarize AggregatedValue = avg(FailedCount) by bin(TimeGenerated, trendBinSize)'
+          timeAggregation: 'Average'
+          metricMeasureColumn: 'AggregatedValue'
+          operator: 'GreaterThan'
+          threshold: 3
+          failingPeriods: {
+            numberOfEvaluationPeriods: 3
+            minFailingPeriodsToAlert: 3
+          }
+        }
+      ]
+    }
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+  ]
+}
 
 module AllAzureAdvisorAlert '../CARML/Microsoft.Insights/activityLogAlerts/deploy.bicep' = {
   name: 'AllAzureAdvisorAlert'
