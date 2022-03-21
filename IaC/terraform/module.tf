@@ -1,7 +1,7 @@
 module "caf" {
-  # source  = "aztfmod/caf/azurerm"
-  # version = "~> 5.5.0"
-  source = "./public"
+  source  = "aztfmod/caf/azurerm"
+  version = "~> 5.5.0"
+  # source = "./public"
 
   providers = {
     azurerm.vhub = azurerm.vhub

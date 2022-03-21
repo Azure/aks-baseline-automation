@@ -151,3 +151,7 @@ variable "flux_settings" {
 variable "aks_cluster_key" {
   default = null
 }
+
+variable "aad_pod_identity" {
+  default = {}
+}
