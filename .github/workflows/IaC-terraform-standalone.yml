@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - users/hieumoscow/terraform
+      - terraform
     paths: 
       - IaC/terraform
   # issue_comment:
@@ -61,6 +61,7 @@ jobs:
         run: |
           pwd
           cd IaC/terraform
+          git clone https://github.com/Azure/caf-terraform-landingzones.git landingzone
           parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
 
           terraform init -upgrade
