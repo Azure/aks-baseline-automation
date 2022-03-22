@@ -34,7 +34,7 @@ jobs:
 
   AcrBuild:
     needs: [ReusableWF]
-    uses: ./.github/workflows/Env-azurevote/App-AzureVote-BuildOnACR-Actions.yml
+    uses: ./.github/workflows/Env-App-AzureVote-BuildOnACR-Actions.yml
     with:
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
