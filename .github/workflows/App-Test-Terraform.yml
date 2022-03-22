@@ -1,0 +1,73 @@
+# Workflow is for testing reusable workflows to expedite the developer inner loop.
+
+name: Terraform - Test Harness for Reusable App workflows
+
+on:
+  workflow_dispatch:
+    inputs:
+      ResourceGroup:
+        description: 'Resource Group Name'
+        type: string
+        required: true
+      AKSNAME:
+        description: 'AKS Cluster Name'
+        type: string
+        required: true
+      ACRNAME:
+        required: true
+        type: string
+
+jobs:
+  ReusableWF:
+    runs-on: ubuntu-latest
+    environment: terraform
+    outputs:
+      RG: ${{ github.event.inputs.ResourceGroup }}
+      AKSNAME: ${{ github.event.inputs.AKSNAME }}
+      ACRNAME: ${{ github.event.inputs.ACRNAME }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    steps:
+      - name: Dummy step
+        run: echo "Resuable workflows can't be directly reference ENV/INPUTS (yet)"
+
+  AcrBuild:
+    needs: [ReusableWF]
+    uses: ./.github/workflows/App-AzureVote-BuildOnACR-Actions.yml
+    with:
+      RG: ${{ needs.ReusableWF.outputs.RG }}
+      AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
+      ACRNAME: ${{ needs.ReusableWF.outputs.ACRNAME }}
+      APPNAME: basevote1
+    secrets:
+      AZURE_CLIENT_ID: ${{ needs.ReusableWF.outputs.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ needs.ReusableWF.outputs.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ needs.ReusableWF.outputs.AZURE_SUBSCRIPTION_ID }}
+
+  DockerBuildPushACR:
+    needs: [ReusableWF]
+    uses: ./.github/workflows/App-AzureVote-DockerBuild-Actions.yml
+    with:
+      RG: ${{ needs.ReusableWF.outputs.RG }}
+      AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
+      ACRNAME: ${{ needs.ReusableWF.outputs.ACRNAME }}
+      APPNAME: basevote2
+    secrets:
+      AZURE_CLIENT_ID: ${{ needs.ReusableWF.outputs.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ needs.ReusableWF.outputs.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ needs.ReusableWF.outputs.AZURE_SUBSCRIPTION_ID }}
+
+  RunCmd:
+    needs: [ReusableWF]
+    uses: ./.github/workflows/App-AzureVote-HelmRunCmd.yml
+    with:
+      RG: ${{ needs.ReusableWF.outputs.RG }}
+      AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
+      APPNAME: azure-vote-public
+      #HELMPACKAGEURI will change to this repo once this repo's visibility is PUBLIC!
+      HELMPACKAGEURI: https://github.com/Gordonby/minihelm/raw/main/samples/AzureVote-0.9.5.tgz
+    secrets:
+      AZURE_CLIENT_ID: ${{ needs.ReusableWF.outputs.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ needs.ReusableWF.outputs.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ needs.ReusableWF.outputs.AZURE_SUBSCRIPTION_ID }}
