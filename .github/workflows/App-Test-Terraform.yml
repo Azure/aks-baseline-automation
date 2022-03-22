@@ -34,7 +34,7 @@ jobs:
 
   AcrBuild:
     needs: [ReusableWF]
-    uses: ./.github/workflows/env-azurevote/App-AzureVote-BuildOnACR-Actions.yml
+    uses: ./.github/workflows/Env-azurevote/App-AzureVote-BuildOnACR-Actions.yml
     with:
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
@@ -48,7 +48,7 @@ jobs:
 
   DockerBuildPushACR:
     needs: [ReusableWF]
-    uses: ./.github/workflows/env-azurevote/App-AzureVote-DockerBuild-Actions.yml
+    uses: ./.github/workflows/Env-App-AzureVote-DockerBuild-Actions.yml
     with:
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
@@ -62,7 +62,7 @@ jobs:
 
   RunCmd:
     needs: [ReusableWF]
-    uses: ./.github/workflows/env-azurevote/App-AzureVote-HelmRunCmd.yml
+    uses: ./.github/workflows/Env-App-AzureVote-HelmRunCmd.yml
     with:
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
