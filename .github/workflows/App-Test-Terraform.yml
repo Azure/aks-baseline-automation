@@ -16,6 +16,9 @@ on:
       ACRNAME:
         required: true
         type: string
+env:
+  ENVIRONMENT: terraform
+
 
 jobs:
   ReusableWF:
@@ -25,49 +28,49 @@ jobs:
       RG: ${{ github.event.inputs.ResourceGroup }}
       AKSNAME: ${{ github.event.inputs.AKSNAME }}
       ACRNAME: ${{ github.event.inputs.ACRNAME }}
-      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     steps:
       - name: Dummy step
-        run: echo "Resuable workflows can't be directly reference ENV/INPUTS (yet)"
+        run: echo "Reusable workflows can't be directly reference ENV/INPUTS (yet)"
 
   AcrBuild:
     needs: [ReusableWF]
-    uses: ./.github/workflows/App-AzureVote-BuildOnACR-Actions.yml
+    uses: ./.github/workflows/env-azurevote/App-AzureVote-BuildOnACR-Actions.yml
     with:
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
       ACRNAME: ${{ needs.ReusableWF.outputs.ACRNAME }}
       APPNAME: basevote1
+      ENVIRONMENT: ${{ env.ENVIRONMENT}}
     secrets:
-      AZURE_CLIENT_ID: ${{ needs.ReusableWF.outputs.AZURE_CLIENT_ID }}
-      AZURE_TENANT_ID: ${{ needs.ReusableWF.outputs.AZURE_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ needs.ReusableWF.outputs.AZURE_SUBSCRIPTION_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
   DockerBuildPushACR:
     needs: [ReusableWF]
-    uses: ./.github/workflows/App-AzureVote-DockerBuild-Actions.yml
+    uses: ./.github/workflows/env-azurevote/App-AzureVote-DockerBuild-Actions.yml
     with:
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
       ACRNAME: ${{ needs.ReusableWF.outputs.ACRNAME }}
       APPNAME: basevote2
+      ENVIRONMENT: ${{ env.ENVIRONMENT}}
     secrets:
-      AZURE_CLIENT_ID: ${{ needs.ReusableWF.outputs.AZURE_CLIENT_ID }}
-      AZURE_TENANT_ID: ${{ needs.ReusableWF.outputs.AZURE_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ needs.ReusableWF.outputs.AZURE_SUBSCRIPTION_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
   RunCmd:
     needs: [ReusableWF]
-    uses: ./.github/workflows/App-AzureVote-HelmRunCmd.yml
+    uses: ./.github/workflows/env-azurevote/App-AzureVote-HelmRunCmd.yml
     with:
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
       APPNAME: azure-vote-public
+      ENVIRONMENT: ${{ env.ENVIRONMENT}}
       #HELMPACKAGEURI will change to this repo once this repo's visibility is PUBLIC!
       HELMPACKAGEURI: https://github.com/Gordonby/minihelm/raw/main/samples/AzureVote-0.9.5.tgz
     secrets:
-      AZURE_CLIENT_ID: ${{ needs.ReusableWF.outputs.AZURE_CLIENT_ID }}
-      AZURE_TENANT_ID: ${{ needs.ReusableWF.outputs.AZURE_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ needs.ReusableWF.outputs.AZURE_SUBSCRIPTION_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
