@@ -16,8 +16,8 @@ on:
       ACRNAME:
         required: true
         type: string
-env:
-  ENVIRONMENT: terraform
+      environment:
+        type: environment
 
 
 jobs:
@@ -40,7 +40,7 @@ jobs:
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
       ACRNAME: ${{ needs.ReusableWF.outputs.ACRNAME }}
       APPNAME: basevote1
-      ENVIRONMENT: ${{ env.ENVIRONMENT}}
+      ENVIRONMENT: ${{ github.event.inputs.environment }}
     secrets:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -54,7 +54,7 @@ jobs:
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
       ACRNAME: ${{ needs.ReusableWF.outputs.ACRNAME }}
       APPNAME: basevote2
-      ENVIRONMENT: ${{ env.ENVIRONMENT}}
+      ENVIRONMENT: ${{ github.event.inputs.environment }}
     secrets:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -67,7 +67,7 @@ jobs:
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
       APPNAME: azure-vote-public
-      ENVIRONMENT: ${{ env.ENVIRONMENT}}
+      ENVIRONMENT: ${{ github.event.inputs.environment }}
       #HELMPACKAGEURI will change to this repo once this repo's visibility is PUBLIC!
       HELMPACKAGEURI: https://github.com/Gordonby/minihelm/raw/main/samples/AzureVote-0.9.5.tgz
     secrets:
