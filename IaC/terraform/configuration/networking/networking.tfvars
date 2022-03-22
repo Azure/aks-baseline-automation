@@ -49,11 +49,11 @@ vnets = {
         cidr    = ["10.240.4.16/28"]
         nsg_key = "application_gateway"
       }
-      # private_endpoints = {
-      #   name                                           = "private_endpoints"
-      #   cidr                                           = ["10.100.83.0/27"]
-      #   enforce_private_link_endpoint_network_policies = true
-      # }
+      private_endpoints = {
+        name                                           = "snet-privateendpoints"
+        cidr                                           = ["10.240.4.32/27"]
+        enforce_private_link_endpoint_network_policies = true
+      }
     } //subnets
 
   }

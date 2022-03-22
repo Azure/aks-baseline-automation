@@ -46,9 +46,10 @@ module "caf" {
   }
 
   compute = {
-    aks_clusters     = var.aks_clusters
-    bastion_hosts    = var.bastion_hosts
-    virtual_machines = var.virtual_machines
+    aks_clusters               = var.aks_clusters
+    bastion_hosts              = var.bastion_hosts
+    virtual_machines           = var.virtual_machines
+    azure_container_registries = var.azure_container_registries
   }
 
   security = {

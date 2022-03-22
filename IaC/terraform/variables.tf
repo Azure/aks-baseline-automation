@@ -155,3 +155,7 @@ variable "aks_cluster_key" {
 variable "aad_pod_identity" {
   default = {}
 }
+
+variable "azure_container_registries" {
+  default = {}
+}
