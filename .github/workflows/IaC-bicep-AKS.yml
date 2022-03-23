@@ -1,6 +1,15 @@
 
 on:
   workflow_dispatch:
+    inputs:
+      clusterAdminAadGroupObjectId:
+        description: 'AAD Group Object Id for Cluster Admin Role'
+        type: string
+        required: true
+      a0008NamespaceReaderAadGroupObjectId:
+        description: 'AAD Group Object Id for Namespace Reader Role'
+        type: string
+        required: true
 
 env:
   event_sha: +refs/pull/${{ github.event.issue.number }}/merge
@@ -49,7 +58,7 @@ jobs:
           region: eastus
           scope: subscription
           template: ./IaC/bicep/rg-spoke/cluster.bicep
-          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }}
+          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }}
           failOnStdErr: false
 
       - name: "Deploy Registry"
