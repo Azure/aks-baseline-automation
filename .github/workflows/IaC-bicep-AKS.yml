@@ -15,8 +15,38 @@ env:
   event_sha: +refs/pull/${{ github.event.issue.number }}/merge
 
 jobs:
+  prereqs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: "Azure Login"
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.CARML_AZURE_CREDENTIALS }}
+
+      #Helps with errors that can occur during deployment: OIDCIssuerFeatureFlagNotEnabled: Enabling OIDC issuer is not allowed since feature 'Microsoft.ContainerService/EnableOIDCIssuerPreview' is not enabled
+      #                                                    AzureDefenderFeatureFlagNotEnabled: AzureDefender installation is not allowed since feature 'Microsoft.ContainerService/AKS-AzureDefender' is not enabled.
+      - name: "Check Preview Features"
+        shell: pwsh
+        run: |
+          $aksfeatures = az feature list --query "[?contains(name, 'Microsoft.ContainerService')]" | ConvertFrom-Json
+
+          $feature='EnableOIDCIssuerPreview'
+          write-output "-- $feature"
+          $featureOidc = $aksfeatures |  Where-Object {$_.name -like "*$feature"}
+          $featureOidc.properties.state
+          if ($featureOidc.properties.state -ne 'Registered') {
+            Write-Output $featureOidc
+            Write-Error "$feature NOT registered"
+          }
+
   deployment:
     runs-on: ubuntu-latest
+    needs: [prereqs]
     steps:
       - name: "Checkout"
         uses: actions/checkout@v2
