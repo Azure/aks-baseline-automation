@@ -13,10 +13,12 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
       - name: "Azure Login"
         uses: azure/login@v1
         with:
           creds: ${{ secrets.CARML_AZURE_CREDENTIALS }}
+
       - name: "Deploy Hub"
         id: hub
         uses: azure/arm-deploy@v1
@@ -27,6 +29,7 @@ jobs:
           template: ./IaC/bicep/rg-hub/hub-default.bicep
           parameters: ./IaC/bicep/rg-hub/hub-default.parameters.json
           failOnStdErr: false
+
       - name: "Deploy Spoke"
         id: spoke
         uses: azure/arm-deploy@v1
@@ -37,6 +40,7 @@ jobs:
           template: ./IaC/bicep/rg-spoke/spoke.bicep
           parameters: ./IaC/bicep/rg-spoke/spoke.parameters.json hubVnetResourceId=${{ steps.hub.outputs.hubVnetId }} hubLaWorkspaceResourceId=${{ steps.hub.outputs.hubLaWorkspaceResourceId }} hubFwResourceId=${{ steps.hub.outputs.hubFwResourceId }}
           failOnStdErr: false
+
       - name: "Deploy Cluster"
         id: cluster
         uses: azure/arm-deploy@v1
@@ -47,6 +51,7 @@ jobs:
           template: ./IaC/bicep/rg-spoke/cluster.bicep
           parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }}
           failOnStdErr: false
+
       - name: "Deploy Registry"
         id: registry
         uses: azure/arm-deploy@v1
