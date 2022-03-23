@@ -310,17 +310,6 @@ module aksIngressDomain '../CARML/Microsoft.Network/privateDnsZones/deploy.bicep
   ]
 }
 
-module certCreation '../rg-spoke/createCert.bicep' = {
-  name: 'certCreation'
-  params: {
-    location: location
-  }
-  scope: resourceGroup(resourceGroupName)
-  dependsOn: [
-    rg
-  ]
-}
-
 module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
   name: agwName
   params: {
