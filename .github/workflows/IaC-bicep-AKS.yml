@@ -2,15 +2,8 @@
 on:
   workflow_dispatch:
 
-
 env:
-  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.SERVICE_PRINCIPAL }}", "clientSecret":"${{ secrets.SERVICE_PRINCIPAL_PWD }}", "subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}", "tenantId":"${{ secrets.TENANT }}"}'
   event_sha: +refs/pull/${{ github.event.issue.number }}/merge
-  SERVICE_PRINCIPAL: ${{ secrets.SERVICE_PRINCIPAL }}
-  SERVICE_PRINCIPAL_PWD: ${{ secrets.SERVICE_PRINCIPAL_PWD }}
-  SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
-  TENANT: ${{ secrets.TENANT }}
-  ENVIRONMENT: "1${{ github.run_id }}"
 
 jobs:
   deployment:
