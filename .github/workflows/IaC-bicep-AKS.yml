@@ -4,11 +4,11 @@ on:
 
 
 env:
-  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.SERVICE_PRINCIPAL }}", "clientSecret":"${{ secrets.SERVICE_PRINCIPAL_PWD }}", "subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}", "tenantId":"${{ secrets.TENANT }}"}' 
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.SERVICE_PRINCIPAL }}", "clientSecret":"${{ secrets.SERVICE_PRINCIPAL_PWD }}", "subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}", "tenantId":"${{ secrets.TENANT }}"}'
   event_sha: +refs/pull/${{ github.event.issue.number }}/merge
   SERVICE_PRINCIPAL: ${{ secrets.SERVICE_PRINCIPAL }}
   SERVICE_PRINCIPAL_PWD: ${{ secrets.SERVICE_PRINCIPAL_PWD }}
-  SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}            
+  SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
   TENANT: ${{ secrets.TENANT }}
   ENVIRONMENT: "1${{ github.run_id }}"
 
@@ -23,12 +23,12 @@ jobs:
       - name: "Azure Login"
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          creds: ${{ secrets.CARML_AZURE_CREDENTIALS }}
       - name: "Deploy Hub"
         id: hub
         uses: azure/arm-deploy@v1
         with:
-          subscriptionId: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          subscriptionId: ${{ secrets.CARML_SUBSCRIPTION_ID }}
           region: eastus
           scope: subscription
           template: ./IaC/bicep/rg-hub/hub-default.bicep
@@ -38,7 +38,7 @@ jobs:
         id: spoke
         uses: azure/arm-deploy@v1
         with:
-          subscriptionId: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          subscriptionId: ${{ secrets.CARML_SUBSCRIPTION_ID }}
           region: eastus
           scope: subscription
           template: ./IaC/bicep/rg-spoke/spoke.bicep
@@ -48,7 +48,7 @@ jobs:
         id: cluster
         uses: azure/arm-deploy@v1
         with:
-          subscriptionId: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          subscriptionId: ${{ secrets.CARML_SUBSCRIPTION_ID }}
           region: eastus
           scope: subscription
           template: ./IaC/bicep/rg-spoke/cluster.bicep
@@ -58,7 +58,7 @@ jobs:
         id: registry
         uses: azure/arm-deploy@v1
         with:
-          subscriptionId: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          subscriptionId: ${{ secrets.CARML_SUBSCRIPTION_ID }}
           region: eastus
           scope: subscription
           template: ./IaC/bicep/rg-spoke/acr.bicep
