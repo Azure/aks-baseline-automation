@@ -25,6 +25,10 @@ diagnostics_definition = {
         ["kube-scheduler", false, false, 0],
         ["cluster-autoscaler", true, false, 7],
         ["guard", true, false, 7],
+        ["cloud-controller-manager", false, false, 0],
+        ["csi-azuredisk-controller", false, false, 0],
+        ["csi-azurefile-controller", false, false, 0],
+        ["csi-snapshot-controller", false, false, 0]
       ]
       metric = [
         #["Category name",  "Diagnostics Enabled(true/false)", "Retention Enabled(true/false)", Retention_period]

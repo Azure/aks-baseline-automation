@@ -14,7 +14,18 @@ role_mapping = {
         } // "Contributor"
       }   // logged_in_subscription
     }     // subscriptions
-
+    aks_clusters = {
+      cluster_re1 = {
+        "Azure Kubernetes Service RBAC Cluster Admin" = {
+          # azuread_groups = {
+          #   keys = ["aks_admins"]
+          # }
+          logged_in = {
+            keys = ["user"]
+          }
+        }
+      }
+    }
     azure_container_registries = {
       acr1 = {
         "AcrPull" = {

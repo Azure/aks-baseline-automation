@@ -34,9 +34,10 @@ aks_clusters = {
     role_based_access_control = {
       enabled = true
       azure_active_directory = {
-        managed = true
+        managed            = true
+        azure_rbac_enabled = true
         # admin_group_object_names = ["aks-cluster-re1-admins"]
-        admin_group_object_ids = ["50f1138f-1d8c-4eab-b643-e3a02820f244"]
+        # admin_group_object_ids = ["50f1138f-1d8c-4eab-b643-e3a02820f244"]
         # azuread_groups = {
         #   keys = ["aks_cluster_re1_admins"]
         # }
@@ -52,6 +53,10 @@ aks_clusters = {
       }
       azure_policy = {
         enabled = true
+      }
+      ingress_application_gateway = {
+        enabled = true
+        key     = "agw1_az1"
       }
     }
 
