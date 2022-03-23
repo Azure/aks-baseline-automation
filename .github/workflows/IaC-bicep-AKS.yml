@@ -1,0 +1,66 @@
+
+on:
+  workflow_dispatch:
+
+
+env:
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.SERVICE_PRINCIPAL }}", "clientSecret":"${{ secrets.SERVICE_PRINCIPAL_PWD }}", "subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}", "tenantId":"${{ secrets.TENANT }}"}' 
+  event_sha: +refs/pull/${{ github.event.issue.number }}/merge
+  SERVICE_PRINCIPAL: ${{ secrets.SERVICE_PRINCIPAL }}
+  SERVICE_PRINCIPAL_PWD: ${{ secrets.SERVICE_PRINCIPAL_PWD }}
+  SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}            
+  TENANT: ${{ secrets.TENANT }}
+  ENVIRONMENT: "1${{ github.run_id }}"
+
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: "Azure Login"
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: "Deploy Hub"
+        id: hub
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          region: eastus
+          scope: subscription
+          template: ./IaC/bicep/rg-hub/hub-default.bicep
+          parameters: ./IaC/bicep/rg-hub/hub-default.parameters.bicep
+          failOnStdErr: false
+      - name: "Deploy Spoke"
+        id: spoke
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          region: eastus
+          scope: subscription
+          template: ./IaC/bicep/rg-spoke/spoke.bicep
+          parameters: ./IaC/bicep/rg-spoke/spoke.parameters.bicep hubVnetResourceId=${{ steps.hub.outputs.hubVnetId }} hubLaWorkspaceResourceId=${{ steps.hub.outputs.hubLaWorkspaceResourceId }} hubFwResourceId=${{ steps.hub.outputs.hubFwResourceId }}
+          failOnStdErr: false
+      - name: "Deploy Cluster"
+        id: cluster
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          region: eastus
+          scope: subscription
+          template: ./IaC/bicep/rg-spoke/cluster.bicep
+          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.bicep targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }}
+          failOnStdErr: false
+      - name: "Deploy Registry"
+        id: registry
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          region: eastus
+          scope: subscription
+          template: ./IaC/bicep/rg-spoke/acr.bicep
+          parameters: ./IaC/bicep/rg-spoke/acr.parameters.bicep targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }}
+          failOnStdErr: false
