@@ -14,7 +14,7 @@ param clusterAdminAadGroupObjectId string
 param a0008NamespaceReaderAadGroupObjectId string
 
 @description('Your AKS control plane Cluster API authentication tenant')
-param k8sControlPlaneAuthorizationTenantId string
+param k8sControlPlaneAuthorizationTenantId string = subscription().tenantId
 
 @description('The certificate data for app gateway TLS termination. It is base64')
 param appGatewayListenerCertificate string = loadFileAsBase64('appgw.crt')
