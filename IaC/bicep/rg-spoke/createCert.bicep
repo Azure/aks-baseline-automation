@@ -10,7 +10,7 @@ resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-
 }
 
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2021-04-01-preview' = {
-  name: 'accessToKV'
+  name: guid('AccessToKV')
   properties: {
     roleDefinitionId: contributorRoleDefinitionId
     principalId: reference(managedIdentity.id, '2018-11-30').principalId
