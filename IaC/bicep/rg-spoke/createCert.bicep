@@ -2,6 +2,7 @@ targetScope = 'resourceGroup'
 param location string = 'uksouth'
 param date string = utcNow()
 var contributorRoleDefinitionId = '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
+var kvAdminRoleDefinitionId = '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/00482a5a-887f-4fb3-b363-3b7fe8e74483'
 
 
 resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
@@ -10,9 +11,19 @@ resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-
 }
 
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2021-04-01-preview' = {
-  name: guid('AccessToKV')
+  name: guid('ContribAccessToKV')
   properties: {
     roleDefinitionId: contributorRoleDefinitionId
+    principalId: reference(managedIdentity.id, '2018-11-30').principalId
+    scope: resourceGroup().id
+    principalType: 'ServicePrincipal'
+  }
+}
+
+resource roleAssignment2 'Microsoft.Authorization/roleAssignments@2021-04-01-preview' = {
+  name: guid('AdminAccessToKV')
+  properties: {
+    roleDefinitionId: kvAdminRoleDefinitionId
     principalId: reference(managedIdentity.id, '2018-11-30').principalId
     scope: resourceGroup().id
     principalType: 'ServicePrincipal'
@@ -53,5 +64,6 @@ resource createAddCertificate 'Microsoft.Resources/deploymentScripts@2020-10-01'
   }
   dependsOn: [
     roleAssignment
+    roleAssignment2
   ]
 }
