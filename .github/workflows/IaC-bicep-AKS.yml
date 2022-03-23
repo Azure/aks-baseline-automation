@@ -32,7 +32,7 @@ jobs:
           region: eastus
           scope: subscription
           template: ./IaC/bicep/rg-hub/hub-default.bicep
-          parameters: ./IaC/bicep/rg-hub/hub-default.parameters.bicep
+          parameters: ./IaC/bicep/rg-hub/hub-default.parameters.json
           failOnStdErr: false
       - name: "Deploy Spoke"
         id: spoke
@@ -42,7 +42,7 @@ jobs:
           region: eastus
           scope: subscription
           template: ./IaC/bicep/rg-spoke/spoke.bicep
-          parameters: ./IaC/bicep/rg-spoke/spoke.parameters.bicep hubVnetResourceId=${{ steps.hub.outputs.hubVnetId }} hubLaWorkspaceResourceId=${{ steps.hub.outputs.hubLaWorkspaceResourceId }} hubFwResourceId=${{ steps.hub.outputs.hubFwResourceId }}
+          parameters: ./IaC/bicep/rg-spoke/spoke.parameters.json hubVnetResourceId=${{ steps.hub.outputs.hubVnetId }} hubLaWorkspaceResourceId=${{ steps.hub.outputs.hubLaWorkspaceResourceId }} hubFwResourceId=${{ steps.hub.outputs.hubFwResourceId }}
           failOnStdErr: false
       - name: "Deploy Cluster"
         id: cluster
@@ -52,7 +52,7 @@ jobs:
           region: eastus
           scope: subscription
           template: ./IaC/bicep/rg-spoke/cluster.bicep
-          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.bicep targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }}
+          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }}
           failOnStdErr: false
       - name: "Deploy Registry"
         id: registry
@@ -62,5 +62,5 @@ jobs:
           region: eastus
           scope: subscription
           template: ./IaC/bicep/rg-spoke/acr.bicep
-          parameters: ./IaC/bicep/rg-spoke/acr.parameters.bicep targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }}
+          parameters: ./IaC/bicep/rg-spoke/acr.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }}
           failOnStdErr: false
