@@ -24,7 +24,7 @@ on:
         required: false
         type: string
       INGRESSTYPE:
-        default: "PublicLoadBalancer" #'PublicLoadBalancer'/InternalLoadBalancer/AGIC-Public-Ingress/AGIC-Private-Ingress
+        default: "AGIC-Public-Ingress" #'PublicLoadBalancer'/InternalLoadBalancer/AGIC-Public-Ingress/AGIC-Private-Ingress
         required: false
         type: string
       UNINSTALLAFTERVERIFY:

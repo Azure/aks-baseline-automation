@@ -159,3 +159,11 @@ variable "aad_pod_identity" {
 variable "azure_container_registries" {
   default = {}
 }
+
+variable "application_gateway_platforms" {
+  default = {}
+}
+
+variable "application_gateway_applications_v1" {
+  default = {}
+}
