@@ -16,6 +16,7 @@ param a0008NamespaceReaderAadGroupObjectId string
 @description('Your AKS control plane Cluster API authentication tenant')
 param k8sControlPlaneAuthorizationTenantId string = subscription().tenantId
 
+
 // @description('The certificate data for app gateway TLS termination. It is base64')
 // param appGatewayListenerCertificate string = loadTextContent('appgw.crt')
 
@@ -211,21 +212,10 @@ module keyVault '../CARML/Microsoft.KeyVault/vaults/deploy.bicep' = {
     enableRbacAuthorization: true
     enableVaultForDeployment: false
     enableVaultForDiskEncryption: false
-    enableVaultForTemplateDeployment: false
+    enableVaultForTemplateDeployment: true
     enableSoftDelete: true
     diagnosticWorkspaceId: clusterLa.outputs.resourceId
-    secrets: {
-      // secureList: [
-      //   {
-      //     name: 'gateway-public-cert'
-      //     value: appGatewayListenerCertificate
-      //   }
-      //   {
-      //     name: 'appgw-ingress-internal-aks-ingress-tls'
-      //     value: aksIngressControllerCertificate
-      //   }
-      // ]
-    }
+    secrets: {}
     roleAssignments: [
       {
         roleDefinitionIdOrName: 'Key Vault Secrets User'
@@ -329,7 +319,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       {
         name: 'root-cert-wildcard-aks-ingress'
         properties: {
-          keyVaultSecretId: '${keyVault.outputs.uri}certificates/appgw-ingress-internal-aks-ingress-tls'
+          keyVaultSecretId: '${keyVault.outputs.uri}secrets/appgw-ingress-internal-aks-ingress-tls'
         }
       }
     ]
@@ -377,7 +367,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       {
         name: '${agwName}-ssl-certificate'
         properties: {
-          keyVaultSecretId: '${keyVault.outputs.uri}certificates/gateway-public-cert'
+          keyVaultSecretId: '${keyVault.outputs.uri}secrets/gateway-public-cert'
         }
       }
     ]
