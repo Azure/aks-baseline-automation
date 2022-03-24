@@ -52,6 +52,9 @@ on:
         type: number
         default: 10
         required: false
+      ENVIRONMENT:
+        required: true
+        type: string
     secrets:
       AZURE_CREDENTIALS:
         required: true
