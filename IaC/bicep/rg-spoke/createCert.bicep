@@ -48,8 +48,8 @@ resource createAddCertificate 'Microsoft.Resources/deploymentScripts@2020-10-01'
     #!/bin/bash
   set -e
 
-  certnamebackend="testappcert"
-  certnamefrontend="testappcert-fe"
+  certnamebackend="appgw-ingress-internal-aks-ingress-tls"
+  certnamefrontend="gateway-public-cert"
 
   echo "creating akv cert $certnamebackend";
   az keyvault certificate create --vault-name "kv-aks-qjzdnsmkiiqo2" -n $certnamebackend -p "$(az keyvault certificate get-default-policy | sed -e s/CN=CLIGetDefaultPolicy/CN=${certnamebackend}/g )";

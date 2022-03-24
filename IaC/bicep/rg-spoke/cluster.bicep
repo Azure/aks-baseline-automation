@@ -329,7 +329,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       {
         name: 'root-cert-wildcard-aks-ingress'
         properties: {
-          keyVaultSecretId: '${keyVault.outputs.uri}secrets/appgw-ingress-internal-aks-ingress-tls'
+          keyVaultSecretId: '${keyVault.outputs.uri}certificates/appgw-ingress-internal-aks-ingress-tls'
         }
       }
     ]
@@ -377,7 +377,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       {
         name: '${agwName}-ssl-certificate'
         properties: {
-          keyVaultSecretId: '${keyVault.outputs.uri}secrets/gateway-public-cert'
+          keyVaultSecretId: '${keyVault.outputs.uri}certificates/gateway-public-cert'
         }
       }
     ]
