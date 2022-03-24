@@ -1,5 +1,5 @@
 targetScope = 'resourceGroup'
-param location string = 'uksouth'
+param location string = 'eastus'
 param date string = utcNow()
 var contributorRoleDefinitionId = '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
 var kvAdminRoleDefinitionId = '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/00482a5a-887f-4fb3-b363-3b7fe8e74483'
