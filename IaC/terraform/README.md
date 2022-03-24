@@ -54,13 +54,9 @@ To automate the deployment using a GitHub Action pipeline, follow these steps:
 
 Note: do not modify the names of these secrets in the workflow yaml file as they are expected in terraform to be named as shown above.
 
-3- Clone the CAF terraform modules under the terraform folder:
-```bash
-cd IaC/terraform
-git clone https://github.com/Azure/caf-terraform-landingzones.git landingzone
-```
+3- Update the workflow [.github/Workflows/IaC-terraform-standalone.yml](../../.github/workflows/IaC-terraform-standalone.yml) with the name of the Environment you created in the previous step. The default Environment name is "Terraform". Commit the changes to your remote GitHub branch so that you can run the workflow.
 
-4- Run the following workflow pipeline from your working repository to deploy all the Azure resources: [.github/Workflows/IaC-terraform-standalone.yml](../../.github/workflows/IaC-terraform-standalone.yml).
+4- As the workflow trigger is set to "workflow_dispatch", you can manually start it by clicking on the **Actions** tab from the GitHub portal and selecting "Run workflow".
 
 ## Landingzone automated deployment with GitHub Actions
 TBD??
