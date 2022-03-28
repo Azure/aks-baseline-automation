@@ -77,18 +77,6 @@ module routeTable '../CARML/Microsoft.Network/routeTables/deploy.bicep' = {
   ]
 }
 
-
-module certCreation '../rg-spoke/createCert.bicep' = {
-  name: 'certCreation'
-  params: {
-    location: location
-  }
-  scope: resourceGroup(resourceGroupName)
-  dependsOn: [
-    rg
-  ]
-}
-
 module nsgNodePools '../CARML/Microsoft.Network/networkSecurityGroups/deploy.bicep' = {
   name: nsgNodePoolsName
   params: {

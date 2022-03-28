@@ -1578,6 +1578,18 @@ module EnforceImageSource '../CARML/Microsoft.Authorization/policyAssignments/.b
   ]
 }
 
+module certCreation '../rg-spoke/createCert.bicep' = {
+  name: 'certCreation'
+  params: {
+    location: location
+    KeyVaultName: keyVault.outputs.name
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+  ]
+}
+
 output aksClusterName string = clusterName
 output aksIngressControllerPodManagedIdentityResourceId string = podmi_ingress_controller.outputs.resourceId
 // output aksIngressControllerPodManagedIdentityClientId string = podmi_ingress_controller.outputs.msiClientId
