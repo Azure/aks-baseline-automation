@@ -66,6 +66,7 @@ jobs:
 
   deployment:
     runs-on: ubuntu-latest
+    name: Deployment
     needs: [prereqs]
     steps:
       - name: "Checkout"
