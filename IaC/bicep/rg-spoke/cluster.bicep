@@ -49,13 +49,13 @@ param kubernetesVersion string = '1.22.4'
 @description('Domain name to use for App Gateway and AKS ingress.')
 param domainName string = 'contoso.com'
 
-// @description('Your cluster will be bootstrapped from this git repo.')
-// @minLength(9)
-// param gitOpsBootstrappingRepoHttpsUrl string = 'https://github.com/mspnp/aks-baseline'
+@description('Your cluster will be bootstrapped from this git repo.')
+@minLength(9)
+param gitOpsBootstrappingRepoHttpsUrl string = 'https://github.com/mspnp/aks-baseline'
 
-// @description('You cluster will be bootstrapped from this branch in the identifed git repo.')
-// @minLength(1)
-// param gitOpsBootstrappingRepoBranch string = 'main'
+@description('You cluster will be bootstrapped from this branch in the identifed git repo.')
+@minLength(1)
+param gitOpsBootstrappingRepoBranch string = 'main'
 
 // var networkContributorRole = '${subscription().id}/providers/Microsoft.Authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7'
 // var monitoringMetricsPublisherRole = '${subscription().id}/providers/Microsoft.Authorization/roleDefinitions/3913510d-42f4-4e42-8a64-420c390055eb'
@@ -764,71 +764,77 @@ module monitoringMetricsPublisherRole '../CARML/Microsoft.ContainerService/manag
   ]
 }
 
-// module kubernetesConfigurationFlux '../CARML/Microsoft.KubernetesConfiguration/extensions/deploy.bicep' = {
-//   name: 'flux'
-//   params: {
-//     name: 'flux'
-//     extensionType: 'microsoft.flux'
-//     clusterName: cluster.name
-//     autoUpgradeMinorVersion: true
-//     releaseTrain: 'Stable'
-//     releaseNamespace: 'flux-system'
-//     configurationSettings: {
-//       'helm-controller.enabled': 'false'
-//       'source-controller.enabled': 'true'
-//       'kustomize-controller.enabled': 'true'
-//       'notification-controller.enabled': 'false'
-//       'image-automation-controller.enabled': 'false'
-//       'image-reflector-controller.enabled': 'false'
-//     }
-//     configurationProtectedSettings: {}
-//   }
-//   scope: resourceGroup(resourceGroupName)
-//   dependsOn: [
-//     rg
-//     cluster
-//     acrPullRole
-//   ]
-// }
+module kubernetesConfigurationFlux '../CARML/Microsoft.KubernetesConfiguration/extensions/deploy.bicep' = {
+  name: 'flux'
+  params: {
+    name: 'flux'
+    extensionType: 'microsoft.flux'
+    clusterName: cluster.name
+    autoUpgradeMinorVersion: true
+    releaseTrain: 'Stable'
+    releaseNamespace: 'flux-system'
+    version: '0.5.2'
+    configurationSettings: {
+      'helm-controller.enabled': 'false'
+      'source-controller.enabled': 'true'
+      'kustomize-controller.enabled': 'true'
+      'notification-controller.enabled': 'false'
+      'image-automation-controller.enabled': 'false'
+      'image-reflector-controller.enabled': 'false'
+    }
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+    cluster
+    acrPullRole
+  ]
+}
 
-// resource clusterName_Microsoft_KubernetesConfiguration_bootstrap 'Microsoft.ContainerService/managedClusters/providers/fluxConfigurations@2022-01-01-preview' = {
-//   name: '${clusterName}/Microsoft.KubernetesConfiguration/bootstrap'
-//   properties: {
-//     scope: 'cluster'
-//     namespace: 'flux-system'
-//     sourceKind: 'GitRepository'
-//     gitRepository: {
-//       url: gitOpsBootstrappingRepoHttpsUrl
-//       timeoutInSeconds: 180
-//       syncIntervalInSeconds: 300
-//       repositoryRef: {
-//         branch: gitOpsBootstrappingRepoBranch
-//         tag: null
-//         semver: null
-//         commit: null
-//       }
-//       sshKnownHosts: ''
-//       httpsUser: null
-//       httpsCACert: null
-//       localAuthRef: null
-//     }
-//     kustomizations: {
-//       unified: {
-//         path: './cluster-manifests'
-//         dependsOn: []
-//         timeoutInSeconds: 300
-//         syncIntervalInSeconds: 300
-//         retryIntervalInSeconds: null
-//         prune: true
-//         force: false
-//       }
-//     }
-//   }
-//   dependsOn: [
-//     cluster
-//     clusterName_Microsoft_KubernetesConfiguration_flux
-//   ]
-// }
+module kubernetesConfigurationFlux2 '../CARML/Microsoft.KubernetesConfiguration/fluxConfigurations/deploy.bicep' = {
+  name: 'flux2'
+  params: {
+    scope: 'cluster'
+    name: 'flux2'
+    namespace: 'flux-system'
+    clusterName: cluster.name
+    sourceKind: 'GitRepository'
+    gitRepository: {
+      url: gitOpsBootstrappingRepoHttpsUrl
+      timeoutInSeconds: 180
+      syncIntervalInSeconds: 300
+      repositoryRef: {
+        branch: gitOpsBootstrappingRepoBranch
+        tag: null
+        semver: null
+        commit: null
+      }
+      sshKnownHosts: ''
+      httpsUser: null
+      httpsCACert: null
+      localAuthRef: null
+    }
+    kustomizations: {
+      unified: {
+        path: './cluster-manifests'
+        dependsOn: []
+        timeoutInSeconds: 300
+        syncIntervalInSeconds: 300
+        retryIntervalInSeconds: null
+        prune: true
+        force: false
+      }
+    }
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+    cluster
+    acrPullRole
+    kubernetesConfigurationFlux
+  ]
+}
+
 
 module clusterSystemTopic '../CARML/Microsoft.EventGrid/systemTopics/deploy.bicep' = {
   name: 'clusterSystemTopic'

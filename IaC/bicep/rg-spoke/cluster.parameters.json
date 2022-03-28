@@ -6,13 +6,13 @@
             "value": "eastus"
         },
         "k8sControlPlaneAuthorizationTenantId":{
-            "value": "<<TenantId>>"
+            "value": "72f988bf-86f1-41af-91ab-2d7cd011db47"
         },
         "clusterAdminAadGroupObjectId":{
-            "value": "<<AadgroupId>>"
+            "value": "f5ce84d0-bb4b-4161-af6c-9995af04be91"
         },
         "a0008NamespaceReaderAadGroupObjectId":{
-            "value": "<<AadObjectId>>"
+            "value": "f5ce84d0-bb4b-4161-af6c-9995af04be91"
         }
     }
 }
