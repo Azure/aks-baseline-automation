@@ -93,31 +93,15 @@ module rg '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
   }
 }
 
-module nodeRGRbac 'cluster-node-rbac.bicep' = {
+module nodeRgRbac '../CARML/Microsoft.Resources/resourceGroups/.bicep/nested_rbac.bicep' = {
   name: '${nodeResourceGroupName}-rbac'
   scope: resourceGroup(nodeResourceGroupName)
   params: {
-    principalId: cluster.outputs.kubeletidentityObjectId
-    roleDefinitionId: '9980e02c-c2be-4d73-94e8-173b1dc7cf3c' //VMContributor
+    resourceGroupName: nodeResourceGroupName
+    principalIds: array(cluster.outputs.kubeletidentityObjectId)
+    roleDefinitionIdOrName: 'Virtual Machine Contributor'
   }
 }
-
-// module nodeResourceGroup '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
-//   name: nodeResourceGroupName
-//   params: {
-//     name: nodeResourceGroupName
-//     location: location
-//     roleAssignments: [
-//       {
-//         'roleDefinitionIdOrName': 'Virtual Machine Contributor'
-//         'principalIds': [
-//           cluster.outputs.resourceId
-//         ]
-//       }
-//     ]
-//   }
-// }
-
 module clusterLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep' = {
   name: logAnalyticsWorkspaceName
   params: {
