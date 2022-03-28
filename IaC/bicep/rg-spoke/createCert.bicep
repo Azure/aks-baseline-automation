@@ -45,7 +45,7 @@ resource createAddCertificate 'Microsoft.Resources/deploymentScripts@2020-10-01'
       #!/bin/bash
       set -e
 
-      echo "Adding certificates to $akvname
+      echo "Adding certificates to $akvname"
 
       certnamebackend="appgw-ingress-internal-aks-ingress-tls"
       certnamefrontend="gateway-public-cert"
