@@ -51,10 +51,10 @@ resource createAddCertificate 'Microsoft.Resources/deploymentScripts@2020-10-01'
       certnamefrontend="gateway-public-cert"
 
       echo "creating akv cert $certnamebackend";
-      az keyvault certificate create --vault-name $KeyVaultName -n $certnamebackend -p "$(az keyvault certificate get-default-policy | sed -e s/CN=CLIGetDefaultPolicy/CN=${certnamebackend}/g )";
+      az keyvault certificate create --vault-name $akvname -n $certnamebackend -p "$(az keyvault certificate get-default-policy | sed -e s/CN=CLIGetDefaultPolicy/CN=${certnamebackend}/g )";
 
       echo "creating akv cert $certnamefrontend";
-      az keyvault certificate create --vault-name $KeyVaultName -n $certnamefrontend -p "$(az keyvault certificate get-default-policy | sed -e s/CN=CLIGetDefaultPolicy/CN=${certnamefrontend}/g )";
+      az keyvault certificate create --vault-name $akvname -n $certnamefrontend -p "$(az keyvault certificate get-default-policy | sed -e s/CN=CLIGetDefaultPolicy/CN=${certnamefrontend}/g )";
 
       sleep 1m
     '''
