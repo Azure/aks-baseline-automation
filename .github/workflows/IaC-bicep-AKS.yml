@@ -34,8 +34,17 @@ jobs:
       - name: "Check Preview Features"
         shell: pwsh
         run: |
-          write-output "Verifying preview feature Resource Providers Features are registered"
+          write-output "Verifying required Resource Providers Features are registered"
           $aksfeatures = az feature list --query "[?contains(name, 'Microsoft.ContainerService')]" | ConvertFrom-Json
+
+          $featureName='AKS-ExtensionManager'
+          write-output "-- $featureName"
+          $feature = $aksfeatures |  Where-Object {$_.name -like "*$featureName"}
+          $feature.properties.state
+          if ($feature.properties.state -ne 'Registered') {
+            Write-Output $feature
+            Write-Error "$featureName NOT registered"
+          }
 
           $featureName='EnableOIDCIssuerPreview'
           write-output "-- $featureName"
