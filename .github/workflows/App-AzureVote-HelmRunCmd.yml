@@ -30,7 +30,7 @@ on:
         type: string
       INGRESSTYPE:
         description: 'How your Application will be exposed'
-        default: "AGIC-Public-Ingress" #'PublicLoadBalancer'/InternalLoadBalancer/AGIC-Public-Ingress/AGIC-Private-Ingress
+        default: "PublicLoadBalancer" #'PublicLoadBalancer'/InternalLoadBalancer/AGIC-Public-Ingress/AGIC-Private-Ingress
         required: false
         type: string
       UNINSTALLAFTERVERIFY:
