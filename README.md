@@ -44,7 +44,7 @@ We also provide example of metrics of interest from these Shared-Services that c
 In this section we demonstrate two implementation options:
 
  * A GitOps solution using the AKS [Flux](https://fluxcd.io/) extension. 
- * A CI/CD pipeline built using GitHub Actions. Note that this feature is not yet implemented, see https://github.com/Azure/aks-baseline-automation/issues/28 
+ * A CI/CD pipeline built using GitHub Actions. Note that this feature is not yet implemented, see issue https://github.com/Azure/aks-baseline-automation/issues/28 
   
 
 The GitOps solution features: 
@@ -63,7 +63,7 @@ This section demonstrates the deployment of an application composed of multiple 
 
  * A GitOps solution using [ArgoCD](https://argoproj.github.io/cd/). Note that we could also have used [Flux](https://fluxcd.io/) for this purpose, but using ArgoCD will showcase how an app team may chose to use a separate tool for their specific workload lifecycle concerns as opposed to using the same tool as what the cluster operators use for cluster management.
 The application [Azure Voting App](https://github.com/Azure-Samples/azure-voting-app-redis/) is used for this deployment as this application is quite simple, but yet demonstrates how to deploy an application composed of multiple containers. In this case the application is composed of a web-front-end written in Python and a data backend running Redis.
-The application will be deployed using helm charts and both the Blue/Green and Canary release management strategies will be demonstrated. Not that this feature has not been implemented yet, see https://github.com/Azure/aks-baseline-automation/issues/27.
+The application will be deployed using helm charts and both the Blue/Green and Canary release management strategies will be demonstrated. Not that this feature has not been implemented yet, see issue https://github.com/Azure/aks-baseline-automation/issues/27.
 
 ### Deploy the sample application using GitHub Actions
 
@@ -88,7 +88,7 @@ For better security and version control, all these lifecycle management processe
  * A CI/CD pipeline built using GitHub Actions
  * A GitOps solution using flux or argoCD (applies only to Shared-Services application lifecycle management).
 
-Note that these features have not been implemented yet in this reference implementation. For the automation of the cluster lifecycle-management see https://github.com/Azure/aks-baseline-automation/issues/23.
+Note that these features have not been implemented yet in this reference implementation. For the automation of the cluster lifecycle-management see issue https://github.com/Azure/aks-baseline-automation/issues/23.
 ## Secure DevOps
 A typical DevOps process for deploying containers to AKS can be depicted by the diagram below:
 ![Typical DevOps](./docs/.attachments/secure-devOps-1.jpg)
@@ -100,7 +100,7 @@ The security team focus is to make sure that security is built into this automat
 
 In addition to this oversight role, they will also have to build and maintain their own pipeline to automate the management of security related resources outside the clusters (Azure policies, firewall rules, NSGs, Azure RBAC, etc) as well as inside the cluster (Network Security Policies, Service Mesh Authentication and Authorization rules, Kubernetes RBAC, etc).
 
-Incorporate security controls into the devOps pipeline is not implemented yet in this reference implementation, see https://github.com/Azure/aks-baseline-automation/issues/25.
+Incorporate security controls into the devOps pipeline is not implemented yet in this reference implementation, see issue https://github.com/Azure/aks-baseline-automation/issues/25.
 
 ## GitHub Repo structure
 
