@@ -14,13 +14,14 @@ param clusterAdminAadGroupObjectId string
 param a0008NamespaceReaderAadGroupObjectId string
 
 @description('Your AKS control plane Cluster API authentication tenant')
-param k8sControlPlaneAuthorizationTenantId string
+param k8sControlPlaneAuthorizationTenantId string = subscription().tenantId
 
-@description('The certificate data for app gateway TLS termination. It is base64')
-param appGatewayListenerCertificate string
 
-@description('The Base64 encoded AKS Ingress Controller public certificate (as .crt or .cer) to be stored in Azure Key Vault as secret and referenced by Azure Application Gateway as a trusted root certificate.')
-param aksIngressControllerCertificate string
+// @description('The certificate data for app gateway TLS termination. It is base64')
+// param appGatewayListenerCertificate string = loadTextContent('appgw.crt')
+
+// @description('The Base64 encoded AKS Ingress Controller public certificate (as .crt or .cer) to be stored in Azure Key Vault as secret and referenced by Azure Application Gateway as a trusted root certificate.')
+// param aksIngressControllerCertificate string = loadTextContent('traefik-ingress-internal-aks-ingress-tls.crt')
 
 @description('IP ranges authorized to contact the Kubernetes API server. Passing an empty array will result in no IP restrictions. If any are provided, remember to also provide the public IP of the egress Azure Firewall otherwise your nodes will not be able to talk to the API server (e.g. Flux).')
 param clusterAuthorizedIPRanges array = []
@@ -92,22 +93,15 @@ module rg '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
   }
 }
 
-module nodeResourceGroup '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
-  name: nodeResourceGroupName
+module nodeRgRbac '../CARML/Microsoft.Resources/resourceGroups/.bicep/nested_rbac.bicep' = {
+  name: '${nodeResourceGroupName}-rbac'
+  scope: resourceGroup(nodeResourceGroupName)
   params: {
-    name: nodeResourceGroupName
-    location: location
-    roleAssignments: [
-      {
-        'roleDefinitionIdOrName': 'Virtual Machine Contributor'
-        'principalIds': [
-          cluster.outputs.resourceId
-        ]
-      }
-    ]
+    resourceGroupName: nodeResourceGroupName
+    principalIds: array(cluster.outputs.kubeletidentityObjectId)
+    roleDefinitionIdOrName: 'Virtual Machine Contributor'
   }
 }
-
 module clusterLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep' = {
   name: logAnalyticsWorkspaceName
   params: {
@@ -202,21 +196,10 @@ module keyVault '../CARML/Microsoft.KeyVault/vaults/deploy.bicep' = {
     enableRbacAuthorization: true
     enableVaultForDeployment: false
     enableVaultForDiskEncryption: false
-    enableVaultForTemplateDeployment: false
+    enableVaultForTemplateDeployment: true
     enableSoftDelete: true
     diagnosticWorkspaceId: clusterLa.outputs.resourceId
-    secrets: {
-      secureList: [
-        {
-          name: 'gateway-public-cert'
-          value: appGatewayListenerCertificate
-        }
-        {
-          name: 'appgw-ingress-internal-aks-ingress-tls'
-          value: aksIngressControllerCertificate
-        }
-      ]
-    }
+    secrets: {}
     roleAssignments: [
       {
         roleDefinitionIdOrName: 'Key Vault Secrets User'
@@ -310,20 +293,20 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       '${mi_appgateway_frontend.outputs.resourceId}': {}
     }
     sku: 'WAF_v2'
-    sslPolicyType: 'Custom'
-    sslPolicyCipherSuites: [
-      'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
-      'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
-    ]
-    sslPolicyMinProtocolVersion: 'TLSv1_2'
-    trustedRootCertificates: [
-      {
-        name: 'root-cert-wildcard-aks-ingress'
-        properties: {
-          keyVaultSecretId: '${keyVault.outputs.uri}secrets/appgw-ingress-internal-aks-ingress-tls'
-        }
-      }
-    ]
+    // sslPolicyType: 'Custom'
+    // sslPolicyCipherSuites: [
+    //   'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
+    //   'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
+    // ]
+    // sslPolicyMinProtocolVersion: 'TLSv1_2'
+    // trustedRootCertificates: [
+    //   {
+    //     name: 'root-cert-wildcard-aks-ingress'
+    //     properties: {
+    //       keyVaultSecretId: '${keyVault.outputs.uri}secrets/appgw-ingress-internal-aks-ingress-tls'
+    //     }
+    //   }
+    // ]
     gatewayIPConfigurations: [
       {
         name: 'apw-ip-configuration'
@@ -346,9 +329,9 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
     ]
     frontendPorts: [
       {
-        name: 'port-443'
+        name: 'port-80'
         properties: {
-          port: 443
+          port: 80
         }
       }
     ]
@@ -365,18 +348,18 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
     }
     enableHttp2: false
     sslCertificates: [
-      {
-        name: '${agwName}-ssl-certificate'
-        properties: {
-          keyVaultSecretId: '${keyVault.outputs.uri}secrets/gateway-public-cert'
-        }
-      }
+      // {
+      //   name: '${agwName}-ssl-certificate'
+      //   properties: {
+      //     keyVaultSecretId: '${keyVault.outputs.uri}secrets/gateway-public-cert'
+      //   }
+      // }
     ]
     probes: [
       {
         name: 'probe-${aksBackendDomainName}'
         properties: {
-          protocol: 'Https'
+          protocol: 'Http'
           path: '/favicon.ico'
           interval: 30
           timeout: 30
@@ -403,39 +386,39 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       {
         name: 'aks-ingress-backendpool-httpsettings'
         properties: {
-          port: 443
-          protocol: 'Https'
+          port: 80
+          protocol: 'Http'
           cookieBasedAffinity: 'Disabled'
           pickHostNameFromBackendAddress: true
           requestTimeout: 20
           probe: {
             id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/probes/probe-${aksBackendDomainName}'
           }
-          trustedRootCertificates: [
-            {
-              id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/trustedRootCertificates/root-cert-wildcard-aks-ingress'
-            }
-          ]
+          // trustedRootCertificates: [
+          //   {
+          //     id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/trustedRootCertificates/root-cert-wildcard-aks-ingress'
+          //   }
+          // ]
         }
       }
     ]
     httpListeners: [
       {
-        name: 'listener-https'
+        name: 'listener-http'
         properties: {
           frontendIPConfiguration: {
             id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/frontendIPConfigurations/apw-frontend-ip-configuration'
           }
           frontendPort: {
-            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/frontendPorts/port-443'
+            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/frontendPorts/port-80'
           }
-          protocol: 'Https'
-          sslCertificate: {
-            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/sslCertificates/${agwName}-ssl-certificate'
-          }
+          protocol: 'Http'
+          // sslCertificate: {
+          //   id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/sslCertificates/${agwName}-ssl-certificate'
+          // }
           hostName: 'bicycle.${domainName}'
           hostNames: []
-          requireServerNameIndication: true
+          requireServerNameIndication: false
         }
       }
     ]
@@ -445,7 +428,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
         properties: {
           ruleType: 'Basic'
           httpListener: {
-            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/httpListeners/listener-https'
+            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/httpListeners/listener-http'
           }
           backendAddressPool: {
             id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/backendAddressPools/${aksBackendDomainName}'
@@ -586,6 +569,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
         orchestratorVersion: kubernetesVersion
         enableNodePublicIP: false
         maxPods: 30
+        enableAzureRBAC: true
         availabilityZones: [
           '1'
           '2'
@@ -611,6 +595,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
         maxCount: 5
         vnetSubnetID: vnetNodePoolSubnetResourceId
         enableAutoScaling: true
+        enableAzureRbac: true
         type: 'VirtualMachineScaleSets'
         mode: 'User'
         scaleSetPriority: 'Regular'
@@ -647,7 +632,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
     aksClusterDnsServiceIP: '172.16.0.10'
     aksClusterDockerBridgeCidr: '172.18.0.1/16'
     aadProfileManaged: true
-    aadProfileEnableAzureRBAC: isUsingAzureRBACasKubernetesRBAC
+    aadProfileEnableAzureRBAC: true
     aadProfileAdminGroupObjectIDs: ((!isUsingAzureRBACasKubernetesRBAC) ? array(clusterAdminAadGroupObjectId) : [])
     aadProfileTenantId: k8sControlPlaneAuthorizationTenantId
     autoScalerProfileBalanceSimilarNodeGroups: 'false'
@@ -1463,28 +1448,28 @@ module AKSLinuxRestrictive '../CARML/Microsoft.Authorization/policyAssignments/.
   ]
 }
 
-module EnforceHttpsIngress '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
-  name: 'EnforceHttpsIngress'
-  params: {
-    name: 'EnforceHttpsIngress'
-    location: location
-    policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/1a5b4dca-0b6f-4cf5-907c-56316bc1bf3d'
-    subscriptionId: subscription().subscriptionId
-    resourceGroupName: resourceGroupName
-    parameters: {
-      excludedNamespaces: {
-        value: []
-      }
-      effect: {
-        value: 'deny'
-      }
-    }
-  }
-  scope: resourceGroup(resourceGroupName)
-  dependsOn: [
-    rg
-  ]
-}
+// module EnforceHttpsIngress '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
+//   name: 'EnforceHttpsIngress'
+//   params: {
+//     name: 'EnforceHttpsIngress'
+//     location: location
+//     policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/1a5b4dca-0b6f-4cf5-907c-56316bc1bf3d'
+//     subscriptionId: subscription().subscriptionId
+//     resourceGroupName: resourceGroupName
+//     parameters: {
+//       excludedNamespaces: {
+//         value: []
+//       }
+//       effect: {
+//         value: 'deny'
+//       }
+//     }
+//   }
+//   scope: resourceGroup(resourceGroupName)
+//   dependsOn: [
+//     rg
+//   ]
+// }
 
 module EnforceInternalLB '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
   name: 'EnforceInternalLB'
