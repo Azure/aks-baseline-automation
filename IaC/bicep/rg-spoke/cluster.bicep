@@ -410,7 +410,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
             id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/frontendIPConfigurations/apw-frontend-ip-configuration'
           }
           frontendPort: {
-            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/frontendPorts/port-443'
+            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/frontendPorts/port-80'
           }
           protocol: 'Http'
           // sslCertificate: {
@@ -1577,18 +1577,6 @@ module EnforceImageSource '../CARML/Microsoft.Authorization/policyAssignments/.b
         value: 'deny'
       }
     }
-  }
-  scope: resourceGroup(resourceGroupName)
-  dependsOn: [
-    rg
-  ]
-}
-
-module certCreation '../rg-spoke/createCert.bicep' = {
-  name: 'certCreation'
-  params: {
-    location: location
-    KeyVaultName: keyVault.outputs.name
   }
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
