@@ -632,7 +632,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
     aksClusterDnsServiceIP: '172.16.0.10'
     aksClusterDockerBridgeCidr: '172.18.0.1/16'
     aadProfileManaged: true
-    aadProfileEnableAzureRBAC: true //isUsingAzureRBACasKubernetesRBAC
+    aadProfileEnableAzureRBAC: true
     aadProfileAdminGroupObjectIDs: ((!isUsingAzureRBACasKubernetesRBAC) ? array(clusterAdminAadGroupObjectId) : [])
     aadProfileTenantId: k8sControlPlaneAuthorizationTenantId
     autoScalerProfileBalanceSimilarNodeGroups: 'false'
