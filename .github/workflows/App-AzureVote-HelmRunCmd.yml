@@ -7,54 +7,62 @@ on:
   workflow_call:
     inputs:
       RG:
+        description: 'The Resource Group where your resources are deployed'
         required: true
         type: string
       AKSNAME:
+        description: 'The Name of the AKS resource'
         required: true
         type: string
       AGNAME:
+        description: 'For AGIC deployments this sets concurrency'
         default: ""
         required: false
         type: string
       APPNAME:
+        description: 'The Name of the Application to deploy'
         required: true
         type: string
       NAMESPACE:
+        description: 'The Kubernetes Namespace to deploy the Application to'
         default: "default"
         required: false
         type: string
       INGRESSTYPE:
-        default: "AGIC-Public-Ingress" #'PublicLoadBalancer'/InternalLoadBalancer/AGIC-Public-Ingress/AGIC-Private-Ingress
+        description: 'How your Application will be exposed'
+        default: "PublicLoadBalancer" #'PublicLoadBalancer'/InternalLoadBalancer/AGIC-Public-Ingress/AGIC-Private-Ingress
         required: false
         type: string
       UNINSTALLAFTERVERIFY:
-        description: 'Uninstall app after verifying it works'
+        description: 'Uninstall Application after verifying it works'
         type: boolean
         default: false
         required: false
       FORCEHELMCLEANINSTALL:
-        description: 'If App is already installed, remove explictly before install'
+        description: 'If App is already installed, force uninstall before starting install'
         type: boolean
         default: false
         required: false
       DEBUG:
-        description: "Generate optional Debug Artifacts"
+        description: "Generate optional workflow Debug Artifacts"
         type: boolean
         default: false
         required: false
       HELMPACKAGEURI:
+        description: "The location of the Application Helm package"
         default: "https://github.com/Azure/aks-baseline-automation/raw/main/workloads/azure-vote/AzureVote-0.9.5.tgz"
         required: false
         type: string
-        description: "The location of the Helm package"
       CURLRETRIES:
-        description: 'How many retry attempts when verifying deployed App Url'
+        description: 'How many retry attempts on verifying deployed App URL'
         type: number
         default: 10
         required: false
       ENVIRONMENT:
+        description: 'A GitHub Environment to pull action secrets from'
         required: true
         type: string
+
     secrets:
       AZURE_CLIENT_ID:
         required: true
