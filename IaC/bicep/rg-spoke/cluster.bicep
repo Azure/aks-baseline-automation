@@ -293,20 +293,20 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       '${mi_appgateway_frontend.outputs.resourceId}': {}
     }
     sku: 'WAF_v2'
-    sslPolicyType: 'Custom'
-    sslPolicyCipherSuites: [
-      'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
-      'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
-    ]
-    sslPolicyMinProtocolVersion: 'TLSv1_2'
-    trustedRootCertificates: [
-      {
-        name: 'root-cert-wildcard-aks-ingress'
-        properties: {
-          keyVaultSecretId: '${keyVault.outputs.uri}secrets/appgw-ingress-internal-aks-ingress-tls'
-        }
-      }
-    ]
+    // sslPolicyType: 'Custom'
+    // sslPolicyCipherSuites: [
+    //   'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
+    //   'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
+    // ]
+    // sslPolicyMinProtocolVersion: 'TLSv1_2'
+    // trustedRootCertificates: [
+    //   {
+    //     name: 'root-cert-wildcard-aks-ingress'
+    //     properties: {
+    //       keyVaultSecretId: '${keyVault.outputs.uri}secrets/appgw-ingress-internal-aks-ingress-tls'
+    //     }
+    //   }
+    // ]
     gatewayIPConfigurations: [
       {
         name: 'apw-ip-configuration'
@@ -329,9 +329,9 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
     ]
     frontendPorts: [
       {
-        name: 'port-443'
+        name: 'port-80'
         properties: {
-          port: 443
+          port: 80
         }
       }
     ]
@@ -348,18 +348,18 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
     }
     enableHttp2: false
     sslCertificates: [
-      {
-        name: '${agwName}-ssl-certificate'
-        properties: {
-          keyVaultSecretId: '${keyVault.outputs.uri}secrets/gateway-public-cert'
-        }
-      }
+      // {
+      //   name: '${agwName}-ssl-certificate'
+      //   properties: {
+      //     keyVaultSecretId: '${keyVault.outputs.uri}secrets/gateway-public-cert'
+      //   }
+      // }
     ]
     probes: [
       {
         name: 'probe-${aksBackendDomainName}'
         properties: {
-          protocol: 'Https'
+          protocol: 'Http'
           path: '/favicon.ico'
           interval: 30
           timeout: 30
@@ -386,25 +386,25 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       {
         name: 'aks-ingress-backendpool-httpsettings'
         properties: {
-          port: 443
-          protocol: 'Https'
+          port: 80
+          protocol: 'Http'
           cookieBasedAffinity: 'Disabled'
           pickHostNameFromBackendAddress: true
           requestTimeout: 20
           probe: {
             id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/probes/probe-${aksBackendDomainName}'
           }
-          trustedRootCertificates: [
-            {
-              id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/trustedRootCertificates/root-cert-wildcard-aks-ingress'
-            }
-          ]
+          // trustedRootCertificates: [
+          //   {
+          //     id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/trustedRootCertificates/root-cert-wildcard-aks-ingress'
+          //   }
+          // ]
         }
       }
     ]
     httpListeners: [
       {
-        name: 'listener-https'
+        name: 'listener-http'
         properties: {
           frontendIPConfiguration: {
             id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/frontendIPConfigurations/apw-frontend-ip-configuration'
@@ -412,10 +412,10 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
           frontendPort: {
             id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/frontendPorts/port-443'
           }
-          protocol: 'Https'
-          sslCertificate: {
-            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/sslCertificates/${agwName}-ssl-certificate'
-          }
+          protocol: 'Http'
+          // sslCertificate: {
+          //   id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/sslCertificates/${agwName}-ssl-certificate'
+          // }
           hostName: 'bicycle.${domainName}'
           hostNames: []
           requireServerNameIndication: true
@@ -428,7 +428,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
         properties: {
           ruleType: 'Basic'
           httpListener: {
-            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/httpListeners/listener-https'
+            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/httpListeners/listener-http'
           }
           backendAddressPool: {
             id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/backendAddressPools/${aksBackendDomainName}'
@@ -1446,28 +1446,28 @@ module AKSLinuxRestrictive '../CARML/Microsoft.Authorization/policyAssignments/.
   ]
 }
 
-module EnforceHttpsIngress '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
-  name: 'EnforceHttpsIngress'
-  params: {
-    name: 'EnforceHttpsIngress'
-    location: location
-    policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/1a5b4dca-0b6f-4cf5-907c-56316bc1bf3d'
-    subscriptionId: subscription().subscriptionId
-    resourceGroupName: resourceGroupName
-    parameters: {
-      excludedNamespaces: {
-        value: []
-      }
-      effect: {
-        value: 'deny'
-      }
-    }
-  }
-  scope: resourceGroup(resourceGroupName)
-  dependsOn: [
-    rg
-  ]
-}
+// module EnforceHttpsIngress '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
+//   name: 'EnforceHttpsIngress'
+//   params: {
+//     name: 'EnforceHttpsIngress'
+//     location: location
+//     policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/1a5b4dca-0b6f-4cf5-907c-56316bc1bf3d'
+//     subscriptionId: subscription().subscriptionId
+//     resourceGroupName: resourceGroupName
+//     parameters: {
+//       excludedNamespaces: {
+//         value: []
+//       }
+//       effect: {
+//         value: 'deny'
+//       }
+//     }
+//   }
+//   scope: resourceGroup(resourceGroupName)
+//   dependsOn: [
+//     rg
+//   ]
+// }
 
 module EnforceInternalLB '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
   name: 'EnforceInternalLB'
