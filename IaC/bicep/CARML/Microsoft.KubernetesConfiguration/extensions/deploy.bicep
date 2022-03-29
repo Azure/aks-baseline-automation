@@ -1,11 +1,14 @@
 @description('Required. The name of the Flux Configuration')
 param name string
 
-@description('Optional. Customer Usage Attribution ID (GUID). This GUID must be previously registered')
-param cuaId string = ''
+@description('Optional. Enable telemetry via the Customer Usage Attribution ID (GUID).')
+param enableDefaultTelemetry bool = true
 
 @description('Optional. The name of the AKS cluster that should be configured.')
 param clusterName string
+
+@description('Optional. Location for all resources.')
+param location string = resourceGroup().location
 
 @description('Optional. Flag to note if this extension participates in auto upgrade of minor version, or not.')
 param autoUpgradeMinorVersion bool = true
@@ -31,22 +34,16 @@ param targetNamespace string = ''
 @description('Optional. Version of the extension for this extension, if it is "pinned" to a specific version. autoUpgradeMinorVersion must be "false".')
 param version string = ''
 
-@description('Optional. Enables system assigned managed identity on the resource.')
-param systemAssignedIdentity bool = false
-
-@description('Optional. The ID(s) to assign to the resource.')
-param userAssignedIdentities object = {}
-
-var identityType = systemAssignedIdentity ? (!empty(userAssignedIdentities) ? 'SystemAssigned,UserAssigned' : 'SystemAssigned') : (!empty(userAssignedIdentities) ? 'UserAssigned' : 'None')
-
-var identity = identityType != 'None' ? {
-  type: identityType
-  userAssignedIdentities: !empty(userAssignedIdentities) ? userAssignedIdentities : null
-} : null
-
-module pid_cuaId '.bicep/nested_cuaId.bicep' = if (!empty(cuaId)) {
-  name: 'pid-${cuaId}'
-  params: {}
+resource defaultTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (enableDefaultTelemetry) {
+  name: 'pid-47ed15a6-730a-4827-bcb4-0fd963ffbd82-${uniqueString(deployment().name, location)}'
+  properties: {
+    mode: 'Incremental'
+    template: {
+      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+      contentVersion: '1.0.0.0'
+      resources: []
+    }
+  }
 }
 
 resource managedCluster 'Microsoft.ContainerService/managedClusters@2021-10-01' existing = {
@@ -56,7 +53,6 @@ resource managedCluster 'Microsoft.ContainerService/managedClusters@2021-10-01' 
 resource extension 'Microsoft.KubernetesConfiguration/extensions@2022-03-01' = {
   name: name
   scope: managedCluster
-  identity: identity
   properties: {
     autoUpgradeMinorVersion: autoUpgradeMinorVersion
     configurationProtectedSettings: !empty(configurationProtectedSettings) ? configurationProtectedSettings : {}
