@@ -418,7 +418,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
           // }
           hostName: 'bicycle.${domainName}'
           hostNames: []
-          requireServerNameIndication: true
+          requireServerNameIndication: false
         }
       }
     ]
@@ -569,6 +569,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
         orchestratorVersion: kubernetesVersion
         enableNodePublicIP: false
         maxPods: 30
+        enableAzureRBAC: true
         availabilityZones: [
           '1'
           '2'
@@ -594,6 +595,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
         maxCount: 5
         vnetSubnetID: vnetNodePoolSubnetResourceId
         enableAutoScaling: true
+        enableAzureRbac: true
         type: 'VirtualMachineScaleSets'
         mode: 'User'
         scaleSetPriority: 'Regular'
@@ -630,7 +632,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
     aksClusterDnsServiceIP: '172.16.0.10'
     aksClusterDockerBridgeCidr: '172.18.0.1/16'
     aadProfileManaged: true
-    aadProfileEnableAzureRBAC: isUsingAzureRBACasKubernetesRBAC
+    aadProfileEnableAzureRBAC: true //isUsingAzureRBACasKubernetesRBAC
     aadProfileAdminGroupObjectIDs: ((!isUsingAzureRBACasKubernetesRBAC) ? array(clusterAdminAadGroupObjectId) : [])
     aadProfileTenantId: k8sControlPlaneAuthorizationTenantId
     autoScalerProfileBalanceSimilarNodeGroups: 'false'
