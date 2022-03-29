@@ -5,34 +5,46 @@ on:
   workflow_call:
     inputs:
       RG:
+        description: 'The Resource Group where your resources are deployed'
         required: true
         type: string
       AKSNAME:
+        description: 'The Name of the AKS resource'
         required: true
         type: string
       ACRNAME:
+        description: 'The Name of the ACR resource'
         required: true
         type: string
       APPNAME:
+        description: 'The Name of the Application to deploy'
         required: true
         type: string
       NAMESPACE:
+        description: 'The Kubernetes Namespace to deploy the Application to'
         default: "default"
         required: false
         type: string
       APPREPO:
+        description: 'The GitHub App code repo'
         default: "azure-samples/azure-voting-app-redis"
         required: false
         type: string
       APPREPOREF:
+        description: 'The GitHub REF to use when referencing the App code repo'
         default: "129888"
         required: false
         type: string
       APPREPOPATH:
+        description: 'The directory in the repo containing the Dockerfile'
         default: "./azure-vote"
         required: false
         type: string
-        description: The directory in the repo containing the Dockerfile
+      ENVIRONMENT:
+        description: 'A GitHub Environment to pull action secrets from'
+        required: true
+        type: string
+
     secrets:
       AZURE_CLIENT_ID:
         required: true
@@ -48,6 +60,7 @@ permissions:
 jobs:
   BuildPush:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT }}
     env:
       APPNAME: "${{ inputs.APPNAME }}"
       ACRNAME: "${{ inputs.ACRNAME}}"
@@ -95,6 +108,7 @@ jobs:
 
   Deploy:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT }}
     needs: [BuildPush]
     env:
       APPNAME: "${{ inputs.APPNAME }}"

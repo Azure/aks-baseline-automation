@@ -1,0 +1,6 @@
+variable "msi" {
+}
+
+variable "namespace" {
+
+}

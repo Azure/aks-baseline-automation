@@ -1,4 +1,4 @@
-name: Deploy_AKS_Online_Standalone
+name: Deploy_AKS_Terraform_Standalone
 # The pipeline is triggered on:
 #  - PR/Issue comments "/deploy-all", "/deploy-launchpad", "/deploy-shared-services", "/deploy-networking-hub",
 #                      "/deploy-networking-spoke", "/deploy-aks", "/deploy-addons"
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
+      - terraform
     paths: 
       - IaC/terraform
   # issue_comment:
@@ -15,39 +15,46 @@ on:
   #   - created
     
 env:
-  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.ARM_CLIENT_ID }}", "clientSecret":"${{ secrets.ARM_CLIENT_SECRET }}", "subscriptionId":"${{ secrets.ARM_SUBSCRIPTION_ID }}", "tenantId":"${{ secrets.ARM_TENANT_ID }}"}' 
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}", "clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}", "subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "tenantId":"${{ secrets.AZURE_TENANT_ID }}"}' 
   event_sha: +refs/pull/${{ github.event.issue.number }}/merge
-  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}            
-  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}            
+  ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
   ARM_PARTNER_ID: "451dc593-a3a3-4d41-91e7-3aadf93e1a78"
   ENVIRONMENT: "1${{ github.run_id }}"
-
+  
+permissions:
+  id-token: write
+  contents: read
+  
 jobs:
   deploy-standalone:
     runs-on: ubuntu-latest
+    environment: terraform
     outputs:
       prefix: ${{ steps.test.outputs.PREFIX }}
     steps:
       - name: Checkout Repository
-        if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad') || github.event_name != 'issue_comment'      
         uses: actions/checkout@v2
-      - name: Checkout PR code
-        if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad')
-        run: |
-          git fetch origin ${{ env.event_sha }}
-          git checkout FETCH_HEAD
 
+      # - name: Azure Login
+      #   if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad') || github.event_name != 'issue_comment'     
+      #   uses: azure/login@v1
+      #   with:
+      #     creds: ${{ env.AZURE_CREDENTIALS }}
+      
       - name: Azure Login
-        if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad') || github.event_name != 'issue_comment'     
-        uses: azure/login@v1
+        uses: Azure/login@v1.4.3
         with:
           creds: ${{ env.AZURE_CREDENTIALS }}
+          # client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          # tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          # subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.0.3
+          terraform_version: 1.1.6
           terraform_wrapper: false
           # https://stackoverflow.com/questions/65170927/terraform-output-value-failed-formatted-by-jq-in-github-actions
 
@@ -55,41 +62,27 @@ jobs:
         if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad') || github.event_name != 'issue_comment'     
         run: |
           pwd
-          cd IaC/terraform/standalone//
-          configuration_folder=configuration
-          parameter_files=$(find $configuration_folder -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
+          cd IaC/terraform
+          git clone https://github.com/Azure/caf-terraform-landingzones.git landingzone
+          parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
+
           terraform init -upgrade
           eval terraform apply ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -auto-approve
-      - name: Test
-        id: test
-        if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad') || github.event_name != 'issue_comment'     
-        run: |
-          pwd
-          cd IaC/terraform/standalone//
-          ls -lta
-          export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
-          export PREFIX=$(terraform output -json | jq -r '.global_settings.value.prefixes[0]')
-          echo $(terraform output -json | jq -r .aks_clusters_kubeconfig.value.cluster_re1.aks_kubeconfig_admin_cmd) | bash
 
-          cd ../test
-          go mod tidy
-          go test -v  shared_services/shared_services_test.go
-          go test -v  aks/aks_test.go
-          go test -v  flux/flux_test.go
       - name: Destroy Standalone
         if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad') || github.event_name != 'issue_comment'     
         run: |
           ls -lta
           pwd
-          cd IaC/terraform/standalone/
-          configuration_folder=configuration
-          parameter_files=$(find $configuration_folder -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
+          cd IaC/terraform/
+          parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
           # remove flux from state as flux provider has issues with destroy
           terraform state rm 'module.flux_addon'
           eval terraform destroy ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -auto-approve
   purge:
     name: purge
     runs-on: ubuntu-latest
+    environment: terraform
     if: ${{ failure() || cancelled() }}
     needs: [deploy-standalone]
     steps:

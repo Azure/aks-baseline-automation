@@ -13,7 +13,7 @@
   - [Contributing](#contributing)
   - [Trademarks](#trademarks)
 # AKS Baseline Automation
- 
+
 This reference implementation demonstrates recommended ways to automate the deployment of the components composing a typical AKS solution.
 
 This implementation and associated documentation are intended to inform the interdisciplinary teams involved in AKS deployment and lifecycle management automation. These teams include:
@@ -26,8 +26,10 @@ This implementation and associated documentation are intended to inform the inte
 
 Each team will be responsible for maintaining their own automation pipeline. These pipelines access to Azure should only be granted through a Service Principal, a Managed Identity or preferrably a Federated Identity with the minimum set of permissions required to automatically perform the tasks that the team is responsible for.
 
+
 ## Infrastructure as Code   
 This section demonstrates the implementation of a CI/CD pipeline built using GitHub Actions to automate the deployments of AKS and other Azure resources that AKS depends on. This pipeline deploys the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline) using either Biceps or Terraform modules.
+
 
 ![Infrastructure-as-Code](./docs/.attachments/IaC.jpg)
 
@@ -42,11 +44,13 @@ This section demonstrates the provisioning of the Shared-Services.  These servic
 We also provide example of metrics of interest from these Shared-Services that can be captured and surfaced in a dashboard to help with their maintenance.
 
 In this section we demonstrate two implementation options:
+
  * A GitOps solution using the AKS [Flux](https://fluxcd.io/) extension. 
  * **TODO:** A CI/CD pipeline built using GitHub Actions
   
 
 The GitOps solution features: 
+
  * An opinionated [overlay structure](https://cloud.google.com/anthos-config-management/docs/how-to/use-repo-kustomize-helm) that shows separation of concern and asset structure/management of the components that are bootstrapping the cluster.
 * Safe deployment practices with GitOps
 * A Shared-Services own dedicated ACR instance (not shared with workload) for OCI artifacts (like helm charts)
@@ -55,16 +59,30 @@ Note: as this reference implementation and reference architecture launch, conten
 
 ![Shared-Services Deployment](./docs/.attachments/shared-services.jpg)
 
-## Application Deployment   
+## Application Deployment
 This section demonstrates the deployment of an application composed of multiple services by leveraging two options:
  * A CI/CD pipeline built using Kubernetes GitHub Actions.
- * **TODO:** A GitOps solution using [ArgoCD](https://argoproj.github.io/cd/). Note that we could also have used [Flux](https://fluxcd.io/) for this purpose, but using ArgoCD will showcase how an app team may chose to use a seperate tool for their specific workload lifecycle concerns as opposed to using the same tool as what the cluster operators use for cluster management.
- 
-The application will be deployed using helm charts and both the Blue/Green and Canary release management strategies will be demonstrated. 
 
+ * A GitOps solution using [ArgoCD](https://argoproj.github.io/cd/). Note that we could also have used [Flux](https://fluxcd.io/) for this purpose, but using ArgoCD will showcase how an app team may chose to use a seperate tool for their specific workload lifecycle concerns as opposed to using the same tool as what the cluster operators use for cluster management.
 The application [Azure Voring App](https://github.com/Azure-Samples/azure-voting-app-redis/) is used for this deployment as this application is quite simple, but yet demonstrates how to deploy an application composed of multiple containers. In this case the application is composed of a web-front-end written in Python and a data backend running Redis.
+The application will be deployed using helm charts and both the Blue/Green and Canary release management strategies will be demonstrated.
 
-## Lifecycle-Management   
+The application [Fabrikam Drone Delivery](https://github.com/mspnp/fabrikam-dronedelivery-workload/) is used for this deployment as this application is commonly used by other Reference Implementations, implements four microservices using different programing languages and only has 2 external dependencies.
+
+### Deploy the sample application using GitHub Actions
+
+Sample App | Scenario | Description | Tags
+---------- | -------- | ----------- | ----
+Aks Voting App | [AKS Run Command](/docs/app-azurevote-helmruncmd.md) | This sample deploys an existing container image using native Kubernetes tooling, executed in AKS using the AKS Run Command. | `Aks Run Command` `Playwright web tests` `Helm`
+Aks Voting App | [ACR Build](/docs/app-azurevote-acrbuild.md) | This sample leverages an Azure Container Registry to builds a container image from code. Deployment is done using the Azure Kubernetes GitHub actions. | `Azure Container Registry` `GitHub Actions`
+Aks Voting App | [Docker Build](/docs/app-azurevote-dockerbuildpush.md) | This sample builds a container image from code on the runner then pushes to a registry. Deployment is done using the Azure Kubernetes GitHub actions. | `Azure Container Registry` `GitHub Actions`
+
+
+### Deploy the sample application using GitOps with argoCD
+**TODO**: add the code and document the steps to deploy the sample application using argoCD.
+
+
+## Lifecycle-Management
 Different components of an AKS solution are often owned by different teams and typically follow their own liefcycle management schedule and process, sometimes using different tools. In this section we will cover the following lifecycle management processes:
 
  * Cluster lifecycle-management, such as patching nodes, upgrading AKS, adding/removing nodepools, changing min/max nb of nodes, changing nodepool subnet size, changing nodepool VM SKU, changing max pods, label/taints on nodes, adding/removing pod identities, adding/removing RBAC permissions, etc…
@@ -74,7 +92,7 @@ Different components of an AKS solution are often owned by different teams and t
 For better security and version control, all these lifecycle management processes need to be git driven so that any change to any component of the AKS solution is done through code from a Git Repository and goes through a review and approval process. For this reason, we will provide two options to automatically carry out these tasks:
  * A CI/CD pipeline built using GitHub Actions
  * A GitOps solution using flux or argoCD.
- 
+
 ### Automate the lifecycle-management of the cluster using GitHub Actions
 **TODO**: add the code and document the steps to automate the lifecycle-management of the cluster using GitHub Actions.
 ### Automate the lifecycle-management of the shared-services using GitHub Actions
@@ -85,8 +103,10 @@ For better security and version control, all these lifecycle management processe
 ## Secure DevOps
 A typical DevOps process for deploying containers to AKS can be depicted by the diagram below:
 ![Typical DevOps](./docs/.attachments/secure-devOps-1.jpg)
+
  
 The security team focus is to make sure that security is built into this automation pipeline and that security tasks are shifted to the left and automated as much as possible. They will need for example to work with the different automation teams to make sure that the following controls are in place within their pipelines:
+
 ![Secure DevOps](./docs/.attachments/secure-devOps-2.jpg)
 
 In addition to this oversight role, they will also have to build and maintain their own pipeline to automate the management of security related resources outside the clusters (Azure policies, firewall rules, NSGs, Azure RBAC, etc) as well as inside the cluster (Network Security Policies, Service Mesh authentication and A.uthroization rules, Kubernetes RBAC, etc).
@@ -115,8 +135,8 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 ## Trademarks
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 
-trademarks or logos is subject to and must follow 
+This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft
+trademarks or logos is subject to and must follow
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.
