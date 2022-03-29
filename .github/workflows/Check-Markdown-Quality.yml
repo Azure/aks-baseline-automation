@@ -20,4 +20,4 @@ jobs:
           root: '.'
           files: "**/*.{ts,js,md}" #You need to respecify this setting - even though it's in the cspell.json config :(
           incremental_files_only: false
-          strict: false #setting to false allows the build to continue even if spelling mistakes are detected
+          strict: true #setting to false allows the build to continue even if spelling mistakes are detected
