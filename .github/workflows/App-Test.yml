@@ -14,8 +14,13 @@ on:
         type: string
         required: true
       ACRNAME:
+        description: 'ACR Name'
         required: true
         type: string
+      Environment:
+        description: 'A GitHub Environment to pull action secrets from'
+        type: environment
+        required: false
 
 jobs:
   ReusableWF:
@@ -24,6 +29,7 @@ jobs:
       RG: ${{ github.event.inputs.ResourceGroup }}
       AKSNAME: ${{ github.event.inputs.AKSNAME }}
       ACRNAME: ${{ github.event.inputs.ACRNAME }}
+      ENVIRONMENT: ${{ github.event.inputs.Environment }}
 
     steps:
       - name: Dummy step
@@ -33,6 +39,7 @@ jobs:
     needs: [ReusableWF]
     uses: ./.github/workflows/App-AzureVote-BuildOnACR-Actions.yml
     with:
+      ENVIRONMENT: ${{ needs.ReusableWF.outputs.ENVIRONMENT }}
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
       ACRNAME: ${{ needs.ReusableWF.outputs.ACRNAME }}
@@ -46,6 +53,7 @@ jobs:
     needs: [ReusableWF]
     uses: ./.github/workflows/App-AzureVote-DockerBuild-Actions.yml
     with:
+      ENVIRONMENT: ${{ needs.ReusableWF.outputs.ENVIRONMENT }}
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
       ACRNAME: ${{ needs.ReusableWF.outputs.ACRNAME }}
@@ -59,6 +67,7 @@ jobs:
     needs: [ReusableWF]
     uses: ./.github/workflows/App-AzureVote-HelmRunCmd.yml
     with:
+      ENVIRONMENT: ${{ needs.ReusableWF.outputs.ENVIRONMENT }}
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
       APPNAME: azure-vote-public

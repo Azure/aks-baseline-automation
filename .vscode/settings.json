@@ -1,0 +1,13 @@
+{
+    "cSpell.words": [
+        "argo",
+        "daemonset",
+        "gitops",
+        "nodepool"
+    ],
+    "cSpell.enableFiletypes": [
+        "!yml",
+        "!yaml",
+        "md"
+    ]
+}
