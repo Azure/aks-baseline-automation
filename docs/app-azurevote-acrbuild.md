@@ -19,6 +19,7 @@ Location of the [Reusable workflow file](/.github/workflows/App-AzureVote-HelmRu
   deploy-azure-vote-app:
     uses: Azure/aks-baseline-automation/.github/workflows/App-AzureVote-BuildOnACR-Actions.yml@main
     with:
+      ENVIRONMENT: MyGitHubEnvironmentName
       RG: ResourceGroupToDeployTo
       AKSNAME: MyAksCluster
       ACRNAME: MyAzureContainerRegistry

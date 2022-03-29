@@ -1,9 +1,19 @@
 {
     "cSpell.words": [
+        "AADSTS",
+        "APPNAME",
         "argo",
+        "azurevote",
+        "CARML",
         "daemonset",
+        "GHBRANCH",
+        "GHENV",
+        "GHORG",
+        "GHREPO",
         "gitops",
-        "nodepool"
+        "nodepool",
+        "OIDC",
+        "refs"
     ],
     "cSpell.enableFiletypes": [
         "!yml",

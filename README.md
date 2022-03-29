@@ -75,7 +75,13 @@ The application will be deployed using helm charts and both the Blue/Green and C
 The application [Fabrikam Drone Delivery](https://github.com/mspnp/fabrikam-dronedelivery-workload/) is used for this deployment as this application is commonly used by other Reference Implementations, implements four microservices using different programing languages and only has 2 external dependencies.
 
 ### Deploy the sample application using GitHub Actions
-**TODO**: add the code and document the steps to deploy the sample application using GitHub Actions.
+
+Sample App | Scenario | Description | Tags
+---------- | -------- | ----------- | ----
+Aks Voting App | [AKS Run Command](/docs/app-azurevote-helmruncmd.md) | This sample deploys an existing container image using native Kubernetes tooling, executed in AKS using the AKS Run Command. | `Aks Run Command` `Playwright web tests` `Helm`
+Aks Voting App | [ACR Build](/docs/app-azurevote-acrbuild.md) | This sample leverages an Azure Container Registry to builds a container image from code. Deployment is done using the Azure Kubernetes GitHub actions. | `Azure Container Registry` `GitHub Actions`
+Aks Voting App | [Docker Build](/docs/app-azurevote-dockerbuildpush.md) | This sample builds a container image from code on the runner then pushes to a registry. Deployment is done using the Azure Kubernetes GitHub actions. | `Azure Container Registry` `GitHub Actions`
+
 
 ### Deploy the sample application using GitOps with argoCD
 **TODO**: add the code and document the steps to deploy the sample application using argoCD.

@@ -26,7 +26,7 @@ SP=$(az ad sp create --id $appId)
 assigneeObjectId=$(echo $SP | jq -r ".objectId"); echo $assigneeObjectId
 
 #Create Role Assignment (Azure RG RBAC)
-az role assignment create --role contributor --resource-group $RG  --assignee-object-id  $assigneeObjectId --assignee-principal-type ServicePrincipal
+az role assignment create --role Owner --resource-group $RG  --assignee-object-id  $assigneeObjectId --assignee-principal-type ServicePrincipal
 az role assignment create --role "Azure Kubernetes Service RBAC Cluster Admin" --resource-group $RG  --assignee-object-id  $assigneeObjectId --assignee-principal-type ServicePrincipal
 
 #Create federated identity credentials for use from a GitHub Branch
