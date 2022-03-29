@@ -19,6 +19,8 @@
         "gitops",
         "helmruncmd",
         "INGRESSTYPE",
+        "KEDA",
+        "Kubernetes",
         "kubeconfig",
         "kubectl",
         "microservices",

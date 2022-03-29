@@ -18,6 +18,6 @@ jobs:
           config: './.vscode/settings.json'
           inline: warning
           root: '.'
-          files: "**/*.{ts,js,md}" #You need to respecify this setting - even though it's in the cspell.json config :(
+          files: "**/*.{md}" #You need to respecify this setting - even though it's in the cspell.json config :(
           incremental_files_only: false
           strict: true #setting to false allows the build to continue even if spelling mistakes are detected
