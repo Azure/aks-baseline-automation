@@ -15,9 +15,9 @@ jobs:
       - uses: streetsidesoftware/cspell-action@v1.3.4
         name: Spell Check
         with:
-          config: './vscode/cspell.json'
+          config: './.vscode/cspell.json'
           inline: warning
           root: '.'
           files: "**/*.{ts,js,md}" #You need to respecify this setting - even though it's in the cspell.json config :(
           incremental_files_only: false
-          strict: true #setting to false allows the build to continue even if spelling mistakes are detected
+          strict: false #setting to false allows the build to continue even if spelling mistakes are detected
