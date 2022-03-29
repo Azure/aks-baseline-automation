@@ -133,7 +133,7 @@ If there is a need to change the folder to your own, please modify [cluster-base
     sed -i "s/azure-load-balancer-internal-subnet:.*/azure-load-balancer-internal-subnet:\ ${ingress_subnet_name}/g" ../workloads/baseline/traefik.yaml
     ```
 
-3. Deploy Traefik & ASP.net sample appplication
+3. Deploy Traefik & ASP.net sample application
 
     ```bash
     kubectl apply -f ../workloads/baseline

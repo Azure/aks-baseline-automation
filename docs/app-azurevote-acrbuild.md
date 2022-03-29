@@ -2,7 +2,7 @@
 
 ## Overview
 
-This sample leverages Azure Container Registry to build a container image from source. The workflow then uses several GitHub actions from the Azure organisation to deploy the application.
+This sample leverages Azure Container Registry to build a container image from source. The workflow then uses several GitHub actions from the Azure org to deploy the application.
 
 The application is the Aks Voting app which is used in the Aks Getting Started guides. It is a 2 container application that allows the user to use a Web UI to vote between Cats/Dogs, the votes are recorded in a Redis cache.
 
