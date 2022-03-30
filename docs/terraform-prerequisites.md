@@ -31,17 +31,17 @@ If you opt-in to setup a shell on your machine, there are required access and to
 
 3. Required software components.
 
-   >If you opt for Azure Cloud Shell, you don't need to complete these steps and can jump on the next section (step 4).  
-   
+   >If you opt for Azure Cloud Shell, you don't need to complete these steps and can jump on the next section (step 4).
+
    >On Windows, you can use the Ubuntu on [Windows Subsystem for Linux](https://docs.microsoft.com/windows/wsl/about#what-is-wsl-2) to run Bash. Once your bash shell is up you will need to install these prerequisites.
-   
+
    > Install latest [Azure CLI installed](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest)
 
    ```bash
    sudo apt install azure-cli
    ```
 
-   >Install Terrafrom (Ubuntu) : For more information visit [here](https://learn.hashicorp.com/tutorials/terraform/install-cli)
+   >Install Terraform (Ubuntu) : For more information visit [here](https://learn.hashicorp.com/tutorials/terraform/install-cli)
 
    ```bash
    curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -

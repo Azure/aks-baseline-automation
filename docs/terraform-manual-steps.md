@@ -7,7 +7,7 @@
 # Script to execute from bash shell
 
 # Login to your Azure Active Directory tenant
-az login -t {TENANTNID}
+az login -t {TENANTID}
 
 # Make sure you are using the right subscription
 az account show -o table

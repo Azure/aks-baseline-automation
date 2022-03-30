@@ -113,7 +113,7 @@ This repository is organized as follow:
 
 ## Contributing
 
-This project welcomes contributions and suggestions. Please refer to the Roadmap for this reference implementation under this repo's [Project](https://github.com/Azure/aks-baseline-automation/projects/1) for the features that are planned.
+This project welcomes contributions and suggestions. Please refer to the roadmap for this reference implementation under this repo's [Project](https://github.com/Azure/aks-baseline-automation/projects/1) for the features that are planned.
 Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.

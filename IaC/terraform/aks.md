@@ -11,7 +11,7 @@ If not use the below command:
   ```bash
   # Go to the AKS construction set standalone folder
   cd caf-terraform-landingzones-starter/enterprise_scale/construction_sets/aks/online/aks_secure_baseline/standalone
-  # If opened in containter in VSCode
+  # If opened in container in VSCode
   cd /tf/caf/enterprise_scale/construction_sets/aks/online/aks_secure_baseline/standalone
   ```
 
@@ -39,7 +39,7 @@ Please review the Baseline components that are deployed at [cluster-baseline-set
   kubectl get pod -n cluster-baseline-settings -w
   ```
 
-Flux pulls yamls from [cluster-baseline-settings](../../cluster-baseline-settings) and applies them to the cluster.
+Flux pulls yaml files from [cluster-baseline-settings](../../cluster-baseline-settings) and applies them to the cluster.
 If there is a need to change the folder to your own, please modify [cluster-baseline-settings.yaml](../flux/cluster-baseline-settings.yaml)
 
 ## Deploy sample workload
