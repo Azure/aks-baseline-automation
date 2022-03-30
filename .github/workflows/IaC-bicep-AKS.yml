@@ -23,7 +23,7 @@ permissions:
 jobs:
   prereqs:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.ENVIRONMENT }}
+    environment: ${{ github.event.inputs.ENVIRONMENT }}
     name: Prerequisite Checks
     steps:
       - name: "Checkout"
@@ -75,7 +75,7 @@ jobs:
 
   deployment:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.ENVIRONMENT }}
+    environment: ${{ github.event.inputs.ENVIRONMENT }}
     name: Deployment
     needs: [prereqs]
     steps:
