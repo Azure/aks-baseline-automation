@@ -1,7 +1,4 @@
 name: Deploy_AKS_Terraform_Standalone
-# The pipeline is triggered on:
-#  - PR/Issue comments "/deploy-all", "/deploy-launchpad", "/deploy-shared-services", "/deploy-networking-hub",
-#                      "/deploy-networking-spoke", "/deploy-aks", "/deploy-addons"
 
 on: 
   workflow_dispatch:
@@ -10,9 +7,6 @@ on:
       - terraform
     paths: 
       - IaC/terraform
-  # issue_comment:
-  #   types:
-  #   - created
     
 env:
   AZURE_CREDENTIALS: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}", "clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}", "subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "tenantId":"${{ secrets.AZURE_TENANT_ID }}"}' 
@@ -37,12 +31,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
-
-      # - name: Azure Login
-      #   if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad') || github.event_name != 'issue_comment'     
-      #   uses: azure/login@v1
-      #   with:
-      #     creds: ${{ env.AZURE_CREDENTIALS }}
       
       - name: Azure Login
         uses: Azure/login@v1.4.3

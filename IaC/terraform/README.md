@@ -57,7 +57,7 @@ To customize the sample GitHub pipleine provided based on your specific needs, f
     |FLUX_TOKEN| [GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) for Flux V2||
 
     Note: do not modify the names of these secrets in the workflow yaml file as they are expected in terraform to be named as shown above.
-    Also instead of using a Service Principal and storing the secret in the GitHub Cloud, you can setup Federated Identity by using [this script](../../../aks-baseline-automation/docs/oidc-federated-credentials.md), which is now the recommended way to access Azure resources from GitHub.
+    Also instead of using a Service Principal and storing the secret in the GitHub Cloud, we will setup [Federated Identity](https://docs.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Cwindows#use-the-azure-login-action-with-openid-connect) once it is supported by terraform.
 
 2. Update the workflow [.github/Workflows/IaC-terraform-standalone.yml](../../.github/workflows/IaC-terraform-standalone.yml) with the name of the Environment you created in the previous step. The default Environment name is "Terraform". Commit the changes to your remote GitHub branch so that you can run the workflow.
     Note that this sample workflow file deploys Azure resources respectively in the hub and spoke resource groups as specified in the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline).
