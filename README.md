@@ -14,15 +14,15 @@
 
 This reference implementation demonstrates recommended ways to automate the deployment of the components composing a typical AKS solution.
 
-This implementation and associated documentation are intended to inform the interdisciplinary teams involved in AKS deployment and lifecycle management automation. These teams include:
+In order to manage the complexity of a Kubernetes based solution deployment, it is best to look at it in term of a separation of concerns. Which team in an enterprise environment should be concerned with what aspect of the deployment and what tools and processes should that team employ to best achieve their objectives. This implementation and associated documentation are intended to inform the interdisciplinary teams involved in AKS deployment and lifecycle management automation. These teams may include:
     
- * The **Infrastructure team** responsible for automating the deployment of AKS and the Azure resources that it depends on, such as ACR, KeyVault, Managed Identities, Log Analytics, etc. We will provide sample code to show you how to implement such automation using Infrastructure as Code (IaC). We will use a CI/CD Pipeline built using GitHub Actions and offer you the option to choose between Bicep or Terraform for the code to deploy the resources.
+ * The **Infrastructure team** responsible for automating the deployment of AKS and the Azure resources that it depends on, such as ACR, KeyVault, Managed Identities, Log Analytics, etc. We will provide sample code to show you how to implement such automation using Infrastructure as Code (IaC). We will use a CI/CD Pipeline built using GitHub Actions and offer you the option to choose between Bicep or Terraform for the code to deploy these resources.
  * The **Networking team**, which the Infrastructure team has to coordinate their activities closely with and which is responsible for all the networking components of the solution such as Vnets, DNS, App Gateways, etc.  
- * The **Application teams** responsible for automating the deployment of their application services into AKS and managing their release to production using a Blue/Green or Canary approach. We will provide sample code and guidance for how these teams can accomplish their goals by packaging their service using helm and deploying them either through a CI/CD pipeline such as GitHub Actions or a GitOp tools such as Flux.
+ * The **Application team** responsible for automating the deployment of their application services into AKS and managing their release to production using a Blue/Green or Canary approach. We will provide sample code and guidance for how these teams can accomplish their goals by packaging their service using helm and deploying them either through a CI/CD pipeline such as GitHub Actions or a GitOp tools such as Flux or ArgoCD.
  * The **Shared-Services team** responsible for maintaining the overall health of the AKS clusters and the common components that run on them, such as monitoring, networking, security and other utility services.  We will provide sample code and guidance for how to bootstrap these services as part of the initial AKS deployment and also how to automate their on-going life-cycle management. These Shared-Services, may be AKS add-ons such as [AAD Pod identity](https://docs.microsoft.com/en-us/azure/aks/use-azure-ad-pod-identity) or [Secret Store CSI Driver Provider](https://github.com/Azure/secrets-store-csi-driver-provider-azure), 3rd party such as [Prisma defender](https://docs.paloaltonetworks.com/prisma/prisma-cloud) or [Splunk](https://github.com/splunk/splunk-connect-for-kubernetes) daemonset, or open source such as [KEDA](https://keda.sh), [External-dns](https://github.com/kubernetes-sigs/external-dns#:~:text=ExternalDNS%20supports%20multiple%20DNS%20providers%20which%20have%20been,and%20we%20have%20limited%20resources%20to%20test%20changes.) or [Cert-manager](https://cert-manager.io/docs/). This team is also responsible for the lifecycle management of the clusters, such as making sure that updates/upgrades are periodically performed on the cluster, its nodes, the Shared-Services running in it and that cluster configuration changes are seamlessly conducted as needed without impacting the applications. 
  * The **Security team** is responsible in making sure that security is built into the pipeline and all components deployed are secured by default. They will also be responsible for maintaining the Azure Policies, NSGs, firewalls rules outside the cluster as well as all security related configuration within the AKS cluster, such as Kubernetes Network Policies, RBAC or authentication and authorization rules within a Service Mesh. 
 
-Each team will be responsible for maintaining their own automation pipeline. These pipelines access to Azure should only be granted through a Service Principal, a Managed Identity or preferably a Federated Identity with the minimum set of permissions required to automatically perform the tasks that the team is responsible for.
+Each team will be responsible for maintaining their own automation pipeline. These pipelines access to Azure should only be granted through a [Service Principal](https://docs.microsoft.com/en-us/azure/aks/kubernetes-service-principal?tabs=azure-cli), a [Managed Identity](https://docs.microsoft.com/en-us/azure/aks/use-managed-identity?msclkid=de7668b4afff11ecaaaa893f1acc9f0f) or preferably a [Federated Identity](https://docs.microsoft.com/en-us/azure/active-directory/develop/workload-identity-federation) with the minimum set of permissions required to automatically perform the tasks that the team is responsible for.
 
 
 ## Infrastructure as Code   
@@ -62,10 +62,13 @@ This section demonstrates the deployment of an application composed of multiple 
  * A CI/CD pipeline built using Kubernetes GitHub Actions.
 
  * A GitOps solution using [ArgoCD](https://argoproj.github.io/cd/). Note that we could also have used [Flux](https://fluxcd.io/) for this purpose, but using ArgoCD will showcase how an app team may chose to use a separate tool for their specific workload lifecycle concerns as opposed to using the same tool as what the cluster operators use for cluster management.
+
 The application [Azure Voting App](https://github.com/Azure-Samples/azure-voting-app-redis/) is used for this deployment as this application is quite simple, but yet demonstrates how to deploy an application composed of multiple containers. In this case the application is composed of a web-front-end written in Python and a data backend running Redis.
-The application will be deployed using helm charts and both the Blue/Green and Canary release management strategies will be demonstrated. Not that this feature has not been implemented yet, see issue https://github.com/Azure/aks-baseline-automation/issues/27.
+
+The application deployment using helm charts with both Blue/Green and Canary release management strategies is also be demonstrated. Note however that this feature has not been implemented yet, see issue https://github.com/Azure/aks-baseline-automation/issues/27.
 
 ### Deploy the sample application using GitHub Actions
+Multiple GitHub Action Workflow samples are used to demonstrate the deployment of the Voting App workload: 
 
 Sample App | Scenario | Description | Tags
 ---------- | -------- | ----------- | ----
@@ -110,7 +113,8 @@ This repository is organized as follow:
 
 ## Contributing
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
+This project welcomes contributions and suggestions. Please refer to the Roadmap for this reference implementation under this repo's [Project](https://github.com/Azure/aks-baseline-automation/projects/1) for the features that are planned.
+Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
 
