@@ -46,14 +46,15 @@ To customize the sample terraform templates provided based on your specific need
 To customize the sample GitHub pipleine provided based on your specific needs, follow the instructions below:
 
 1. Create your workflow [GitHub Environment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment?msclkid=62181fb1ab7511ec9be085113913a757) to store the following secrets:
-| Secret | Description |Sample|
-|--------|-------------|------|
-|ENVIRONMENT| Name of the environment where you are deploying the Azure resources|non-prod|
-|ARM_CLIENT_ID| Service Principal which will be used to provision resources||
-|ARM_CLIENT_SECRET| Service Principal secret||
-|ARM_SUBSCRIPTION_ID| Azure subscription id||
-|ARM_TENANT_ID| Azure tenant id||
-|FLUX_TOKEN| [GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) for Flux V2||
+   
+    | Secret | Description |Sample|
+    |--------|-------------|------|
+    |ENVIRONMENT| Name of the environment where you are deploying the Azure resources|non-prod|
+    |ARM_CLIENT_ID| Service Principal which will be used to provision resources||
+    |ARM_CLIENT_SECRET| Service Principal secret||
+    |ARM_SUBSCRIPTION_ID| Azure subscription id||
+    |ARM_TENANT_ID| Azure tenant id||
+    |FLUX_TOKEN| [GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) for Flux V2||
 
     Note: do not modify the names of these secrets in the workflow yaml file as they are expected in terraform to be named as shown above.
     Also instead of using a Service Principal and storing the secret in the GitHub Cloud, you can setup Federated Identity by using [this script](../../../aks-baseline-automation/docs/oidc-federated-credentials.md), which is now the recommended way to access Azure resources from GitHub.
