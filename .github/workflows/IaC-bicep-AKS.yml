@@ -16,6 +16,10 @@ on:
 env:
   event_sha: +refs/pull/${{ github.event.issue.number }}/merge
 
+permissions:
+      id-token: write
+      contents: read
+
 jobs:
   prereqs:
     runs-on: ubuntu-latest
@@ -27,10 +31,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: "Azure Login"
-        uses: azure/login@v1
+      - name: Azure Login
+        uses: Azure/login@v1.4.3
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       #Helps with errors that can occur during deployment: OIDCIssuerFeatureFlagNotEnabled: Enabling OIDC issuer is not allowed since feature 'Microsoft.ContainerService/EnableOIDCIssuerPreview' is not enabled
       #                                                    AzureDefenderFeatureFlagNotEnabled: AzureDefender installation is not allowed since feature 'Microsoft.ContainerService/AKS-AzureDefender' is not enabled.
@@ -78,17 +84,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: "Azure Login"
-        uses: azure/login@v1
+      - name: Azure Login
+        uses: Azure/login@v1.4.3
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: "Deploy Hub"
         id: hub
         uses: azure/arm-deploy@v1
         with:
           subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
-          region: ${{ inputs.REGION }}
+          region: ${{ github.event.inputs.REGION }}
           scope: subscription
           template: ./IaC/bicep/rg-hub/hub-default.bicep
           parameters: ./IaC/bicep/rg-hub/hub-default.parameters.json
@@ -99,7 +107,7 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
-          region: ${{ inputs.REGION }}
+          region: ${{ github.event.inputs.REGION }}
           scope: subscription
           template: ./IaC/bicep/rg-spoke/spoke.bicep
           parameters: ./IaC/bicep/rg-spoke/spoke.parameters.json hubVnetResourceId=${{ steps.hub.outputs.hubVnetId }} hubLaWorkspaceResourceId=${{ steps.hub.outputs.hubLaWorkspaceResourceId }} hubFwResourceId=${{ steps.hub.outputs.hubFwResourceId }}
@@ -110,7 +118,7 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
-          region: ${{ inputs.REGION }}
+          region: ${{ github.event.inputs.REGION }}
           scope: subscription
           template: ./IaC/bicep/rg-spoke/cluster.bicep
           parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }}
@@ -122,7 +130,7 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
-          region: ${{ inputs.REGION }}
+          region: ${{ github.event.inputs.REGION }}
           scope: subscription
           template: ./IaC/bicep/rg-spoke/acr.bicep
           parameters: ./IaC/bicep/rg-spoke/acr.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }}
