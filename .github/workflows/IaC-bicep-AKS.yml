@@ -1,4 +1,6 @@
 
+name: 'Deploy CARML based AKS Cluster'
+
 on:
   workflow_dispatch:
     inputs:
