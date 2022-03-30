@@ -2,14 +2,14 @@
 on:
   workflow_dispatch:
     inputs:
-      clusterAdminAadGroupObjectId:
-        description: 'AAD Group Object Id for Cluster Admin Role'
-        type: string
+      ENVIRONMENT:
+        description: 'A GitHub Environment to pull action secrets from'
         required: true
-      a0008NamespaceReaderAadGroupObjectId:
-        description: 'AAD Group Object Id for Namespace Reader Role'
-        type: string
+        type: environment
+      REGION:
+        description: 'The Azure region to deploy to'
         required: true
+        default: eastus
 
 env:
   event_sha: +refs/pull/${{ github.event.issue.number }}/merge
@@ -17,6 +17,7 @@ env:
 jobs:
   prereqs:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT }}
     name: Prerequisite Checks
     steps:
       - name: "Checkout"
@@ -27,7 +28,7 @@ jobs:
       - name: "Azure Login"
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.CARML_AZURE_CREDENTIALS }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       #Helps with errors that can occur during deployment: OIDCIssuerFeatureFlagNotEnabled: Enabling OIDC issuer is not allowed since feature 'Microsoft.ContainerService/EnableOIDCIssuerPreview' is not enabled
       #                                                    AzureDefenderFeatureFlagNotEnabled: AzureDefender installation is not allowed since feature 'Microsoft.ContainerService/AKS-AzureDefender' is not enabled.
@@ -66,6 +67,7 @@ jobs:
 
   deployment:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT }}
     name: Deployment
     needs: [prereqs]
     steps:
@@ -77,14 +79,14 @@ jobs:
       - name: "Azure Login"
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.CARML_AZURE_CREDENTIALS }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: "Deploy Hub"
         id: hub
         uses: azure/arm-deploy@v1
         with:
-          subscriptionId: ${{ secrets.CARML_SUBSCRIPTION_ID }}
-          region: eastus
+          subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
+          region: ${{ inputs.REGION }}
           scope: subscription
           template: ./IaC/bicep/rg-hub/hub-default.bicep
           parameters: ./IaC/bicep/rg-hub/hub-default.parameters.json
@@ -94,8 +96,8 @@ jobs:
         id: spoke
         uses: azure/arm-deploy@v1
         with:
-          subscriptionId: ${{ secrets.CARML_SUBSCRIPTION_ID }}
-          region: eastus
+          subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
+          region: ${{ inputs.REGION }}
           scope: subscription
           template: ./IaC/bicep/rg-spoke/spoke.bicep
           parameters: ./IaC/bicep/rg-spoke/spoke.parameters.json hubVnetResourceId=${{ steps.hub.outputs.hubVnetId }} hubLaWorkspaceResourceId=${{ steps.hub.outputs.hubLaWorkspaceResourceId }} hubFwResourceId=${{ steps.hub.outputs.hubFwResourceId }}
@@ -105,19 +107,20 @@ jobs:
         id: cluster
         uses: azure/arm-deploy@v1
         with:
-          subscriptionId: ${{ secrets.CARML_SUBSCRIPTION_ID }}
-          region: eastus
+          subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
+          region: ${{ inputs.REGION }}
           scope: subscription
           template: ./IaC/bicep/rg-spoke/cluster.bicep
-          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }}
+          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }}
+          #clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }}
           failOnStdErr: false
 
       - name: "Deploy Registry"
         id: registry
         uses: azure/arm-deploy@v1
         with:
-          subscriptionId: ${{ secrets.CARML_SUBSCRIPTION_ID }}
-          region: eastus
+          subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
+          region: ${{ inputs.REGION }}
           scope: subscription
           template: ./IaC/bicep/rg-spoke/acr.bicep
           parameters: ./IaC/bicep/rg-spoke/acr.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }}
