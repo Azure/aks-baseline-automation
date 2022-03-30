@@ -17,10 +17,10 @@ To customize the sample bicep templates provided based on your specific needs, f
 
    Customize these files based on your specific deployment requirements for each resource.
 
-4. Test the deployment of each Azure resource individually using the [Azure CLI](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-cli) or [PowerShell command](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-powershell).
+4. Test the deployment of each Azure resource individually using the [Azure CLI](https://docs.microsoft.com/azure/azure-resource-manager/bicep/deploy-cli) or [PowerShell command](https://docs.microsoft.com/azure/azure-resource-manager/bicep/deploy-powershell).
 
 ## Customize the GitHub Action Workflows
-To customize the sample GitHub pipleine provided based on your specific needs, follow the instructions below:
+To customize the sample GitHub pipeline provided based on your specific needs, follow the instructions below:
 
 1. Create your workflow [GitHub Environment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment?msclkid=62181fb1ab7511ec9be085113913a757) to store the environment variables for your workflow.
 

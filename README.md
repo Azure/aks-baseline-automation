@@ -25,7 +25,7 @@ In order to manage the complexity of a Kubernetes based solution deployment, it 
 Each team will be responsible for maintaining their own automation pipeline. These pipelines access to Azure should only be granted through a [Service Principal](https://docs.microsoft.com/en-us/azure/aks/kubernetes-service-principal?tabs=azure-cli), a [Managed Identity](https://docs.microsoft.com/en-us/azure/aks/use-managed-identity?msclkid=de7668b4afff11ecaaaa893f1acc9f0f) or preferably a [Federated Identity](https://docs.microsoft.com/en-us/azure/active-directory/develop/workload-identity-federation) with the minimum set of permissions required to automatically perform the tasks that the team is responsible for.
 
 
-## Infrastructure as Code   
+## Infrastructure as Code
 This section demonstrates the implementation of a CI/CD pipeline built using GitHub Actions to automate the deployments of AKS and other Azure resources that AKS depends on. This pipeline deploys the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline) using either Biceps or Terraform modules.
 
 
@@ -43,11 +43,11 @@ We also provide example of metrics of interest from these Shared-Services that c
 
 In this section we demonstrate two implementation options:
 
- * A GitOps solution using the AKS [Flux](https://fluxcd.io/) extension. 
- * A CI/CD pipeline built using GitHub Actions. Note that this feature is not yet implemented, see issue https://github.com/Azure/aks-baseline-automation/issues/28 
-  
+ * A GitOps solution using the AKS [Flux](https://fluxcd.io/) extension.
+ * A CI/CD pipeline built using GitHub Actions. Note that this feature is not yet implemented, see issue https://github.com/Azure/aks-baseline-automation/issues/28
 
-The GitOps solution features: 
+
+The GitOps solution features:
 
  * An opinionated [overlay structure](https://cloud.google.com/anthos-config-management/docs/how-to/use-repo-kustomize-helm) that shows separation of concern and asset structure/management of the components that are bootstrapping the cluster.
 * Safe deployment practices with GitOps
@@ -96,7 +96,7 @@ Note that these features have not been implemented yet in this reference impleme
 A typical DevOps process for deploying containers to AKS can be depicted by the diagram below:
 ![Typical DevOps](./docs/.attachments/secure-devOps-1.jpg)
 
- 
+
 The security team focus is to make sure that security is built into this automation pipeline and that security tasks are shifted to the left and automated as much as possible. They will need for example to work with the different automation teams to make sure that the following controls are in place within their pipelines:
 
 ![Secure DevOps](./docs/.attachments/secure-devOps-2.jpg)
@@ -130,6 +130,6 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft
 trademarks or logos is subject to and must follow
-[Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
+[Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.
