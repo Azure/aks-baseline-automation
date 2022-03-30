@@ -2,22 +2,24 @@
 
 This folder contains IaC code for bicep to deploy AKS and the Azure resources that AKS depends on, as well as instructions on how to customize them and automate their deployment using GitHub Action workflows.
 
+## Prerequisites
+
+Make sure these [prerequisites](../../docs/IaC-prerequisites.md) are in place before proceeding.
+
 ## Customize the bicep templates
 
 To customize the sample bicep templates provided based on your specific needs, follow the steps below:
 
-1. Clone this repository
+1. Make sure that a CARML module for each Azure resource you want to deploy is present under the ./IaC/bicep/CARML folder. If not, copy them from https://aka.ms/CARML.
 
-2. Make sure that a CARML module for each Azure resource you want to deploy is present under the ./IaC/bicep/CARML folder. If not, copy them from https://aka.ms/CARML.
-
-3. Review the sample parameter files and bicep template orchestration files provided under the following two folders:
+2. Review the sample parameter files and bicep template orchestration files provided under the following two folders:
 
     - ./IaC/bicep/rg-hub: contains the customized files used to build the resources in the hub resource group per the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline).
     - ./IaC/bicep/rg-spoke: contains the customized files used to build the resources in the spoke resource group per the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline).
 
    Customize these files based on your specific deployment requirements for each resource.
 
-4. Test the deployment of each Azure resource individually using the [Azure CLI](https://docs.microsoft.com/azure/azure-resource-manager/bicep/deploy-cli) or [PowerShell command](https://docs.microsoft.com/azure/azure-resource-manager/bicep/deploy-powershell).
+3. Test the deployment of each Azure resource individually using the [Azure CLI](https://docs.microsoft.com/azure/azure-resource-manager/bicep/deploy-cli) or [PowerShell command](https://docs.microsoft.com/azure/azure-resource-manager/bicep/deploy-powershell).
 
 ## Customize the GitHub Action Workflows
 To customize the sample GitHub pipeline provided based on your specific needs, follow the instructions below:
