@@ -43,10 +43,10 @@ To customize the sample terraform templates provided based on your specific need
 3. Test the deployment of each Azure resource individually using these [manual](../../docs/terraform-manual-steps.md) commands.
 
 ## Customize the GitHub Action Workflows
-To customize the sample GitHub pipleine provided based on your specific needs, follow the instructions below:
+To customize the sample GitHub pipeline provided based on your specific needs, follow the instructions below:
 
 1. Create your workflow [GitHub Environment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment?msclkid=62181fb1ab7511ec9be085113913a757) to store the following secrets:
-   
+
     | Secret | Description |Sample|
     |--------|-------------|------|
     |ENVIRONMENT| Name of the environment where you are deploying the Azure resources|non-prod|
