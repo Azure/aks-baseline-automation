@@ -8,4 +8,4 @@ For better security, you may want to setup GitHub self-hosted runners locally wi
 
    The diagram below depicts how a GitHub runner hosted in your Azure subscription would work:
    
-   ![GitHub Runners](../docs/.attachments/GitHub-Runners.jpg)
+   ![GitHub Runners](../docs/.attachments/github-runners.jpg)
