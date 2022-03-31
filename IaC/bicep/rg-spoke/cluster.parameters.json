@@ -1,0 +1,18 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "eastus"
+        },
+        "k8sControlPlaneAuthorizationTenantId":{
+            "value": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+        },
+        "clusterAdminAadGroupObjectId":{
+            "value": "cf58b388-c40a-43c2-85a7-80855e6ea709"
+        },
+        "a0008NamespaceReaderAadGroupObjectId":{
+            "value": "cf58b388-c40a-43c2-85a7-80855e6ea709"
+        }
+    }
+}

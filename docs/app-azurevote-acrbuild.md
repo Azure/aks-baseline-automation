@@ -2,13 +2,13 @@
 
 ## Overview
 
-This sample leverages Azure Container Registry to build a container image from source. The workflow then uses several GitHub actions from the Azure organisation to deploy the application.
+This sample leverages Azure Container Registry to build a container image from source. The workflow then uses several GitHub actions from the Azure org to deploy the application.
 
 The application is the Aks Voting app which is used in the Aks Getting Started guides. It is a 2 container application that allows the user to use a Web UI to vote between Cats/Dogs, the votes are recorded in a Redis cache.
 
 ## Sample info
 
-This sample is a GitHub Reusable Workflow, as an asset in a public repository it can be targetted directly or simply copied into your own repo.
+This sample is a GitHub Reusable Workflow, as an asset in a public repository it can be targeted directly or simply copied into your own repo.
 
 The Azure Credentials required are that of OpenID Connect (OIDC) based Federated Identity Credentials, please see [here](/docs/oidc-federated-credentials.md) for more information.
 
@@ -19,6 +19,7 @@ Location of the [Reusable workflow file](/.github/workflows/App-AzureVote-HelmRu
   deploy-azure-vote-app:
     uses: Azure/aks-baseline-automation/.github/workflows/App-AzureVote-BuildOnACR-Actions.yml@main
     with:
+      ENVIRONMENT: MyGitHubEnvironmentName
       RG: ResourceGroupToDeployTo
       AKSNAME: MyAksCluster
       ACRNAME: MyAzureContainerRegistry

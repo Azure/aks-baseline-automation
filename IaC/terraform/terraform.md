@@ -62,7 +62,7 @@ parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | s
 terraform init -upgrade
 
 # Trigger the deployment of the resources
-eval terraform plan ${parameter_files}
+eval terraform plan ${parameter_files} -out tf1.tfplan
 ```
 ## Next step
 

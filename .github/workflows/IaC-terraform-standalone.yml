@@ -1,4 +1,4 @@
-name: Deploy_AKS_Online_Standalone
+name: Deploy_AKS_Terraform_Standalone
 # The pipeline is triggered on:
 #  - PR/Issue comments "/deploy-all", "/deploy-launchpad", "/deploy-shared-services", "/deploy-networking-hub",
 #                      "/deploy-networking-spoke", "/deploy-aks", "/deploy-addons"

@@ -1,0 +1,40 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "name": {
+            "value": "<<namePrefix>>-az-privdns-x-001.com"
+        },
+        "roleAssignments": {
+            "value": [
+                {
+                    "roleDefinitionIdOrName": "Reader",
+                    "principalIds": [
+                        "<<deploymentSpId>>"
+                    ]
+                }
+            ]
+        },
+        "a": {
+            "value": [
+                {
+                    "name": "A_10.240.4.4",
+                    "ttl": 3600,
+                    "aRecords": [
+                        {
+                            "ipv4Address": "10.240.4.4"
+                        }
+                    ]
+                }
+            ]
+        },
+        "virtualNetworkLinks": {
+            "value": [
+                {
+                    "virtualNetworkResourceId": "/subscriptions/<<subscriptionId>>/resourceGroups/validation-rg/providers/Microsoft.Network/virtualNetworks/adp-<<namePrefix>>-az-vnet-x-001",
+                    "registrationEnabled": true
+                }
+            ]
+        }
+    }
+}
