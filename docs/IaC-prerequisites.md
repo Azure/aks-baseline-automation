@@ -19,8 +19,21 @@ If you opt-in to setup a shell on your machine, there are required access and to
    > :warning: The user or service principal initiating the deployment process _must_ have the following minimal set of Azure Role-Based Access Control (RBAC) roles:
    >
    > - [Contributor role](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#contributor) is _required_ at the subscription level to have the ability to create resource groups and perform deployments.
+   > - [Network Contributor role](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#network-contributor) is _required_ at the subscription level to have the ability to create and modify Virtual Network resources.
    > - [User Access Administrator role](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator) is _required_ at the subscription level since you'll be granting least-privilege RBAC access to managed identities.
    >   - One such example is detailed in the [Container Insights documentation](https://docs.microsoft.com/en-us/azure/azure-monitor/containers/container-insights-troubleshoot#authorization-error-during-onboarding-or-update-operation).
+
+   Example for role assignment of current logged in User. If Service Principal or Managed Identity is used, pleace replace OID with the object id of those credentials
+   
+   ```bash 
+   OID=$(az ad signed-in-user show --query objectId -o tsv)
+
+   az role assignment create --role "Contributor" --assignee-object-id $OID --assignee-principal-type ServicePrincipal
+
+   az role assignment create --role "User Access Administrator" --assignee-object-id $OID --assignee-principal-type ServicePrincipal
+
+   az role assignment create --role "Network Contributor" --assignee-object-id $OID --assignee-principal-type ServicePrincipal
+   ```
 
       > :twisted_rightwards_arrows: Typically you would only grant these permissions at the resource group level and not subscription level. However, in our sample IaC code the Resource Groups are created at the same time as the rest of the azure resources and therefore to keep it simple we are granting these permission to the same Service Principal at the subscription level.  
 
