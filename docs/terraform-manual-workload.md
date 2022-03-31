@@ -36,7 +36,7 @@ Please review the Baseline components that are deployed at [cluster-baseline-set
   ```
 
 Flux pulls yaml files from [cluster-baseline-settings](../IaC/terraform/cluster-baseline-settings) and applies them to the cluster.
-If there is a need to change the folder to your own, please modify [cluster-baseline-settings.yaml](../IaC/terraform/cluster-baseline-settings/flux/flux.yaml)
+If there is a need to change the folder to your own, please modify [flux.yaml](../IaC/terraform/cluster-baseline-settings/flux/flux.yaml)
 
 ## Deploy sample workload
 
