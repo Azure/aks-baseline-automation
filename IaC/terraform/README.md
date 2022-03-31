@@ -36,11 +36,9 @@ Make sure these [prerequisites](../../docs/IaC-prerequisites.md) are in place be
 
 To customize the sample terraform templates provided based on your specific needs, follow the steps below:
 
-1. Clone or fork this repository
+1. Review the terraform templates provided under the IaC/terraform folder and customize these files based on your specific deployment requirements for each resource.
 
-2. Review the terraform templates provided under the IaC/terraform folder and customize these files based on your specific deployment requirements for each resource.
-
-3. Test the deployment of each Azure resource individually using these [manual](../../docs/terraform-manual-steps.md) commands.
+2. Test the deployment of each Azure resource individually using these [manual](../../docs/terraform-manual-steps.md) commands.
 
 ## Customize the GitHub Action Workflows
 To customize the sample GitHub pipeline provided based on your specific needs, follow the instructions below:

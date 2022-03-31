@@ -2,13 +2,13 @@
 
 ### Supported run environment
 
-In order to deploy the Azure resources through bicep or terraform, you can use the following options:
+In order to deploy Azure resources manually through bicep or terraform, you can use the following options:
 
 - [Windows Subsystem for Linux](https://docs.microsoft.com/windows/wsl/about#what-is-wsl-2)
 - [Azure Cloud Shell](https://shell.azure.com)
 - Linux Bash Shell
 - MacOS Shell
-- GitHub CodeSpace
+- [GitHub CodeSpace](https://github.com/features/codespaces)
 
 ### Configuration steps
 
@@ -20,7 +20,9 @@ If you opt-in to setup a shell on your machine, there are required access and to
    >
    > - [Contributor role](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#contributor) is _required_ at the subscription level to have the ability to create resource groups and perform deployments.
    > - [User Access Administrator role](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator) is _required_ at the subscription level since you'll be granting least-privilege RBAC access to managed identities.
-   >   - One such example is detailed in the [Container Insights documentation](https://docs.microsoft.com/azure/azure-monitor/insights/container-insights-troubleshoot#authorization-error-during-onboarding-or-update-operation).
+   >   - One such example is detailed in the [Container Insights documentation](https://docs.microsoft.com/en-us/azure/azure-monitor/containers/container-insights-troubleshoot#authorization-error-during-onboarding-or-update-operation).
+
+      > :twisted_rightwards_arrows: Typically you would only grant these permissions at the resource group level and not subscription level. However, in our sample IaC code the Resource Groups are created at the same time as the rest of the azure resources and therefore to keep it simple we are granting these permission to the same Service Principal at the subscription level.  
 
 2. An Azure AD tenant to associate your Kubernetes RBAC configuration to.
 
