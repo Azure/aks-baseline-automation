@@ -47,3 +47,7 @@ terraform state list
 eval terraform destroy ${parameter_files}
 
 ```
+
+## Install Sample App
+
+Follow the next step at [terraform-manual-workload](./terraform-manual-workload.md) to deploy Traefik and a sample ASP.NET application
