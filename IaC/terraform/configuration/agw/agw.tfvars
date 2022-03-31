@@ -1,7 +1,7 @@
-application_gateway_platforms = {
+application_gateways = {
   agw1_az1 = {
     resource_group_key = "aks_re1"
-    name               = "app_gateway_re1"
+    name               = "appgateway-re1-001"
     vnet_key           = "vnet_aks_re1"
     subnet_key         = "application_gateway"
     sku_name           = "WAF_v2"
@@ -57,19 +57,5 @@ application_gateway_platforms = {
         keyvault_key = "secrets"
       }
     }
-
-     default = {
-      frontend_port_key             = "80"
-      frontend_ip_configuration_key = "public"
-      backend_address_pool_name     = "default-beap"
-      http_setting_name             = "default-be-htst"
-      listener_name                 = "default-httplstn"
-      request_routing_rule_name     = "default-rqrt"
-      cookie_based_affinity         = "Disabled"
-      request_timeout               = "60"
-      rule_type                     = "Basic"
-      # ssl_cert_key                  = "default" # ssl_certs key as defined above in line 59
-    }
-
   }
 }

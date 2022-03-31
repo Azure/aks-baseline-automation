@@ -25,11 +25,6 @@ Set the folder to Standalone
 cd IaC/terraform
 ```
 
-Clone the CAF terraform modules
-```bash
-git clone https://github.com/Azure/caf-terraform-landingzones.git landingzone
-```
-
 Deploy with Terraform
 
 ```bash
