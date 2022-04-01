@@ -61,9 +61,9 @@ Note: as this reference implementation and reference architecture launch, conten
 This section demonstrates the deployment of an application composed of multiple services by leveraging two options:
  * A CI/CD pipeline built using Kubernetes GitHub Actions.
 
- * A GitOps solution using [ArgoCD](https://argoproj.github.io/cd/). Note that we could also have used [Flux](https://fluxcd.io/) for this purpose, but using ArgoCD will showcase how an app team may chose to use a separate tool for their specific workload lifecycle concerns as opposed to using the same tool as what the cluster operators use for cluster management.
+ * A GitOps solution using ArgoCD. Note that we could also have used [Flux](https://fluxcd.io/) for this purpose, but using ArgoCD will showcase how an app team may chose to use a separate tool for their specific workload lifecycle concerns as opposed to using the same tool as what the cluster operators use for cluster management.
 
-The application [Azure Voting App](https://github.com/Azure-Samples/azure-voting-app-redis/) is used for this deployment as this application is quite simple, but yet demonstrates how to deploy an application composed of multiple containers. In this case the application is composed of a web-front-end written in Python and a data backend running Redis.
+The application [Azure Voting App](https://github.com/Azure/aks-baseline-automation/tree/main/workloads/azure-vote) is used for this deployment as this application is quite simple, but yet demonstrates how to deploy an application composed of multiple containers. In this case the application is composed of a web-front-end written in Python and a data backend running Redis.
 
 The application deployment using helm charts with both Blue/Green and Canary release management strategies is also be demonstrated. Note however that this feature has not been implemented yet, see issue https://github.com/Azure/aks-baseline-automation/issues/27.
 
