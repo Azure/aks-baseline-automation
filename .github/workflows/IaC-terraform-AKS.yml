@@ -1,18 +1,16 @@
-name: Deploy_AKS_Terraform_Standalone
-# The pipeline is triggered on:
-#  - PR/Issue comments "/deploy-all", "/deploy-launchpad", "/deploy-shared-services", "/deploy-networking-hub",
-#                      "/deploy-networking-spoke", "/deploy-aks", "/deploy-addons"
+name: 'Deploy Terraform based AKS Cluster'
 
 on: 
   workflow_dispatch:
-  push:
-    branches:
-      - terraform
-    paths: 
-      - IaC/terraform
-  # issue_comment:
-  #   types:
-  #   - created
+    inputs:
+      ENVIRONMENT:
+        description: 'A GitHub Environment to pull action secrets from'
+        required: true
+        type: environment
+      REGION:
+        description: 'The Azure region to deploy to'
+        required: true
+        default: eastus
     
 env:
   AZURE_CREDENTIALS: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}", "clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}", "subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "tenantId":"${{ secrets.AZURE_TENANT_ID }}"}' 
@@ -31,19 +29,18 @@ permissions:
 jobs:
   deploy-standalone:
     runs-on: ubuntu-latest
-    environment: terraform
+    environment: ${{ github.event.inputs.ENVIRONMENT }}
     outputs:
       prefix: ${{ steps.test.outputs.PREFIX }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
-
-      # - name: Azure Login
-      #   if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad') || github.event_name != 'issue_comment'     
-      #   uses: azure/login@v1
-      #   with:
-      #     creds: ${{ env.AZURE_CREDENTIALS }}
       
+      - name: "Parameter Check"
+        run: |
+          echo "Environment : ${{ github.event.inputs.ENVIRONMENT }}"
+          echo "REGION : ${{ github.event.inputs.REGION }}"
+
       - name: Azure Login
         uses: Azure/login@v1.4.3
         with:

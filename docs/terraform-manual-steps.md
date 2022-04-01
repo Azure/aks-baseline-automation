@@ -7,7 +7,7 @@
 # Script to execute from bash shell
 
 # Login to your Azure Active Directory tenant
-az login -t {TENANTNID}
+az login -t {TENANTID}
 
 # Make sure you are using the right subscription
 az account show -o table
@@ -23,11 +23,6 @@ Set the folder to Standalone
 
 ```bash
 cd IaC/terraform
-```
-
-Clone the CAF terraform modules
-```bash
-git clone https://github.com/Azure/caf-terraform-landingzones.git landingzone
 ```
 
 Deploy with Terraform
@@ -52,3 +47,7 @@ terraform state list
 eval terraform destroy ${parameter_files}
 
 ```
+
+## Install Sample App
+
+Follow the next step at [terraform-manual-workload](./terraform-manual-workload.md) to deploy Traefik and a sample ASP.NET application

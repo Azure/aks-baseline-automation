@@ -1,10 +1,10 @@
-application_gateway_applications_v1 = {
+application_gateway_applications = {
   aspnetapp_az1_agw1 = {
 
     name                    = "aspnetapp"
     application_gateway_key = "agw1_az1"
 
-    http_listeners = {
+    listeners = {
       public_ssl = {
         name                           = "public-443"
         front_end_ip_configuration_key = "public"
