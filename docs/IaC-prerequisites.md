@@ -23,7 +23,7 @@ If you opt-in to setup a shell on your machine, there are required access and to
    > - [User Access Administrator role](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator) is _required_ at the subscription level since you'll be granting least-privilege RBAC access to managed identities.
    >   - One such example is detailed in the [Container Insights documentation](https://docs.microsoft.com/en-us/azure/azure-monitor/containers/container-insights-troubleshoot#authorization-error-during-onboarding-or-update-operation).
 
-   Example for role assignment of current logged in User. If Service Principal or Managed Identity is used, pleace replace OID with the object id of those credentials
+   Example for role assignment of current logged in User. If Service Principal or Managed Identity is used, please replace OID with the object id of those credentials
    
    ```bash 
    OID=$(az ad signed-in-user show --query objectId -o tsv)
