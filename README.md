@@ -43,8 +43,8 @@ We also provide example of metrics of interest from these Shared-Services that c
 
 In this section we demonstrate two implementation options:
 
- * A GitOps solution using the AKS [Flux](https://fluxcd.io/) extension.
- * A CI/CD pipeline built using GitHub Actions. Note that this feature is not yet implemented, see issue https://github.com/Azure/aks-baseline-automation/issues/28
+ * A GitOps solution using the AKS [Flux](https://fluxcd.io/) extension. Note that this feature is not yet implemented, see issue https://github.com/Azure/aks-baseline-automation/issues/30.
+ * A CI/CD pipeline built using GitHub Actions. Note that this feature is not yet implemented, see issue https://github.com/Azure/aks-baseline-automation/issues/28.
 
 
 The GitOps solution features:
