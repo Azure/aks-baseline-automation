@@ -1,7 +1,7 @@
 @description('Required. Private DNS zone name.')
 param privateDnsZoneName string
 
-@description('Required. The name of the A record.')
+@description('Required. The name of the TXT record.')
 param name string
 
 @description('Optional. The metadata attached to the record set.')
@@ -13,19 +13,26 @@ param ttl int = 3600
 @description('Optional. The list of TXT records in the record set.')
 param txtRecords array = []
 
-@description('Optional. Customer Usage Attribution ID (GUID). This GUID must be previously registered')
-param cuaId string = ''
+@description('Optional. Enable telemetry via the Customer Usage Attribution ID (GUID).')
+param enableDefaultTelemetry bool = true
 
-module pid_cuaId '.bicep/nested_cuaId.bicep' = if (!empty(cuaId)) {
-  name: 'pid-${cuaId}'
-  params: {}
+resource defaultTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (enableDefaultTelemetry) {
+  name: 'pid-47ed15a6-730a-4827-bcb4-0fd963ffbd82-${uniqueString(deployment().name)}'
+  properties: {
+    mode: 'Incremental'
+    template: {
+      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+      contentVersion: '1.0.0.0'
+      resources: []
+    }
+  }
 }
 
 resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' existing = {
   name: privateDnsZoneName
 }
 
-resource txt 'Microsoft.Network/privateDnsZones/TXT@2020-06-01' = {
+resource TXT 'Microsoft.Network/privateDnsZones/TXT@2020-06-01' = {
   name: name
   parent: privateDnsZone
   properties: {
@@ -36,10 +43,10 @@ resource txt 'Microsoft.Network/privateDnsZones/TXT@2020-06-01' = {
 }
 
 @description('The name of the deployed TXT record')
-output name string = txt.name
+output name string = TXT.name
 
 @description('The resource ID of the deployed TXT record')
-output resourceId string = txt.id
+output resourceId string = TXT.id
 
 @description('The resource group of the deployed TXT record')
 output resourceGroupName string = resourceGroup().name
