@@ -70,6 +70,7 @@ var networkRuleCollectionGroup = [
     action: {
       type: 'Allow'
     }
+    ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
     rules: [
       {
         name: 'SecureTunnel01'
@@ -129,7 +130,6 @@ var networkRuleCollectionGroup = [
         destinationFqdns: []
       }
     ]
-    ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
   }
 ]
 
@@ -140,6 +140,7 @@ var applicationRuleCollectionGroup = [
     action: {
       type: 'Allow'
     }
+    ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
     rules: [
       {
         name: 'NodeToApiServer'
@@ -289,7 +290,142 @@ var applicationRuleCollectionGroup = [
         ruleType: 'ApplicationRule'
       }
     ]
+  }
+  {
     ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+    name: 'AKS-Global-Requirements'
+    priority: 200
+    action: {
+      type: 'Allow'
+    }
+    rules: [
+      {
+        ruleType: 'ApplicationRule'
+        name: 'azure-monitor-addon'
+        description: 'Supports required communication for the Azure Monitor addon in AKS'
+        protocols: [
+          {
+            protocolType: 'Https'
+            port: 443
+          }
+        ]
+        fqdnTags: []
+        webCategories: []
+        targetFqdns: [
+          '*.ods.opinsights.azure.com'
+          '*.oms.opinsights.azure.com'
+          '${location}.monitoring.azure.com'
+        ]
+        targetUrls: []
+        destinationAddresses: []
+        terminateTLS: false
+        sourceAddresses: []
+        sourceIpGroups: []
+      }
+      {
+        ruleType: 'ApplicationRule'
+        name: 'azure-policy-addon'
+        description: 'Supports required communication for the Azure Policy addon in AKS'
+        protocols: [
+          {
+            protocolType: 'Https'
+            port: 443
+          }
+        ]
+        fqdnTags: []
+        webCategories: []
+        targetFqdns: [
+          'data.policy.${environment().suffixes.storage}'
+          'store.policy.${environment().suffixes.storage}'
+        ]
+        targetUrls: []
+        destinationAddresses: []
+        terminateTLS: false
+        sourceAddresses: []
+        sourceIpGroups: []
+      }
+      {
+        ruleType: 'ApplicationRule'
+        name: 'service-requirements'
+        description: 'Supports required core AKS functionality. Could be replaced with individual rules if added granularity is desired.'
+        protocols: [
+          {
+            protocolType: 'Https'
+            port: 443
+          }
+        ]
+        fqdnTags: [
+          'AzureKubernetesService'
+        ]
+        webCategories: []
+        targetFqdns: []
+        targetUrls: []
+        destinationAddresses: []
+        terminateTLS: false
+        sourceAddresses: []
+        sourceIpGroups: []
+      }
+    ]
+  }
+  {
+    ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+    name: 'GitOps-Traffic'
+    priority: 300
+    action: {
+      type: 'Allow'
+    }
+    rules: [
+      {
+        ruleType: 'ApplicationRule'
+        name: 'github-origin'
+        description: 'Supports pulling gitops configuration from GitHub.'
+        protocols: [
+          {
+            protocolType: 'Https'
+            port: 443
+          }
+        ]
+        fqdnTags: []
+        webCategories: []
+        targetFqdns: [
+          'github.com'
+          'api.github.com'
+        ]
+        targetUrls: []
+        destinationAddresses: []
+        terminateTLS: false
+        sourceAddresses: []
+        sourceIpGroups: []
+      }
+      {
+        ruleType: 'ApplicationRule'
+        name: 'flux-extension-runtime-requirements'
+        description: 'Supports required communication for the Flux v2 extension operate and contains allowances for our applications deployed to the cluster.'
+        protocols: [
+          {
+            protocolType: 'Https'
+            port: 443
+          }
+        ]
+        fqdnTags: []
+        webCategories: []
+        targetFqdns: [
+          '${location}.dp.kubernetesconfiguration.azure.com'
+          'mcr.microsoft.com'
+          '${split(environment().resourceManager, '/')[2]}' // Prevent the linter from getting upset at management.azure.com - https://github.com/Azure/bicep/issues/3080
+          '${split(environment().authentication.loginEndpoint, '/')[2]}' // Prevent the linter from getting upset at login.microsoftonline.com
+          '*.blob.${environment().suffixes.storage}' // required for the extension installer to download the helm chart install flux. This storage account is not predictable, but does look like eusreplstore196 for example.
+          'azurearcfork8s.azurecr.io' // required for a few of the images installed by the extension.
+          '*.docker.io' // Only required if you use the default bootstrapping manifests included in this repo. Kured is sourced from here by default.
+          '*.docker.com' // Only required if you use the default bootstrapping manifests included in this repo. Kured is sourced from here by default.
+        ]
+        targetUrls: []
+        destinationAddresses: []
+        terminateTLS: false
+        sourceAddresses: []
+        sourceIpGroups: []
+      }
+    ]
   }
 ]
 
