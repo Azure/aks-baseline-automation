@@ -731,6 +731,7 @@ module hubFw '../CARML/Microsoft.Network/azureFirewalls/deploy.bicep' = {
   }
   dependsOn: [
     rg
+    ipgNodepoolSubnet
   ]
 }
 
