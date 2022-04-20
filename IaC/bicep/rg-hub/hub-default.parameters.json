@@ -8,6 +8,11 @@
         "location": {
             "value": "eastus"
         },
+        "subnetIpAddressSpace": {
+            "value": [
+                "10.240.0.0/16"
+            ]
+        },
         "hubVnetAddressSpace": {
             "value": "10.200.0.0/24"
         },

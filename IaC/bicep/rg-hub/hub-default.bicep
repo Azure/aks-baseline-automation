@@ -25,7 +25,7 @@ param location string
 
 @description('Subnet address prefixes for all AKS clusters nodepools in all attached spokes to allow necessary outbound traffic through the firewall.')
 @minLength(1)
-param subnetIpAddresses array
+param subnetIpAddressSpace array
 
 @description('Optional. Array of Security Rules to deploy to the Network Security Group. When not provided, an NSG including only the built-in roles will be deployed.')
 param networkSecurityGroupSecurityRules array = []
@@ -576,7 +576,7 @@ module ipgNodepoolSubnet '../CARML/Microsoft.Network/ipGroups/deploy.bicep' = {
   name: ipgNodepoolSubnetName
   params: {
     name: ipgNodepoolSubnetName
-    ipAddresses: subnetIpAddresses
+    ipAddresses: subnetIpAddressSpace
     location: location
   }
   scope: resourceGroup(resourceGroupName)
