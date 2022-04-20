@@ -23,6 +23,10 @@ param resourceGroupName string = 'rg-enterprise-networking-hubs'
 ])
 param location string
 
+@description('Subnet address prefixes for all AKS clusters nodepools in all attached spokes to allow necessary outbound traffic through the firewall.')
+@minLength(1)
+param subnetIpAddresses array
+
 @description('Optional. Array of Security Rules to deploy to the Network Security Group. When not provided, an NSG including only the built-in roles will be deployed.')
 param networkSecurityGroupSecurityRules array = []
 
@@ -62,6 +66,7 @@ var fwPoliciesName = 'fw-policies-${location}'
 var hubVNetName = 'vnet-${location}-hub'
 var bastionNetworkNsgName = 'nsg-${location}-bastion'
 var hubLaName = 'la-hub-${location}-${uniqueString(resourceId('Microsoft.Network/virtualNetworks', hubVNetName))}'
+var ipgNodepoolSubnetName = 'ipg-nodepool-ipaddresses'
 
 var networkRuleCollectionGroup = [
   {
@@ -293,6 +298,66 @@ var applicationRuleCollectionGroup = [
   }
   {
     ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+    name: 'org-wide-allowed'
+    priority: 100
+    action: {
+      type: 'Allow'
+    }
+    rules: [
+      {
+        ruleType: 'NetworkRule'
+        name: 'DNS'
+        description: 'Allow DNS outbound (for simplicity, adjust as needed)'
+        ipProtocols: [
+          'UDP'
+        ]
+        sourceAddresses: [
+          '*'
+        ]
+        sourceIpGroups: []
+        destinationAddresses: [
+          '*'
+        ]
+        destinationIpGroups: []
+        destinationFqdns: []
+        destinationPorts: [
+          '53'
+        ]
+      }
+    ]
+  }
+  {
+    ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+    name: 'AKS-Global-Requirements'
+    priority: 200
+    action: {
+      type: 'Allow'
+    }
+    rules: [
+      {
+        ruleType: 'NetworkRule'
+        name: 'pods-to-api-server-konnectivity'
+        description: 'This allows pods to communicate with the API server. Ensure your API server\'s allowed IP ranges support all of this firewall\'s public IPs.'
+        ipProtocols: [
+          'TCP'
+        ]
+        sourceAddresses: []
+        sourceIpGroups: [
+          ipgNodepoolSubnet.outputs.resourceId
+        ]
+        destinationAddresses: [
+          'AzureCloud.${location}' // Ideally you'd list your AKS server endpoints in appliction rules, instead of this wide-ranged rule
+        ]
+        destinationIpGroups: []
+        destinationFqdns: []
+        destinationPorts: [
+          '443'
+        ]
+      }
+    ]
+  }
+  {
+    ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
     name: 'AKS-Global-Requirements'
     priority: 200
     action: {
@@ -320,7 +385,9 @@ var applicationRuleCollectionGroup = [
         destinationAddresses: []
         terminateTLS: false
         sourceAddresses: []
-        sourceIpGroups: []
+        sourceIpGroups: [
+          ipgNodepoolSubnet.outputs.resourceId
+        ]
       }
       {
         ruleType: 'ApplicationRule'
@@ -342,7 +409,9 @@ var applicationRuleCollectionGroup = [
         destinationAddresses: []
         terminateTLS: false
         sourceAddresses: []
-        sourceIpGroups: []
+        sourceIpGroups: [
+          ipgNodepoolSubnet.outputs.resourceId
+        ]
       }
       {
         ruleType: 'ApplicationRule'
@@ -363,7 +432,9 @@ var applicationRuleCollectionGroup = [
         destinationAddresses: []
         terminateTLS: false
         sourceAddresses: []
-        sourceIpGroups: []
+        sourceIpGroups: [
+          ipgNodepoolSubnet.outputs.resourceId
+        ]
       }
     ]
   }
@@ -395,7 +466,9 @@ var applicationRuleCollectionGroup = [
         destinationAddresses: []
         terminateTLS: false
         sourceAddresses: []
-        sourceIpGroups: []
+        sourceIpGroups: [
+          ipgNodepoolSubnet.outputs.resourceId
+        ]
       }
       {
         ruleType: 'ApplicationRule'
@@ -423,7 +496,9 @@ var applicationRuleCollectionGroup = [
         destinationAddresses: []
         terminateTLS: false
         sourceAddresses: []
-        sourceIpGroups: []
+        sourceIpGroups: [
+          ipgNodepoolSubnet.outputs.resourceId
+        ]
       }
     ]
   }
@@ -489,6 +564,20 @@ module hubVNet '../CARML/Microsoft.Network/virtualNetworks/deploy.bicep' = {
         networkSecurityGroupName: bastionNsg.outputs.name
       }
     ]
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+  ]
+}
+
+// This holds IP addresses of known nodepool subnets in spokes.
+module ipgNodepoolSubnet '../CARML/Microsoft.Network/ipGroups/deploy.bicep' = {
+  name: ipgNodepoolSubnetName
+  params: {
+    name: ipgNodepoolSubnetName
+    ipAddresses: subnetIpAddresses
+    location: location
   }
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
