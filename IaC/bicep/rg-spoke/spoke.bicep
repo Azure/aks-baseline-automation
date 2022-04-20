@@ -82,7 +82,7 @@ module nsgNodePools '../CARML/Microsoft.Network/networkSecurityGroups/deploy.bic
   params: {
     name: nsgNodePoolsName
     location: location
-    networkSecurityGroupSecurityRules: []
+    securityRules: []
     diagnosticWorkspaceId: hubLaWorkspaceResourceId
   }
   scope: resourceGroup(resourceGroupName)
@@ -96,7 +96,7 @@ module nsgAksiLb '../CARML/Microsoft.Network/networkSecurityGroups/deploy.bicep'
   params: {
     name: nsgAksiLbName
     location: location
-    networkSecurityGroupSecurityRules: []
+    securityRules: []
     diagnosticWorkspaceId: hubLaWorkspaceResourceId
   }
   scope: resourceGroup(resourceGroupName)
@@ -110,7 +110,7 @@ module nsgAppGw '../CARML/Microsoft.Network/networkSecurityGroups/deploy.bicep' 
   params: {
     name: nsgAppGwName
     location: location
-    networkSecurityGroupSecurityRules: [
+    securityRules: [
       {
         name: 'Allow443InBound'
         properties: {

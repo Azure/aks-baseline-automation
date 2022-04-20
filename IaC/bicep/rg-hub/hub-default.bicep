@@ -458,7 +458,7 @@ module bastionNsg '../CARML/Microsoft.Network/networkSecurityGroups/deploy.bicep
   params: {
     name: bastionNetworkNsgName
     location: location
-    networkSecurityGroupSecurityRules: networkSecurityGroupSecurityRules
+    securityRules: networkSecurityGroupSecurityRules
     diagnosticWorkspaceId: hubLa.outputs.resourceId
   }
   scope: resourceGroup(resourceGroupName)

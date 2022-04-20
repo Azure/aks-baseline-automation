@@ -96,8 +96,11 @@ module rg '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
 module nodeRgRbac '../CARML/Microsoft.Resources/resourceGroups/.bicep/nested_rbac.bicep' = {
   name: '${nodeResourceGroupName}-rbac'
   scope: resourceGroup(nodeResourceGroupName)
+  dependsOn: [
+    cluster
+  ]
   params: {
-    resourceGroupName: nodeResourceGroupName
+    resourceId: nodeResourceGroupName
     principalIds: array(cluster.outputs.kubeletidentityObjectId)
     roleDefinitionIdOrName: 'Virtual Machine Contributor'
   }
@@ -753,9 +756,9 @@ module kubernetesConfigurationFlux '../CARML/Microsoft.KubernetesConfiguration/e
   name: 'flux'
   params: {
     name: 'flux'
+    location: location
     extensionType: 'microsoft.flux'
     clusterName: cluster.name
-    autoUpgradeMinorVersion: true
     releaseTrain: 'Stable'
     releaseNamespace: 'flux-system'
     version: '0.5.2'
@@ -781,6 +784,7 @@ module kubernetesConfigurationFlux2 '../CARML/Microsoft.KubernetesConfiguration/
   params: {
     scope: 'cluster'
     name: 'flux2'
+    location: location
     namespace: 'flux-system'
     clusterName: cluster.name
     sourceKind: 'GitRepository'
@@ -1420,7 +1424,7 @@ module Restarting_container_count_for_cluster '../CARML/Microsoft.Insights/metri
   ]
 }
 
-module AKSLinuxRestrictive '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
+module AKSLinuxRestrictive '../CARML/Microsoft.Authorization/policyAssignments/resourceGroup/deploy.bicep' = {
   name: 'AKSLinuxRestrictive'
   params: {
     name: 'AKSLinuxRestrictive'
@@ -1448,7 +1452,7 @@ module AKSLinuxRestrictive '../CARML/Microsoft.Authorization/policyAssignments/.
   ]
 }
 
-// module EnforceHttpsIngress '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
+// module EnforceHttpsIngress '../CARML/Microsoft.Authorization/policyAssignments/resourceGroup/deploy.bicep' = {
 //   name: 'EnforceHttpsIngress'
 //   params: {
 //     name: 'EnforceHttpsIngress'
@@ -1471,7 +1475,7 @@ module AKSLinuxRestrictive '../CARML/Microsoft.Authorization/policyAssignments/.
 //   ]
 // }
 
-module EnforceInternalLB '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
+module EnforceInternalLB '../CARML/Microsoft.Authorization/policyAssignments/resourceGroup/deploy.bicep' = {
   name: 'EnforceInternalLB'
   params: {
     name: 'EnforceInternalLB'
@@ -1494,7 +1498,7 @@ module EnforceInternalLB '../CARML/Microsoft.Authorization/policyAssignments/.bi
   ]
 }
 
-module RootFilesystem '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
+module RootFilesystem '../CARML/Microsoft.Authorization/policyAssignments/resourceGroup/deploy.bicep' = {
   name: 'RootFilesystem'
   params: {
     name: 'RootFilesystem'
@@ -1521,7 +1525,7 @@ module RootFilesystem '../CARML/Microsoft.Authorization/policyAssignments/.bicep
   ]
 }
 
-module EnforceResourceLimits '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
+module EnforceResourceLimits '../CARML/Microsoft.Authorization/policyAssignments/resourceGroup/deploy.bicep' = {
   name: 'EnforceResourceLimits'
   params: {
     name: 'EnforceResourceLimits'
@@ -1556,7 +1560,7 @@ module EnforceResourceLimits '../CARML/Microsoft.Authorization/policyAssignments
   ]
 }
 
-module EnforceImageSource '../CARML/Microsoft.Authorization/policyAssignments/.bicep/nested_policyAssignments_rg.bicep' = {
+module EnforceImageSource '../CARML/Microsoft.Authorization/policyAssignments/resourceGroup/deploy.bicep' = {
   name: 'EnforceImageSource'
   params: {
     name: 'EnforceImageSource'
