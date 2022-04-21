@@ -136,6 +136,36 @@ var networkRuleCollectionGroup = [
       }
     ]
   }
+  {
+    ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+    name: 'AKS-Global-Requirements'
+    priority: 210
+    action: {
+      type: 'Allow'
+    }
+    rules: [
+      {
+        ruleType: 'NetworkRule'
+        name: 'pods-to-api-server-konnectivity'
+        description: 'This allows pods to communicate with the API server. Ensure your API server\'s allowed IP ranges support all of this firewall\'s public IPs.'
+        ipProtocols: [
+          'TCP'
+        ]
+        sourceAddresses: []
+        sourceIpGroups: [
+          ipgNodepoolSubnet.outputs.resourceId
+        ]
+        destinationAddresses: [
+          'AzureCloud.${location}' // Ideally you'd list your AKS server endpoints in appliction rules, instead of this wide-ranged rule
+        ]
+        destinationIpGroups: []
+        destinationFqdns: []
+        destinationPorts: [
+          '443'
+        ]
+      }
+    ]
+  }
 ]
 
 var applicationRuleCollectionGroup = [
@@ -298,68 +328,8 @@ var applicationRuleCollectionGroup = [
   }
   {
     ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-    name: 'org-wide-allowed'
-    priority: 100
-    action: {
-      type: 'Allow'
-    }
-    rules: [
-      {
-        ruleType: 'NetworkRule'
-        name: 'DNS'
-        description: 'Allow DNS outbound (for simplicity, adjust as needed)'
-        ipProtocols: [
-          'UDP'
-        ]
-        sourceAddresses: [
-          '*'
-        ]
-        sourceIpGroups: []
-        destinationAddresses: [
-          '*'
-        ]
-        destinationIpGroups: []
-        destinationFqdns: []
-        destinationPorts: [
-          '53'
-        ]
-      }
-    ]
-  }
-  {
-    ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
     name: 'AKS-Global-Requirements'
-    priority: 200
-    action: {
-      type: 'Allow'
-    }
-    rules: [
-      {
-        ruleType: 'NetworkRule'
-        name: 'pods-to-api-server-konnectivity'
-        description: 'This allows pods to communicate with the API server. Ensure your API server\'s allowed IP ranges support all of this firewall\'s public IPs.'
-        ipProtocols: [
-          'TCP'
-        ]
-        sourceAddresses: []
-        sourceIpGroups: [
-          ipgNodepoolSubnet.outputs.resourceId
-        ]
-        destinationAddresses: [
-          'AzureCloud.${location}' // Ideally you'd list your AKS server endpoints in appliction rules, instead of this wide-ranged rule
-        ]
-        destinationIpGroups: []
-        destinationFqdns: []
-        destinationPorts: [
-          '443'
-        ]
-      }
-    ]
-  }
-  {
-    ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-    name: 'AKS-Global-Requirements'
-    priority: 200
+    priority: 220
     action: {
       type: 'Allow'
     }
@@ -691,6 +661,7 @@ module fwPolicies '../CARML/Microsoft.Network/firewallPolicies/deploy.bicep' = {
   dependsOn: [
     rg
     fwPoliciesBase
+    ipgNodepoolSubnet
   ]
 }
 
