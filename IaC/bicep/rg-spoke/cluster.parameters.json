@@ -4,6 +4,12 @@
     "parameters": {
         "location": {
             "value": "eastus"
-        }
+        },
+        "clusterAdminAadGroupObjectId":{
+            "value": "029fadf4-0d6f-4ff0-87c4-0284244b9b3b"
+        },
+        "a0008NamespaceReaderAadGroupObjectId":{
+            "value": "029fadf4-0d6f-4ff0-87c4-0284244b9b3b"
+        }      
     }
 }
