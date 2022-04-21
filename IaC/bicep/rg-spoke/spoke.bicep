@@ -199,23 +199,23 @@ module clusterVNet '../CARML/Microsoft.Network/virtualNetworks/deploy.bicep' = {
       {
         name: 'snet-clusternodes'
         addressPrefix: '10.240.0.0/22'
-        routeTableName: routeTable.outputs.name
-        networkSecurityGroupName: nsgNodePools.outputs.name
+        routeTableId: routeTable.outputs.resourceId
+        networkSecurityGroupId: nsgNodePools.outputs.resourceId
         privateEndpointNetworkPolicies: 'Disabled'
         privateLinkServiceNetworkPolicies: 'Enabled'
       }
       {
         name: 'snet-clusteringressservices'
         addressPrefix: '10.240.4.0/28'
-        routeTableName: routeTable.outputs.name
-        networkSecurityGroupName: nsgAksiLb.outputs.name
+        routeTableId: routeTable.outputs.resourceId
+        networkSecurityGroupId: nsgAksiLb.outputs.resourceId
         privateEndpointNetworkPolicies: 'Disabled'
         privateLinkServiceNetworkPolicies: 'Disabled'
       }
       {
         name: 'snet-applicationgateway'
         addressPrefix: '10.240.4.16/28'
-        networkSecurityGroupName: nsgAppGw.outputs.name
+        networkSecurityGroupId: nsgAppGw.outputs.resourceId
         privateEndpointNetworkPolicies: 'Disabled'
         privateLinkServiceNetworkPolicies: 'Disabled'
       }
