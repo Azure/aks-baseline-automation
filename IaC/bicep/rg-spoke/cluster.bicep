@@ -759,7 +759,6 @@ module kubernetesConfigurationFlux '../CARML/Microsoft.KubernetesConfiguration/e
     location: location
     extensionType: 'microsoft.flux'
     clusterName: cluster.name
-    releaseTrain: 'Stable'
     releaseNamespace: 'flux-system'
     autoUpgradeMinorVersion: true
     releaseTrain: 'Stable'
