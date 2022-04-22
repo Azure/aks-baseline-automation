@@ -4,14 +4,11 @@ param name string
 @description('Optional. Enable telemetry via the Customer Usage Attribution ID (GUID).')
 param enableDefaultTelemetry bool = true
 
-@description('Optional. The name of the AKS cluster that should be configured.')
+@description('Required. The name of the AKS cluster that should be configured.')
 param clusterName string
 
 @description('Optional. Location for all resources.')
 param location string = resourceGroup().location
-
-@description('Optional. Flag to note if this extension participates in auto upgrade of minor version, or not.')
-param autoUpgradeMinorVersion bool = true
 
 @description('Optional. Configuration settings that are sensitive, as name-value pairs for configuring this extension.')
 param configurationProtectedSettings object = {}
@@ -31,7 +28,7 @@ param releaseNamespace string = ''
 @description('Optional. Namespace where the extension will be created for an Namespace scoped extension. If this namespace does not exist, it will be created')
 param targetNamespace string = ''
 
-@description('Optional. Version of the extension for this extension, if it is "pinned" to a specific version. autoUpgradeMinorVersion must be "false".')
+@description('Optional. Version of the extension for this extension, if it is "pinned" to a specific version.')
 param version string = ''
 
 resource defaultTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (enableDefaultTelemetry) {
@@ -54,18 +51,18 @@ resource extension 'Microsoft.KubernetesConfiguration/extensions@2022-03-01' = {
   name: name
   scope: managedCluster
   properties: {
-    autoUpgradeMinorVersion: autoUpgradeMinorVersion
+    autoUpgradeMinorVersion: !empty(version) ? false : true
     configurationProtectedSettings: !empty(configurationProtectedSettings) ? configurationProtectedSettings : {}
     configurationSettings: !empty(configurationSettings) ? configurationSettings : {}
     extensionType: extensionType
     releaseTrain: !empty(releaseTrain) ? releaseTrain : null
     scope: {
-      cluster: empty(releaseNamespace) ? null : {
+      cluster: !empty(releaseNamespace) ? {
         releaseNamespace: releaseNamespace
-      }
-      namespace: empty(targetNamespace) ? null : {
+      } : null
+      namespace: !empty(targetNamespace) ? {
         targetNamespace: targetNamespace
-      }
+      } : null
     }
     version: !empty(version) ? version : null
   }

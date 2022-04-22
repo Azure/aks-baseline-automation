@@ -82,7 +82,7 @@ module nsgNodePools '../CARML/Microsoft.Network/networkSecurityGroups/deploy.bic
   params: {
     name: nsgNodePoolsName
     location: location
-    networkSecurityGroupSecurityRules: []
+    securityRules: []
     diagnosticWorkspaceId: hubLaWorkspaceResourceId
   }
   scope: resourceGroup(resourceGroupName)
@@ -96,7 +96,7 @@ module nsgAksiLb '../CARML/Microsoft.Network/networkSecurityGroups/deploy.bicep'
   params: {
     name: nsgAksiLbName
     location: location
-    networkSecurityGroupSecurityRules: []
+    securityRules: []
     diagnosticWorkspaceId: hubLaWorkspaceResourceId
   }
   scope: resourceGroup(resourceGroupName)
@@ -110,7 +110,7 @@ module nsgAppGw '../CARML/Microsoft.Network/networkSecurityGroups/deploy.bicep' 
   params: {
     name: nsgAppGwName
     location: location
-    networkSecurityGroupSecurityRules: [
+    securityRules: [
       {
         name: 'Allow443InBound'
         properties: {
@@ -199,23 +199,23 @@ module clusterVNet '../CARML/Microsoft.Network/virtualNetworks/deploy.bicep' = {
       {
         name: 'snet-clusternodes'
         addressPrefix: '10.240.0.0/22'
-        routeTableName: routeTable.outputs.name
-        networkSecurityGroupName: nsgNodePools.outputs.name
+        routeTableId: routeTable.outputs.resourceId
+        networkSecurityGroupId: nsgNodePools.outputs.resourceId
         privateEndpointNetworkPolicies: 'Disabled'
         privateLinkServiceNetworkPolicies: 'Enabled'
       }
       {
         name: 'snet-clusteringressservices'
         addressPrefix: '10.240.4.0/28'
-        routeTableName: routeTable.outputs.name
-        networkSecurityGroupName: nsgAksiLb.outputs.name
+        routeTableId: routeTable.outputs.resourceId
+        networkSecurityGroupId: nsgAksiLb.outputs.resourceId
         privateEndpointNetworkPolicies: 'Disabled'
         privateLinkServiceNetworkPolicies: 'Disabled'
       }
       {
         name: 'snet-applicationgateway'
         addressPrefix: '10.240.4.16/28'
-        networkSecurityGroupName: nsgAppGw.outputs.name
+        networkSecurityGroupId: nsgAppGw.outputs.resourceId
         privateEndpointNetworkPolicies: 'Disabled'
         privateLinkServiceNetworkPolicies: 'Disabled'
       }
