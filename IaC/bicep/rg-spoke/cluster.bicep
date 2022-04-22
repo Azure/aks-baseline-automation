@@ -761,7 +761,9 @@ module kubernetesConfigurationFlux '../CARML/Microsoft.KubernetesConfiguration/e
     clusterName: cluster.name
     releaseTrain: 'Stable'
     releaseNamespace: 'flux-system'
-    version: '0.5.2'
+    autoUpgradeMinorVersion: true
+    releaseTrain: 'Stable'
+    releaseNamespace: 'flux-system'  
     configurationSettings: {
       'helm-controller.enabled': 'false'
       'source-controller.enabled': 'true'
