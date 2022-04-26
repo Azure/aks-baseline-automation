@@ -625,6 +625,7 @@ module fwPoliciesBase '../CARML/Microsoft.Network/firewallPolicies/deploy.bicep'
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
     rg
+    ipgNodepoolSubnet
   ]
 }
 
@@ -702,6 +703,8 @@ module hubFw '../CARML/Microsoft.Network/azureFirewalls/deploy.bicep' = {
   }
   dependsOn: [
     rg
+    fwPoliciesBase
+    fwPolicies
     ipgNodepoolSubnet
   ]
 }
