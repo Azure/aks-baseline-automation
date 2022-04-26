@@ -2,6 +2,7 @@ targetScope = 'subscription'
 
 @description('Name of the resource group')
 param resourceGroupName string = 'rg-bu0001a0008'
+param vNetResourceGroup string = 'rg-enterprise-networking-spokes'
 
 @description('The regional network spoke VNet Resource ID that the cluster will be joined to')
 @minLength(79)
@@ -325,7 +326,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
         name: 'apw-frontend-ip-configuration'
         properties: {
           publicIPAddress: {
-            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/publicIpAddresses/pip-BU0001A0008-00'
+            id: '${subscription().id}/resourceGroups/${vNetResourceGroup}/providers/Microsoft.Network/publicIpAddresses/pip-BU0001A0008-00'
           }
         }
       }
