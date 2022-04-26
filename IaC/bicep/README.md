@@ -20,7 +20,13 @@ To customize the sample bicep templates provided based on your specific needs, f
    Customize these files based on your specific deployment requirements for each resource.
 
 3. Test the deployment of each Azure resource individually using the [Azure CLI](https://docs.microsoft.com/azure/azure-resource-manager/bicep/deploy-cli) or [PowerShell command](https://docs.microsoft.com/azure/azure-resource-manager/bicep/deploy-powershell).
+   
+   For example to deploy the cluster with Azure CLI in eastus2 run:
 
+   ```bash
+   az deployment sub create --location eastus2 --template-file ./cluster.bicep  --parameters ./cluster.parameters.json
+   ```
+    
 ## Customize the GitHub Action Workflows
 To customize the sample GitHub pipeline provided based on your specific needs, follow the instructions below:
 

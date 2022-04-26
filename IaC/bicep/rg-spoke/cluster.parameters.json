@@ -10,6 +10,21 @@
         },
         "a0008NamespaceReaderAadGroupObjectId":{
             "value": "029fadf4-0d6f-4ff0-87c4-0284244b9b3b"
-        }      
+        }
+        ,
+        "domainName":{
+            "value": "contoso.com"
+        } ,
+        "kubernetesVersion":{
+            "value": "1.22.4"
+        }  
+        ,
+        "gitOpsBootstrappingRepoHttpsUrl":{
+            "value": "https://github.com/mspnp/aks-baseline"
+        }
+        ,
+        "gitOpsBootstrappingRepoBranch":{
+            "value": "main"
+        }         
     }
 }
