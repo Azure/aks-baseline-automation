@@ -459,7 +459,7 @@ module clusterIdentityRbac1 '../CARML/Microsoft.Network/virtualNetworks/subnets/
       clusterControlPlaneIdentity.outputs.principalId
     ]
     roleDefinitionIdOrName: 'Network Contributor'
-    resourceId: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/virtualNetworks/${vnetName}/subnets/${clusterNodesSubnetName}'
+    resourceId: '${subscription().id}/resourceGroups/${vNetResourceGroup}/providers/Microsoft.Network/virtualNetworks/${vnetName}/subnets/${clusterNodesSubnetName}'
   }
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
@@ -475,7 +475,7 @@ module clusterIdentityRbac2 '../CARML/Microsoft.Network/virtualNetworks/subnets/
       clusterControlPlaneIdentity.outputs.principalId
     ]
     roleDefinitionIdOrName: 'Network Contributor'
-    resourceId: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/virtualNetworks/${vnetName}/subnets/${clusterIngressSubnetName}'
+    resourceId: '${subscription().id}/resourceGroups/${vNetResourceGroup}/providers/Microsoft.Network/virtualNetworks/${vnetName}/subnets/${clusterIngressSubnetName}'
   }
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
