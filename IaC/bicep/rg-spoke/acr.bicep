@@ -5,7 +5,7 @@ targetScope = 'subscription'
 param targetVnetResourceId string
 
 @description('Name of the resource group')
-param resourceGroupName string = 'rg-spoke'
+param resourceGroupName string = 'rg-bu0001a0008'
 
 @allowed([
   'australiaeast'
