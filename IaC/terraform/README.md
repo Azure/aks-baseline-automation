@@ -32,7 +32,8 @@ The following components will be deployed as part of this automation:
 ## Prerequisites
 
 Make sure these [prerequisites](../../docs/IaC-prerequisites.md) are in place before proceeding.
-## Customize the bicep templates
+
+## Customize the Terraform templates
 
 To customize the sample terraform templates provided based on your specific needs, follow the steps below:
 
