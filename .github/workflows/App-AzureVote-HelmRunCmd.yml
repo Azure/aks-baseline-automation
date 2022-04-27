@@ -101,7 +101,7 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Check Run Command is functioning
-        if: inputs.DEBUG == "true"
+        if: inputs.DEBUG == true
         run: |
           command="kubectl get pods"
           echo "Sending command $command to AKS"
