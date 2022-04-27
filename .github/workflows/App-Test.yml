@@ -73,7 +73,7 @@ jobs:
       APPNAME: azure-vote-public
       INGRESSTYPE: PublicLoadBalancer
       #HELMPACKAGEURI will change to this repo once this repo's visibility is PUBLIC!
-      HELMPACKAGEURI: https://github.com/Gordonby/minihelm/raw/main/samples/AzureVote-0.9.5.tgz
+      HELMPACKAGEURI: https://github.com/Gordonby/minihelm/raw/main/samples/AzureVote-0.9.6.tgz
     secrets:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
