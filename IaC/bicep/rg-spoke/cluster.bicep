@@ -1,7 +1,8 @@
 targetScope = 'subscription'
 
 @description('Name of the resource group')
-param resourceGroupName string = 'rg-spoke'
+param resourceGroupName string = 'rg-bu0001a0008'
+param vNetResourceGroup string = 'rg-enterprise-networking-spokes'
 
 @description('The regional network spoke VNet Resource ID that the cluster will be joined to')
 @minLength(79)
@@ -44,19 +45,19 @@ param clusterAuthorizedIPRanges array = []
   'japaneast'
   'southeastasia'
 ])
-param location string = 'eastus2'
-param kubernetesVersion string = '1.22.4'
+param location string
+param kubernetesVersion string
 
 @description('Domain name to use for App Gateway and AKS ingress.')
-param domainName string = 'contoso.com'
+param domainName string
 
 @description('Your cluster will be bootstrapped from this git repo.')
 @minLength(9)
-param gitOpsBootstrappingRepoHttpsUrl string = 'https://github.com/mspnp/aks-baseline'
+param gitOpsBootstrappingRepoHttpsUrl string
 
 @description('You cluster will be bootstrapped from this branch in the identifed git repo.')
 @minLength(1)
-param gitOpsBootstrappingRepoBranch string = 'main'
+param gitOpsBootstrappingRepoBranch string
 
 // var networkContributorRole = '${subscription().id}/providers/Microsoft.Authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7'
 // var monitoringMetricsPublisherRole = '${subscription().id}/providers/Microsoft.Authorization/roleDefinitions/3913510d-42f4-4e42-8a64-420c390055eb'
@@ -325,7 +326,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
         name: 'apw-frontend-ip-configuration'
         properties: {
           publicIPAddress: {
-            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/publicIpAddresses/pip-BU0001A0008-00'
+            id: '${subscription().id}/resourceGroups/${vNetResourceGroup}/providers/Microsoft.Network/publicIpAddresses/pip-BU0001A0008-00'
           }
         }
       }
@@ -458,9 +459,9 @@ module clusterIdentityRbac1 '../CARML/Microsoft.Network/virtualNetworks/subnets/
       clusterControlPlaneIdentity.outputs.principalId
     ]
     roleDefinitionIdOrName: 'Network Contributor'
-    resourceId: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/virtualNetworks/${vnetName}/subnets/${clusterNodesSubnetName}'
+    resourceId: '${subscription().id}/resourceGroups/${vNetResourceGroup}/providers/Microsoft.Network/virtualNetworks/${vnetName}/subnets/${clusterNodesSubnetName}'
   }
-  scope: resourceGroup(resourceGroupName)
+  scope: resourceGroup(vNetResourceGroup)
   dependsOn: [
     rg
     clusterControlPlaneIdentity
@@ -474,9 +475,9 @@ module clusterIdentityRbac2 '../CARML/Microsoft.Network/virtualNetworks/subnets/
       clusterControlPlaneIdentity.outputs.principalId
     ]
     roleDefinitionIdOrName: 'Network Contributor'
-    resourceId: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/virtualNetworks/${vnetName}/subnets/${clusterIngressSubnetName}'
+    resourceId: '${subscription().id}/resourceGroups/${vNetResourceGroup}/providers/Microsoft.Network/virtualNetworks/${vnetName}/subnets/${clusterIngressSubnetName}'
   }
-  scope: resourceGroup(resourceGroupName)
+  scope: resourceGroup(vNetResourceGroup)
   dependsOn: [
     rg
     clusterControlPlaneIdentity

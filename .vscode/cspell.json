@@ -25,6 +25,7 @@
         "deploymentassets",
         "dockerbuildpush",
         "eval",
+        "eastus",
         "Fabrikam",
         "GHBRANCH",
         "GHENV",
