@@ -100,6 +100,13 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Check Run Command is functioning
+        if: inputs.DEBUG == true
+        run: |
+          command="kubectl get pods"
+          echo "Sending command $command to AKS"
+          az aks command invoke -g $RG -n $AKSNAME -o json --command "${command}"
+
       - name: Check for and uninstall the Vote app
         if: inputs.FORCEHELMCLEANINSTALL == true
         run: |
