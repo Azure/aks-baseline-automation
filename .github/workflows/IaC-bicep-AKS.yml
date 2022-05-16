@@ -12,7 +12,14 @@ on:
         description: 'The Azure region to deploy to'
         required: true
         default: eastus
-
+      clusterAdminAadGroupObjectId:
+        description: 'K8S Admin Azure AAD Group ObjectID'
+        required: true
+        type: text
+      a0008NamespaceReaderAadGroupObjectId:
+        description: 'K8S Reader Azure AAD Group ObjectID'
+        required: true
+        type: text
 env:
   event_sha: +refs/pull/${{ github.event.issue.number }}/merge
 
@@ -126,8 +133,7 @@ jobs:
           region: ${{ github.event.inputs.REGION }}
           scope: subscription
           template: ./IaC/bicep/rg-spoke/cluster.bicep
-          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }}
-          #clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }}
+          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }}
           failOnStdErr: false
 
       - name: "Deploy Registry"
