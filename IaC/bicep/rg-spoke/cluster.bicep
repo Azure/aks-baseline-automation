@@ -94,6 +94,11 @@ module rg '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
   }
 }
 
+resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
+  scope: resourceGroup(resourceGroupName)
+  name: defaultAcrName
+}
+
 module nodeRgRbac '../CARML/Microsoft.Resources/resourceGroups/.bicep/nested_rbac.bicep' = {
   name: '${nodeResourceGroupName}-rbac'
   scope: resourceGroup(nodeResourceGroupName)
@@ -622,6 +627,13 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
     }
     httpApplicationRoutingEnabled: false
     monitoringWorkspaceId: clusterLa.outputs.resourceId
+    diagnosticLogCategoriesToEnable: [
+      'cluster-autoscaler'
+      'kube-controller-manager'
+      'kube-audit-admin'
+      'guard'
+    ]
+    diagnosticMetricsToEnable: []
     aciConnectorLinuxEnabled: false
     azurePolicyEnabled: true
     azurePolicyVersion: 'v2'
@@ -715,7 +727,7 @@ module acrPullRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/n
       cluster.outputs.kubeletidentityObjectId
     ]
     roleDefinitionIdOrName: 'AcrPull'
-    resourceId: cluster.outputs.resourceId
+    resourceId: acr.id
   }
   scope: resourceGroup(resourceGroupName)
   dependsOn: [

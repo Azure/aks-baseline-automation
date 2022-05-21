@@ -284,16 +284,28 @@ param tags object = {}
 @allowed([
   'kube-apiserver'
   'kube-audit'
+  'kube-audit-admin'
   'kube-controller-manager'
   'kube-scheduler'
   'cluster-autoscaler'
+  'cloud-controller-manager'
+  'guard'
+  'csi-azuredisk-controller'
+  'csi-azurefile-controller'
+  'csi-snapshot-controller'
 ])
 param diagnosticLogCategoriesToEnable array = [
   'kube-apiserver'
   'kube-audit'
+  'kube-audit-admin'
   'kube-controller-manager'
   'kube-scheduler'
   'cluster-autoscaler'
+  'cloud-controller-manager'
+  'guard'
+  'csi-azuredisk-controller'
+  'csi-azurefile-controller'
+  'csi-snapshot-controller'
 ]
 
 @description('Optional. The name of metrics that will be streamed.')
