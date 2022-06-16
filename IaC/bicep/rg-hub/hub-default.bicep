@@ -372,7 +372,7 @@ module fwPoliciesBase '../CARML/Microsoft.Network/firewallPolicies/deploy.bicep'
   params: {
     name: fwPoliciesBaseName
     location: location
-    tier: 'Standard'
+    tier: 'Premium'
     threatIntelMode: 'Deny'
     mode: 'Deny'
     ipAddresses: []
