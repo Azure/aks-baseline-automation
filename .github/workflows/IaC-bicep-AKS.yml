@@ -20,6 +20,12 @@ on:
         description: 'K8S Reader Azure AAD Group ObjectID'
         required: true
         type: text
+
+  pull_request:
+    branches: main
+    paths:
+      - "IaC/bicep/*"
+
 env:
   event_sha: +refs/pull/${{ github.event.issue.number }}/merge
 
