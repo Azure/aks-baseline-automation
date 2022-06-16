@@ -113,6 +113,7 @@ jobs:
           template: ./IaC/bicep/rg-hub/hub-default.bicep
           parameters: ./IaC/bicep/rg-hub/hub-default.parameters.json
           failOnStdErr: false
+          deploymentName: carml-hub-${{ github.event.inputs.REGION }}
 
       - name: "Deploy Spoke"
         id: spoke
@@ -124,6 +125,7 @@ jobs:
           template: ./IaC/bicep/rg-spoke/spoke.bicep
           parameters: ./IaC/bicep/rg-spoke/spoke.parameters.json hubVnetResourceId=${{ steps.hub.outputs.hubVnetId }} hubLaWorkspaceResourceId=${{ steps.hub.outputs.hubLaWorkspaceResourceId }} hubFwResourceId=${{ steps.hub.outputs.hubFwResourceId }}
           failOnStdErr: false
+          deploymentName: carml-spoke-${{ github.event.inputs.REGION }}
 
       - name: "Deploy Cluster"
         id: cluster
@@ -135,6 +137,7 @@ jobs:
           template: ./IaC/bicep/rg-spoke/cluster.bicep
           parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }}
           failOnStdErr: false
+          deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
 
       - name: "Deploy Registry"
         id: registry
@@ -146,3 +149,4 @@ jobs:
           template: ./IaC/bicep/rg-spoke/acr.bicep
           parameters: ./IaC/bicep/rg-spoke/acr.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }}
           failOnStdErr: false
+          deploymentName: carml-registry-${{ github.event.inputs.REGION }}
