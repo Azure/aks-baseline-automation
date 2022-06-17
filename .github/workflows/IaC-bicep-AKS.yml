@@ -117,9 +117,9 @@ jobs:
           region: ${{ github.event.inputs.REGION }}
           scope: subscription
           template: ./IaC/bicep/rg-hub/hub-default.bicep
-          parameters: ./IaC/bicep/rg-hub/hub-default.parameters.json
+          parameters: ./IaC/bicep/rg-hub/hub-default.parameters.json  resourceGroupName=rg-enterprise-networking-hubs-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }}
           failOnStdErr: false
-          deploymentName: carml-hub-${{ github.event.inputs.REGION }}  resourceGroupName=rg-enterprise-networking-hubs-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }}
+          deploymentName: carml-hub-${{ github.event.inputs.REGION }}
 
       - name: "Deploy Spoke"
         id: spoke
