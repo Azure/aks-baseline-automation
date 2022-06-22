@@ -474,7 +474,7 @@ module hubFw '../CARML/Microsoft.Network/azureFirewalls/deploy.bicep' = {
       '3'
     ]
     azureSkuName: 'AZFW_VNet'
-    azureSkuTier: 'Standard'
+    azureSkuTier: 'Premium'
     threatIntelMode: 'Deny'
     ipConfigurations: [
       {
