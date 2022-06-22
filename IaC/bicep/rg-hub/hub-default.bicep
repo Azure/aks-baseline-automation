@@ -424,43 +424,43 @@ module fwPoliciesBase '../CARML/Microsoft.Network/firewallPolicies/deploy.bicep'
   ]
 }
 
-module fwPolicies '../CARML/Microsoft.Network/firewallPolicies/deploy.bicep' = {
-  name: fwPoliciesName
-  params: {
-    name: fwPoliciesName
-    location: location
-    basePolicyResourceId: fwPoliciesBase.outputs.resourceId
-    tier: 'Premium'
-    threatIntelMode: 'Deny'
-    mode: 'Deny'
-    ipAddresses: []
-    enableProxy: true
-    servers: []
-    ruleCollectionGroups: [
-      {
-        name: 'DefaultDnatRuleCollectionGroup'
-        priority: 100
-        ruleCollections: []
-      }
-      {
-        name: 'DefaultNetworkRuleCollectionGroup'
-        priority: 200
-        ruleCollections: networkRuleCollectionGroup
-      }
-      {
-        name: 'DefaultApplicationRuleCollectionGroup'
-        priority: 300
-        ruleCollections: applicationRuleCollectionGroup
-      }
-    ]
-  }
-  scope: resourceGroup(resourceGroupName)
-  dependsOn: [
-    rg
-    fwPoliciesBase
-    ipgNodepoolSubnet
-  ]
-}
+// module fwPolicies '../CARML/Microsoft.Network/firewallPolicies/deploy.bicep' = {
+//   name: fwPoliciesName
+//   params: {
+//     name: fwPoliciesName
+//     location: location
+//     basePolicyResourceId: fwPoliciesBase.outputs.resourceId
+//     tier: 'Premium'
+//     threatIntelMode: 'Deny'
+//     mode: 'Deny'
+//     ipAddresses: []
+//     enableProxy: true
+//     servers: []
+//     ruleCollectionGroups: [
+//       {
+//         name: 'DefaultDnatRuleCollectionGroup'
+//         priority: 100
+//         ruleCollections: []
+//       }
+//       {
+//         name: 'DefaultNetworkRuleCollectionGroup'
+//         priority: 200
+//         ruleCollections: networkRuleCollectionGroup
+//       }
+//       {
+//         name: 'DefaultApplicationRuleCollectionGroup'
+//         priority: 300
+//         ruleCollections: applicationRuleCollectionGroup
+//       }
+//     ]
+//   }
+//   scope: resourceGroup(resourceGroupName)
+//   dependsOn: [
+//     rg
+//     fwPoliciesBase
+//     ipgNodepoolSubnet
+//   ]
+// }
 
 module hubFw '../CARML/Microsoft.Network/azureFirewalls/deploy.bicep' = {
   name: hubFwName
@@ -494,13 +494,13 @@ module hubFw '../CARML/Microsoft.Network/azureFirewalls/deploy.bicep' = {
     natRuleCollections: []
     networkRuleCollections: []
     applicationRuleCollections: []
-    firewallPolicyId: fwPolicies.outputs.resourceId
+    firewallPolicyId: fwPoliciesBase.outputs.resourceId
     diagnosticWorkspaceId: hubLa.outputs.resourceId
   }
   dependsOn: [
     rg
     fwPoliciesBase
-    fwPolicies
+    // fwPolicies
     ipgNodepoolSubnet
   ]
 }
