@@ -579,7 +579,7 @@ module fwPoliciesBase '../CARML/Microsoft.Network/firewallPolicies/deploy.bicep'
   params: {
     name: fwPoliciesBaseName
     location: location
-    tier: 'Standard'
+    tier: 'Premium'
     threatIntelMode: 'Deny'
     ipAddresses: []
     enableProxy: true
@@ -635,7 +635,7 @@ module fwPolicies '../CARML/Microsoft.Network/firewallPolicies/deploy.bicep' = {
     name: fwPoliciesName
     location: location
     basePolicyResourceId: fwPoliciesBase.outputs.resourceId
-    tier: 'Standard'
+    tier: 'Premium'
     threatIntelMode: 'Deny'
     ipAddresses: []
     enableProxy: true
@@ -678,7 +678,7 @@ module hubFw '../CARML/Microsoft.Network/azureFirewalls/deploy.bicep' = {
       '3'
     ]
     azureSkuName: 'AZFW_VNet'
-    azureSkuTier: 'Standard'
+    azureSkuTier: 'Premium'
     threatIntelMode: 'Deny'
     ipConfigurations: [
       {
