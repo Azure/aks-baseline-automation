@@ -141,7 +141,7 @@ jobs:
           region: ${{ github.event.inputs.REGION }}
           scope: subscription
           template: ./IaC/bicep/rg-spoke/cluster.bicep
-          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }} vNetResourceGroup=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }} resourceGroupName=RG-BU0001A0008-${{ github.event.inputs.REGION }}
+          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }} vNetResourceGroup=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }}
           failOnStdErr: false
           deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
 
@@ -153,6 +153,6 @@ jobs:
           region: ${{ github.event.inputs.REGION }}
           scope: subscription
           template: ./IaC/bicep/rg-spoke/acr.bicep
-          parameters: ./IaC/bicep/rg-spoke/acr.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} location=${{ github.event.inputs.REGION }} resourceGroupName=RG-BU0001A0008-${{ github.event.inputs.REGION }}
+          parameters: ./IaC/bicep/rg-spoke/acr.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }}
           failOnStdErr: false
           deploymentName: carml-registry-${{ github.event.inputs.REGION }}
