@@ -43,6 +43,7 @@ var routeTableName = 'route-to-${location}-hub-fw'
 var nsgNodePoolsName = 'nsg-${clusterVNetName}-nodepools'
 var nsgAksiLbName = 'nsg-${clusterVNetName}-aksilbs'
 var nsgAppGwName = 'nsg-${clusterVNetName}-appgw'
+var nsgPrivateLinkEndpointsSubnetName = 'nsg-${clusterVNetName}-privatelinkendpoints'
 var hubNetworkName = split(hubVnetResourceId, '/')[8]
 var toHubPeeringName = 'spoke-${orgAppId}-to-${hubNetworkName}'
 var primaryClusterPipName = 'pip-${orgAppId}-00'
@@ -188,6 +189,60 @@ module nsgAppGw '../CARML/Microsoft.Network/networkSecurityGroups/deploy.bicep' 
   ]
 }
 
+module nsgPrivateLinkEndpointsSubnet '../CARML/Microsoft.Network/networkSecurityGroups/deploy.bicep' = {
+  name: nsgPrivateLinkEndpointsSubnetName
+  params: {
+    name: nsgPrivateLinkEndpointsSubnetName
+    location: location
+    securityRules: [
+      {
+        name: 'AllowAll443InFromVnet'
+        properties: {
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          sourceAddressPrefix: 'VirtualNetwork'
+          destinationPortRange: '443'
+          destinationAddressPrefix: 'VirtualNetwork'
+          access: 'Allow'
+          priority: 100
+          direction: 'Inbound'
+        }
+      }
+      {
+        name: 'DenyAllInbound'
+        properties: {
+          protocol: '*'
+          sourcePortRange: '*'
+          sourceAddressPrefix: '*'
+          destinationPortRange: '*'
+          destinationAddressPrefix: '*'
+          access: 'Deny'
+          priority: 1000
+          direction: 'Inbound'
+        }
+      }
+      {
+        name: 'DenyAllOutbound'
+        properties: {
+          protocol: '*'
+          sourcePortRange: '*'
+          sourceAddressPrefix: '*'
+          destinationPortRange: '*'
+          destinationAddressPrefix: '*'
+          access: 'Deny'
+          priority: 1000
+          direction: 'Outbound'
+        }
+      }
+    ]
+    diagnosticWorkspaceId: hubLaWorkspaceResourceId
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+  ]
+}
+
 module clusterVNet '../CARML/Microsoft.Network/virtualNetworks/deploy.bicep' = {
   name: clusterVNetName
   params: {
@@ -218,6 +273,13 @@ module clusterVNet '../CARML/Microsoft.Network/virtualNetworks/deploy.bicep' = {
         networkSecurityGroupId: nsgAppGw.outputs.resourceId
         privateEndpointNetworkPolicies: 'Disabled'
         privateLinkServiceNetworkPolicies: 'Disabled'
+      }
+      {
+        name: 'snet-privatelinkendpoints'
+        addressPrefix: '10.240.4.32/28'
+        networkSecurityGroupId: nsgPrivateLinkEndpointsSubnet.outputs.resourceId
+        privateEndpointNetworkPolicies: 'Disabled'
+        privateLinkServiceNetworkPolicies: 'Enabled'
       }
     ]
     virtualNetworkPeerings: [
