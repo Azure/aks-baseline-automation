@@ -55,7 +55,7 @@ param geoRedundancyLocation string = 'centralus'
 
 /*** VARIABLES ***/
 
-var subRgUniqueString = uniqueString('aks', subscription().subscriptionId, resourceGroupName)
+var subRgUniqueString = uniqueString('aks', subscription().subscriptionId, resourceGroupName, location)
 
 /*** EXISTING RESOURCES ***/
 
