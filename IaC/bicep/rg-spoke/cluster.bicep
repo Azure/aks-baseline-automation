@@ -463,6 +463,7 @@ module clusterIdentityRbac1 '../CARML/Microsoft.Network/virtualNetworks/subnets/
     principalIds: [
       clusterControlPlaneIdentity.outputs.principalId
     ]
+    principalType: 'ServicePrincipal'
     roleDefinitionIdOrName: 'Network Contributor'
     resourceId: '${subscription().id}/resourceGroups/${vNetResourceGroup}/providers/Microsoft.Network/virtualNetworks/${vnetName}/subnets/${clusterNodesSubnetName}'
   }
@@ -479,6 +480,7 @@ module clusterIdentityRbac2 '../CARML/Microsoft.Network/virtualNetworks/subnets/
     principalIds: [
       clusterControlPlaneIdentity.outputs.principalId
     ]
+    principalType: 'ServicePrincipal'
     roleDefinitionIdOrName: 'Network Contributor'
     resourceId: '${subscription().id}/resourceGroups/${vNetResourceGroup}/providers/Microsoft.Network/virtualNetworks/${vnetName}/subnets/${clusterIngressSubnetName}'
   }
