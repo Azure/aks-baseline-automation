@@ -76,7 +76,7 @@ var networkRuleCollectionGroup = [
     rules: [
       {
         ruleType: 'NetworkRule'
-        name: 'pods-to-api-server-konnectivity'
+        name: 'pods-to-api-server-connectivity'
         description: 'This allows pods to communicate with the API server. Ensure your API server\'s allowed IP ranges support all of this firewall\'s public IPs.'
         ipProtocols: [
           'TCP'
