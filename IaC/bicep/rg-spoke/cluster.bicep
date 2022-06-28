@@ -720,7 +720,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
   ]
 }
 
-module acrPullRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/nested_rbac.bicep' = {
+module acrPullRole '../CARML/Microsoft.ContainerRegistry/registries/.bicep/nested_rbac.bicep' = {
   name: 'acrPullRole'
   params: {
     principalIds: [
