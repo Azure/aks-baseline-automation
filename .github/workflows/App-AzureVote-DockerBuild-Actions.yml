@@ -103,7 +103,7 @@ jobs:
           echo "::set-output name=loginServer::$LOGINSERVER"
 
           echo "Passing token as stdin to docker login"
-          echo "$ACRTOKEN | "docker login $LOGINSERVER -u $ACRNAME --password-stdin"
+          echo "$ACRTOKEN | docker login $LOGINSERVER -u $ACRNAME --password-stdin"
 
           echo $ACRTOKEN | docker login $LOGINSERVER -u $ACRNAME --password-stdin
 
