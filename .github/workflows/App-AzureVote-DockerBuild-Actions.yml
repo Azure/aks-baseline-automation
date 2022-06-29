@@ -100,13 +100,11 @@ jobs:
           LOGINSERVER=$(echo $TOKEN | jq -r ".loginServer")
 
           echo "ACR Login Server: $LOGINSERVER"
-          echo "ACR Token: $ACRTOKEN"
           echo "::set-output name=loginServer::$LOGINSERVER"
 
           echo "Passing token as stdin to docker login"
-          echo "$ACRTOKEN | docker login $LOGINSERVER -u $ACRNAME --password-stdin"
 
-          echo $ACRTOKEN | docker login $LOGINSERVER -u $ACRNAME --password-stdin
+          docker login $LOGINSERVER -u $ACRNAME -p $ACRTOKEN
 
       - name: Container build and push to a Azure Container Registry (ACR)
         env:
