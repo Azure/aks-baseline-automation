@@ -104,7 +104,7 @@ jobs:
 
           echo "Passing token as stdin to docker login"
 
-          echo XXXXXX | docker login $LOGINSERVER -u XXXXX --password-stdin
+          echo XXXXXX | docker login $LOGINSERVER -u $ACRNAME --password-stdin
 
       - name: Container build and push to a Azure Container Registry (ACR)
         env:
