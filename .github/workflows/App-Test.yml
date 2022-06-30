@@ -71,7 +71,7 @@ jobs:
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
       APPNAME: azure-vote-public
-      INGRESSTYPE: PublicLoadBalancer
+      INGRESSTYPE: InternalLoadBalancer
       DEBUG: true
       HELMPACKAGEURI: "https://github.com/Azure/aks-baseline-automation/raw/users/bahramr/workloads/azure-vote/AzureVote-0.9.6.tgz/"
     secrets:
