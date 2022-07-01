@@ -46,5 +46,5 @@ Using GitHub actions as part of your workflow abstracts the Kubernetes binaries 
 In order for this workflow to successfully deploy the application on the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline), you will need to change the "Networking" settings of your ACR to allow public access. Otherwise the GitHub runner hosted in the Cloud won't be able to access your ACR to push the docker image. 
 
 Note that this step will weaken the security of your ACR as well as the security of the workloads running on your cluster. Therefore, a better approach is to keep the ACR default settings and instead:
-  1. deploy [GitHub runners](/IaC/README.md) in your Azure Virtual Network so that they can access your ACR securely through [Private Endpoints](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-private-link).
+  1. Deploy [GitHub runners](/IaC/README.md) in your Azure Virtual Network so that they can access your ACR securely through [Private Endpoints](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-private-link).
   2. Optionally also deploy an [ACR Task dedicated agent pool](https://docs.microsoft.com/en-us/azure/container-registry/tasks-agent-pools) so that your image is built on a runner within your Azure virtual network. 
