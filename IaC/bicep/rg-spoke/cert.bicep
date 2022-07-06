@@ -8,7 +8,7 @@ param location string = resourceGroup().location
 param forceUpdateTag  string = utcNow()
 
 @description('The RoleDefinitionId required for the DeploymentScript resource to interact with KeyVault')
-param rbacRolesNeededOnKV string = '00482a5a-887f-4fb3-b363-3b7fe8e74483' //KeyVault Certificate Officer
+param rbacRolesNeededOnKV string = 'a4417e6f-fecd-4de8-b567-7b0420556985' //KeyVault Certificate Officer
 
 @description('Does the Managed Identity already exists, or should be created')
 param useExistingManagedIdentity bool = false
@@ -60,6 +60,16 @@ resource rbacKv 'Microsoft.Authorization/roleAssignments@2020-08-01-preview' = i
   scope: akv
   properties: {
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', rbacRolesNeededOnKV)
+    principalId: useExistingManagedIdentity ? existingDepScriptId.properties.principalId : newDepScriptId.properties.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+resource rbacKv2 'Microsoft.Authorization/roleAssignments@2020-08-01-preview' = {
+  name: guid(akv.id, useExistingManagedIdentity ? existingDepScriptId.id : newDepScriptId.id)
+  scope: akv
+  properties: {
+    roleDefinitionId: 'f25e0fa2-a7c8-4377-a976-54943a77a395'
     principalId: useExistingManagedIdentity ? existingDepScriptId.properties.principalId : newDepScriptId.properties.principalId
     principalType: 'ServicePrincipal'
   }
@@ -119,7 +129,7 @@ resource createImportCert 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
       CURRENT_IP_ADDRESS=$(curl -s -4 https://ifconfig.io)
       az keyvault network-rule add -n $KEYVAULT_NAME_AKS_BASELINE --ip-address
       sleep $initialDelay
-      
+
       #Retry loop to catch errors (usually RBAC delays)
       retryLoopCount=0
       until [ $retryLoopCount -ge $retryMax ]
