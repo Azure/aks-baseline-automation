@@ -99,6 +99,17 @@ resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
   name: defaultAcrName
 }
 
+module akvCertFrontend './cert.bicep' = {
+  name: 'CreateFeKvCert'
+  params: {
+    location: location
+    akvName: keyVault.name
+    certificateName: 'frontendCertificate'
+    certificateCommonName:  'frontendCertificate'
+  }
+  scope: resourceGroup(resourceGroupName)
+}
+
 module nodeRgRbac '../CARML/Microsoft.Resources/resourceGroups/.bicep/nested_rbac.bicep' = {
   name: '${nodeResourceGroupName}-rbac'
   scope: resourceGroup(nodeResourceGroupName)
