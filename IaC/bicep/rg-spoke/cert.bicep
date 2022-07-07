@@ -69,7 +69,7 @@ resource rbacKv2 'Microsoft.Authorization/roleAssignments@2020-08-01-preview' = 
   name: guid(akv.id, useExistingManagedIdentity ? existingDepScriptId.id : newDepScriptId.id)
   scope: akv
   properties: {
-    roleDefinitionId: 'f25e0fa2-a7c8-4377-a976-54943a77a395'
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'f25e0fa2-a7c8-4377-a976-54943a77a395')
     principalId: useExistingManagedIdentity ? existingDepScriptId.properties.principalId : newDepScriptId.properties.principalId
     principalType: 'ServicePrincipal'
   }
