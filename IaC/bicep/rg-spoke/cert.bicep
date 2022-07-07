@@ -87,6 +87,7 @@ resource createImportCert 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzureCLI'
   dependsOn: [
     rbacKv
+    rbacKv2
   ]
   properties: {
     forceUpdateTag: forceUpdateTag
