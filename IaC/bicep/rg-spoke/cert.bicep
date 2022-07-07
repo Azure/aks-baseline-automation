@@ -127,7 +127,7 @@ resource createImportCert 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
       sleep $initialDelay
 
       CURRENT_IP_ADDRESS=$(curl -s -4 https://ifconfig.io)
-      az keyvault network-rule add -n $KEYVAULT_NAME_AKS_BASELINE --ip-address
+      az keyvault network-rule add -n $akvName --ip-address $CURRENT_IP_ADDRESS
       sleep $initialDelay
 
       #Retry loop to catch errors (usually RBAC delays)
