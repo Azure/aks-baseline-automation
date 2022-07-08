@@ -349,9 +349,9 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
     ]
     frontendPorts: [
       {
-        name: 'port-80'
+        name: 'port-443'
         properties: {
-          port: 80
+          port: 443
         }
       }
     ]
@@ -368,12 +368,12 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
     }
     enableHttp2: false
     sslCertificates: [
-      // {
-      //   name: '${agwName}-ssl-certificate'
-      //   properties: {
-      //     keyVaultSecretId: '${keyVault.outputs.uri}secrets/gateway-public-cert'
-      //   }
-      // }
+      {
+        name: '${agwName}-ssl-certificate'
+        properties: {
+          keyVaultSecretId: '${keyVault.outputs.uri}secrets/frontendCertificate'
+        }
+      }
     ]
     probes: [
       {
@@ -414,28 +414,23 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
           probe: {
             id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/probes/probe-${aksBackendDomainName}'
           }
-          // trustedRootCertificates: [
-          //   {
-          //     id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/trustedRootCertificates/root-cert-wildcard-aks-ingress'
-          //   }
-          // ]
         }
       }
     ]
     httpListeners: [
       {
-        name: 'listener-http'
+        name: 'listener-https'
         properties: {
           frontendIPConfiguration: {
             id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/frontendIPConfigurations/apw-frontend-ip-configuration'
           }
           frontendPort: {
-            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/frontendPorts/port-80'
+            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/frontendPorts/port-443'
           }
-          protocol: 'Http'
-          // sslCertificate: {
-          //   id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/sslCertificates/${agwName}-ssl-certificate'
-          // }
+          protocol: 'Https'
+          sslCertificate: {
+            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/sslCertificates/${agwName}-ssl-certificate'
+          }
           hostName: 'bicycle.${domainName}'
           hostNames: []
           requireServerNameIndication: false
@@ -448,7 +443,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
         properties: {
           ruleType: 'Basic'
           httpListener: {
-            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/httpListeners/listener-http'
+            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/httpListeners/listener-https'
           }
           backendAddressPool: {
             id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/backendAddressPools/${aksBackendDomainName}'
