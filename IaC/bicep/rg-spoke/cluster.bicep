@@ -460,6 +460,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
     rg
+    akvCertFrontend
   ]
 }
 
