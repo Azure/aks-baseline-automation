@@ -313,20 +313,20 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       '${mi_appgateway_frontend.outputs.resourceId}': {}
     }
     sku: 'WAF_v2'
-    sslPolicyType: 'Custom'
-    sslPolicyCipherSuites: [
-      'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
-      'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
-    ]
-    sslPolicyMinProtocolVersion: 'TLSv1_2'
-    trustedRootCertificates: [
-      {
-        name: 'frontendCertificate'
-        properties: {
-          keyVaultSecretId: '${keyVault.outputs.uri}secrets/frontendCertificate'
-        }
-      }
-    ]
+    // sslPolicyType: 'Custom'
+    // sslPolicyCipherSuites: [
+    //   'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
+    //   'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
+    // ]
+    // sslPolicyMinProtocolVersion: 'TLSv1_2'
+    // trustedRootCertificates: [
+    //   {
+    //     name: 'root-cert-wildcard-aks-ingress'
+    //     properties: {
+    //       keyVaultSecretId: '${keyVault.outputs.uri}secrets/appgw-ingress-internal-aks-ingress-tls'
+    //     }
+    //   }
+    // ]
     gatewayIPConfigurations: [
       {
         name: 'apw-ip-configuration'
@@ -368,12 +368,12 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
     }
     enableHttp2: false
     sslCertificates: [
-      {
-        name: '${agwName}-ssl-certificate'
-        properties: {
-          keyVaultSecretId: '${keyVault.outputs.uri}secrets/frontendCertificate'
-        }
-      }
+      // {
+      //   name: '${agwName}-ssl-certificate'
+      //   properties: {
+      //     keyVaultSecretId: '${keyVault.outputs.uri}secrets/gateway-public-cert'
+      //   }
+      // }
     ]
     probes: [
       {
@@ -414,11 +414,11 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
           probe: {
             id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/probes/probe-${aksBackendDomainName}'
           }
-          trustedRootCertificates: [
-            {
-              id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/trustedRootCertificates/frontendCertificate'
-            }
-          ]
+          // trustedRootCertificates: [
+          //   {
+          //     id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/trustedRootCertificates/root-cert-wildcard-aks-ingress'
+          //   }
+          // ]
         }
       }
     ]
@@ -433,9 +433,9 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
             id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/frontendPorts/port-80'
           }
           protocol: 'Http'
-          sslCertificate: {
-            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/sslCertificates/${agwName}-frontendCertificate'
-          }
+          // sslCertificate: {
+          //   id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/sslCertificates/${agwName}-ssl-certificate'
+          // }
           hostName: 'bicycle.${domainName}'
           hostNames: []
           requireServerNameIndication: false
