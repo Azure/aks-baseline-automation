@@ -73,7 +73,7 @@ jobs:
       APPNAME: azure-vote-public
       INGRESSTYPE: InternalLoadBalancer
       DEBUG: true
-      HELMPACKAGEURI: "https://github.com/Azure/aks-baseline-automation/raw/main/workloads/azure-vote/AzureVote-0.9.6.tgz/"
+      HELMPACKAGEURI: "https://github.com/Azure/aks-baseline-automation/raw/main/workloads/azure-vote/AzureVote.tgz"
     secrets:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
