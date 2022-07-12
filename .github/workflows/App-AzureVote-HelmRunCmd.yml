@@ -50,7 +50,7 @@ on:
         required: false
       HELMPACKAGEURI:
         description: "The location of the Application Helm package"
-        default: "https://github.com/Azure/aks-baseline-automation/raw/main/workloads/azure-vote/AzureVote-0.9.5.tgz"
+        default: "https://github.com/Azure/aks-baseline-automation/raw/main/workloads/azure-vote/AzureVote.tgz"
         required: false
         type: string
       CURLRETRIES:
