@@ -1561,6 +1561,7 @@ module EnforceResourceLimits '../CARML/Microsoft.Authorization/policyAssignments
           'azure-arc'
           'cluster-baseline-settings'
           'flux-system'
+          'aks-command'
         ]
       }
       effect: {
