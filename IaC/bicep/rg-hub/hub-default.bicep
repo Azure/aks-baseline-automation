@@ -224,6 +224,7 @@ var applicationRuleCollectionGroup = [
         targetFqdns: [
           'github.com'
           'api.github.com'
+          'raw.githubusercontent.com'
         ]
         targetUrls: []
         destinationAddresses: []

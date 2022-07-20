@@ -4,7 +4,7 @@
 
 This sample leverages the AKS Run Command and performs comprehensive validation steps to ensure the application has been deployed properly.
 
-The application is the Aks Voting app which is used in the Aks Getting Started guides. It is a 2 container application that allows the user to use a Web UI to vote between Cats/Dogs, the votes are recorded in a Redis cache.
+The application is the [AKS Voting App](https://github.com/Azure-Samples/azure-voting-app-redis), which is used in the [AKS Getting Started Guide](https://docs.microsoft.com/en-us/azure/aks/learn/quick-kubernetes-deploy-cli). It is a 2 container application that allows the user to use a Web UI to vote between Cats/Dogs, the votes are recorded in a Redis cache.
 
 ## Workflow steps
 
@@ -63,7 +63,7 @@ This sample is a GitHub Reusable Workflow, as an asset in a public repository it
 
 The Azure Credentials required are that of OpenID Connect (OIDC) based Federated Identity Credentials, please see [here](/docs/oidc-federated-credentials.md) for more information.
 
-Location of the [Reusable workflow file](/.github/workflows/App-AzureVote-HelmRunCmd.yml)
+The reusable workflow file is located [here](/.github/workflows/App-AzureVote-HelmRunCmd.yml). To call it from your own workflow, use the code snippet below or just run the workflow [App-Test.yml](/.github/workflows/App-Test.yml): 
 
 ```yaml
   #Here's how to call the reusable workflow from your workflow file
@@ -81,7 +81,7 @@ Location of the [Reusable workflow file](/.github/workflows/App-AzureVote-HelmRu
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 ```
 
-> This sample is directly leveraged in the [AKS Bicep Accelerator](https://github.com/Azure/Aks-Construction) for smoke-testing new Kubernetes clusters.
+> This sample is directly leveraged in the [AKS Deployment Helper](https://github.com/Azure/Aks-Construction) for smoke-testing new Kubernetes clusters.
 
 ## Scenario Components
 
@@ -90,9 +90,9 @@ Location of the [Reusable workflow file](/.github/workflows/App-AzureVote-HelmRu
 [Helm](https://helm.sh/) is a package manager for Kubernetes, used to package and deploy applications with ease.
 The Helm chart is written using [subcharts](https://helm.sh/docs/topics/charts/) for the deployments, whilst the parent Helm chart creates the Ingress and NetworkPolicy resources.
 
-## Aks Run Command
+## AKS Run Command
 
-The [AKS Run Command](https://docs.microsoft.com/azure/aks/command-invoke) allows you to remotely invoke commands in an AKS cluster through the AKS API. This can greatly assist with access to a private cluster when the client is not on the cluster private network while still retaining and enforcing full RBAC controls and a private API server.
+The [AKS Run Command](https://docs.microsoft.com/azure/aks/command-invoke) allows you to remotely invoke commands in an AKS cluster through the AKS API. This can greatly assist with access to a private cluster when the client is not on the cluster private network while still retaining and enforcing full RBAC controls.
 
 ## Key Steps in the Action Workflow
 
