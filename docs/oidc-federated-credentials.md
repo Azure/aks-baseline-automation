@@ -54,6 +54,15 @@ fedReqBody=$(jq -n --arg n "$APPNAME-env-$GHENV" \
 echo $fedReqBody | jq -r
 az rest --method POST --uri $fedReqUrl --body "$fedReqBody"
 
+#Create federated identity credentials for use from a GitHub PR
+fedReqUrl="https://graph.microsoft.com/beta/applications/$applicationObjectId/federatedIdentityCredentials"
+fedReqBody=$(jq -n --arg n "$APPNAME-pr" \
+                   --arg r "repo:$GHORG/$GHREPO:pull_request" \
+                   --arg d "Access for GitHub PR" \
+             '{name:$n,issuer:"https://token.actions.githubusercontent.com",subject:$r,description:$d,audiences:["api://AzureADTokenExchange"]}')
+echo $fedReqBody | jq -r
+az rest --method POST --uri $fedReqUrl --body "$fedReqBody"
+
 #Retrieving values needed for GitHub secret creation
 clientId=$appId
 tenantId=$(az account show --query tenantId -o tsv)
