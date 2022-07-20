@@ -760,7 +760,7 @@ module managedIdentityOperatorRole '../CARML/Microsoft.ContainerService/managedC
       cluster.outputs.kubeletidentityObjectId
     ]
     roleDefinitionIdOrName: 'Managed Identity Operator'
-    resourceId: resourceGroup(resourceGroupName).id
+    resourceId: cluster.outputs.resourceId
   }
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
