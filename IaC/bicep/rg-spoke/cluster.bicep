@@ -313,20 +313,14 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       '${mi_appgateway_frontend.outputs.resourceId}': {}
     }
     sku: 'WAF_v2'
-    // sslPolicyType: 'Custom'
-    // sslPolicyCipherSuites: [
-    //   'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
-    //   'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
-    // ]
-    // sslPolicyMinProtocolVersion: 'TLSv1_2'
-    // trustedRootCertificates: [
-    //   {
-    //     name: 'root-cert-wildcard-aks-ingress'
-    //     properties: {
-    //       keyVaultSecretId: '${keyVault.outputs.uri}secrets/appgw-ingress-internal-aks-ingress-tls'
-    //     }
-    //   }
-    // ]
+    trustedRootCertificates: [
+      {
+        name: 'root-cert-wildcard-aks-ingress'
+        properties: {
+          keyVaultSecretId: '${keyVault.outputs.uri}secrets/${akvCertFrontend.outputs.certificateName}'
+        }
+      }
+    ]
     gatewayIPConfigurations: [
       {
         name: 'apw-ip-configuration'
@@ -414,6 +408,21 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
           probe: {
             id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/probes/probe-${aksBackendDomainName}'
           }
+        }
+      }
+      {
+        name: 'aks-ingress-backendpool-httpssettings'
+        properties: {
+          port: 443
+          protocol: 'Https'
+          cookieBasedAffinity: 'Disabled'
+          pickHostNameFromBackendAddress: true
+          requestTimeout: 20
+          trustedRootCertificates: [
+            {
+              id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/trustedRootCertificates/root-cert-wildcard-aks-ingress'
+            }
+          ]
         }
       }
     ]
