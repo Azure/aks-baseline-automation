@@ -16,7 +16,7 @@
             "value": "contoso.com"
         } ,
         "kubernetesVersion":{
-            "value": "1.22.4"
+            "value": "1.22.11"
         }  
         ,
         "gitOpsBootstrappingRepoHttpsUrl":{
