@@ -373,7 +373,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       {
         name: 'probe-${aksBackendDomainName}'
         properties: {
-          protocol: 'Http'
+          protocol: 'Https'
           path: '/favicon.ico'
           interval: 30
           timeout: 30
