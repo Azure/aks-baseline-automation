@@ -398,19 +398,6 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
     ]
     backendHttpSettingsCollection: [
       {
-        name: 'aks-ingress-backendpool-httpsettings'
-        properties: {
-          port: 80
-          protocol: 'Http'
-          cookieBasedAffinity: 'Disabled'
-          pickHostNameFromBackendAddress: true
-          requestTimeout: 20
-          probe: {
-            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/probes/probe-${aksBackendDomainName}'
-          }
-        }
-      }
-      {
         name: 'aks-ingress-backendpool-httpssettings'
         properties: {
           port: 443
@@ -418,6 +405,9 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
           cookieBasedAffinity: 'Disabled'
           pickHostNameFromBackendAddress: true
           requestTimeout: 20
+          probe: {
+            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/probes/probe-${aksBackendDomainName}'
+          }
           trustedRootCertificates: [
             {
               id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/trustedRootCertificates/root-cert-wildcard-aks-ingress'
