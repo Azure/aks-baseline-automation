@@ -105,7 +105,7 @@ module akvCertFrontend './cert.bicep' = {
     location: location
     akvName: keyVault.name
     certificateName: 'frontendCertificate'
-    certificateCommonName:  'frontendCertificate'
+    certificateCommonName: 'bicycle.${domainName}'
   }
   scope: resourceGroup(resourceGroupName)
 }
