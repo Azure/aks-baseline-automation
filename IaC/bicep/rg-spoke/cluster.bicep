@@ -105,7 +105,7 @@ module akvCertFrontend './cert.bicep' = {
     location: location
     akvName: keyVault.name
     certificateName: 'frontendCertificate'
-    certificateCommonName:  'frontendCertificate'
+    certificateCommonName: 'bicycle.${domainName}'
   }
   scope: resourceGroup(resourceGroupName)
 }
@@ -313,20 +313,14 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       '${mi_appgateway_frontend.outputs.resourceId}': {}
     }
     sku: 'WAF_v2'
-    // sslPolicyType: 'Custom'
-    // sslPolicyCipherSuites: [
-    //   'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
-    //   'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
-    // ]
-    // sslPolicyMinProtocolVersion: 'TLSv1_2'
-    // trustedRootCertificates: [
-    //   {
-    //     name: 'root-cert-wildcard-aks-ingress'
-    //     properties: {
-    //       keyVaultSecretId: '${keyVault.outputs.uri}secrets/appgw-ingress-internal-aks-ingress-tls'
-    //     }
-    //   }
-    // ]
+    trustedRootCertificates: [
+      {
+        name: 'root-cert-wildcard-aks-ingress'
+        properties: {
+          keyVaultSecretId: '${keyVault.outputs.uri}secrets/${akvCertFrontend.outputs.certificateName}'
+        }
+      }
+    ]
     gatewayIPConfigurations: [
       {
         name: 'apw-ip-configuration'
@@ -379,7 +373,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       {
         name: 'probe-${aksBackendDomainName}'
         properties: {
-          protocol: 'Http'
+          protocol: 'Https'
           path: '/favicon.ico'
           interval: 30
           timeout: 30
@@ -404,16 +398,21 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
     ]
     backendHttpSettingsCollection: [
       {
-        name: 'aks-ingress-backendpool-httpsettings'
+        name: 'aks-ingress-backendpool-httpssettings'
         properties: {
-          port: 80
-          protocol: 'Http'
+          port: 443
+          protocol: 'Https'
           cookieBasedAffinity: 'Disabled'
           pickHostNameFromBackendAddress: true
           requestTimeout: 20
           probe: {
             id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/probes/probe-${aksBackendDomainName}'
           }
+          trustedRootCertificates: [
+            {
+              id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/trustedRootCertificates/root-cert-wildcard-aks-ingress'
+            }
+          ]
         }
       }
     ]
@@ -449,7 +448,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
             id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/backendAddressPools/${aksBackendDomainName}'
           }
           backendHttpSettings: {
-            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/backendHttpSettingsCollection/aks-ingress-backendpool-httpsettings'
+            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/backendHttpSettingsCollection/aks-ingress-backendpool-httpssettings'
           }
         }
       }
@@ -757,6 +756,22 @@ module managedIdentityOperatorRole '../CARML/Microsoft.ContainerService/managedC
   dependsOn: [
     rg
   ]
+}
+
+module managedIdentityOperatorRole2 '../CARML/Microsoft.Resources/resourceGroups/.bicep/nested_rbac.bicep' = {
+  name: 'managedIdentityOperatorRole2'
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    cluster
+    rg
+  ]
+  params: {
+    resourceId: resourceGroupName
+    principalIds: [
+      cluster.outputs.kubeletidentityObjectId
+    ]
+    roleDefinitionIdOrName: 'Managed Identity Operator'
+  }
 }
 
 module monitoringMetricsPublisherRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/nested_rbac.bicep' = {
