@@ -1,8 +1,8 @@
 # Steve Buchanan Update In Progress
 # This workflow demonstrates building a container image, pushing to an Azure Container Registry and deploying to Kubernetes
 # It is split into separate jobs for readability but could be squashed into a single job if that best suits your scenario
-
-on: [push, workflow_call]
+#workflow_call
+on: [push]
 env:
   RG: CICD-AKS-Temp-5-12-22-01-RG
   # description: 'The Resource Group where your resources are deployed'
