@@ -168,7 +168,7 @@ jobs:
 
   Update-K8s-Manifests:
     name: Update K8s Deployment Manifest with Image Version
-    needs: Build-and-Push
+    needs: BuildPush
     runs-on: ubuntu-latest
     steps:
 
