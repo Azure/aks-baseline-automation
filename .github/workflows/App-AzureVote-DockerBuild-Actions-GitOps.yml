@@ -2,59 +2,62 @@
 # This workflow demonstrates building a container image, pushing to an Azure Container Registry and deploying to Kubernetes
 # It is split into separate jobs for readability but could be squashed into a single job if that best suits your scenario
 
-#on: [push]
+on: [push, workflow_call]
+env:
+  RG: CICD-AKS-Temp-5-12-22-01-RG
+  # description: 'The Resource Group where your resources are deployed'
+  # required: true
+  # type: string
+  AKSNAME: CICD-AKS-Temp-5-12-22-01
+  # description: 'The Name of the AKS resource'
+  # required: true
+  # type: string
+  ACRNAME: acr6222
+  # description: 'The Name of the ACR resource'
+  # required: true
+  # type: string
+  APPNAME: azvoteapp02
+  # description: 'The Name of the Application to deploy'
+  # required: true
+  # type: string
+  NAMESPACE: azvoteapp02-ns
+  # description: 'The Kubernetes Namespace to deploy the Application to'
+  # default: "default"
+  # required: false
+  # type: string
+  APPREPO: https://github.com/Azure-Samples/azure-voting-app-redis
+  # description: 'The GitHub App code repo'
+  # default: "azure-samples/azure-voting-app-redis"
+  # required: false
+  # type: string
+  APPREPOREF: test
+  # description: 'The GitHub REF to use when referencing the App code repo'
+  # default: "129888"
+  # required: false
+  # type: string
+  APPREPOPATH: ./azure-vote
+  # description: 'The directory in the repo containing the Dockerfile'
+  # default: "./azure-vote"
+  # required: false
+  # type: string
+  ENVIRONMENT: https://github.com/Buchatech/aks-baseline-automation-bu
+  # description: 'A GitHub Environment to pull action secrets from'
+  # required: true
+  # type: string
+  ACRRG_NAME: 51822acrbb45-rg
+  # description: 'Resource Group of the Azure Container Registry'
+  # required: true
+  # type: string
 
-on:
-  workflow_call:
-    inputs:
-      RG:
-        description: 'The Resource Group where your resources are deployed'
-        required: true
-        type: string
-      AKSNAME:
-        description: 'The Name of the AKS resource'
-        required: true
-        type: string
-      ACRNAME:
-        description: 'The Name of the ACR resource'
-        required: true
-        type: string
-      APPNAME:
-        description: 'The Name of the Application to deploy'
-        required: true
-        type: string
-      NAMESPACE:
-        description: 'The Kubernetes Namespace to deploy the Application to'
-        default: "default"
-        required: false
-        type: string
-      APPREPO:
-        description: 'The GitHub App code repo'
-        default: "azure-samples/azure-voting-app-redis"
-        required: false
-        type: string
-      APPREPOREF:
-        description: 'The GitHub REF to use when referencing the App code repo'
-        default: "129888"
-        required: false
-        type: string
-      APPREPOPATH:
-        description: 'The directory in the repo containing the Dockerfile'
-        default: "./azure-vote"
-        required: false
-        type: string
-      ENVIRONMENT:
-        description: 'A GitHub Environment to pull action secrets from'
-        required: true
-        type: string
-
-    secrets:
-      AZURE_CLIENT_ID:
-        required: true
-      AZURE_TENANT_ID:
-        required: true
-      AZURE_SUBSCRIPTION_ID:
-        required: true
+# secrets:
+#       AZURE_CLIENT_ID:
+#         required: true
+#       AZURE_TENANT_ID:
+#         required: true
+#       AZURE_SUBSCRIPTION_ID:
+#         required: true
+#       AZURE_CREDENTIALS:
+#         required: true
 
 permissions:
       id-token: write
@@ -63,22 +66,22 @@ permissions:
 jobs:
   BuildPush:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.ENVIRONMENT }}
+    environment: ${{ env.ENVIRONMENT }}
     env:
-      ACRNAME: "${{ inputs.ACRNAME}}"
+      ACRNAME: "${{ env.ACRNAME}}"
 
     steps:
       - name: Get application code from repo
         uses: actions/checkout@v2
         with:
-          repository: ${{ inputs.APPREPO}}
-          ref: ${{ inputs.APPREPOREF}}
+          repository: ${{ env.APPREPO}}
+          ref: ${{ env.APPREPOREF}}
 
       - name: Job parameter inspection
         run: |
-          echo "RG is ${{ inputs.RG }}"
-          echo "AKS name is ${{ inputs.AKSNAME }}"
-          echo "ACR name is ${{ inputs.ACRNAME }}"
+          echo "RG is ${{ env.RG }}"
+          echo "AKS name is ${{ env.AKSNAME }}"
+          echo "ACR name is ${{ env.ACRNAME }}"
 
       - name: Azure Login
         uses: Azure/login@v1.4.3
@@ -110,9 +113,9 @@ jobs:
 
       - name: Container build and push to a Azure Container Registry (ACR)
         env:
-          APPREPOPATH: "${{ inputs.APPREPOPATH}}"
+          APPREPOPATH: "${{ env.APPREPOPATH}}"
           ACRSERVER: "${{ steps.acrconnect.outputs.loginServer }}"
-          APPNAME: "${{ inputs.APPNAME }}"
+          APPNAME: "${{ env.APPNAME }}"
         run: |
           cd $APPREPOPATH
           docker build . -t $ACRSERVER/$APPNAME:${{ github.sha }}
@@ -131,11 +134,11 @@ jobs:
     # Retrieves the credentials for pulling images from your Azure Container Registry
     - name: Get ACR credentials
       run: |
-        az acr update -n ${{ env.ACR_NAME }} -g ${{ env.ACRRG_NAME }} --admin-enabled true
-        ACR_USERNAME=$(az acr credential show -g ${{ env.ACRRG_NAME }} -n ${{ env.ACR_NAME }} --query username -o tsv)
-        ACR_PASSWORD=$(az acr credential show -g ${{ env.ACRRG_NAME }} -n ${{ env.ACR_NAME }} --query passwords[0].value -o tsv)
-        echo "::add-mask::${{ env.ACR_NAME }}"
-        echo "::set-output name=username::${{ env.ACR_NAME }}"
+        az acr update -n ${{ env.ACRNAME }} -g ${{ env.ACRRG_NAME }} --admin-enabled true
+        ACR_USERNAME=$(az acr credential show -g ${{ env.ACRRG_NAME }} -n ${{ env.ACRNAME }} --query username -o tsv)
+        ACR_PASSWORD=$(az acr credential show -g ${{ env.ACRRG_NAME }} -n ${{ env.ACRNAME }} --query passwords[0].value -o tsv)
+        echo "::add-mask::${{ env.ACRNAME }}"
+        echo "::set-output name=username::${{ env.ACRNAME }}"
         echo "::add-mask::${ACR_PASSWORD}"
         echo "::set-output name=password::${ACR_PASSWORD}"
       id: get-acr-creds
@@ -144,24 +147,24 @@ jobs:
     - name: Get K8s context
       uses: azure/aks-set-context@v2.0
       with:
-        resource-group: ${{ env.AKSRG_NAME }}
+        resource-group: ${{ env.RG }}
         cluster-name: ${{ env.AKS_NAME }}
 
     - name: Create namespace
       run: |
-        namespacePresent=`kubectl get namespace | grep ${{ env.NS_NAME }} | wc -l`
+        namespacePresent=`kubectl get namespace | grep ${{ env.NAMESPACE }} | wc -l`
         if [ $namespacePresent -eq 0 ]
         then
-            echo `kubectl create namespace ${{ env.NS_NAME }}`
+            echo `kubectl create namespace ${{ env.NAMESPACE }}`
         fi
          
     - uses: azure/k8s-create-secret@v1
       with:
-        namespace: ${{ env.NS_NAME }}
-        container-registry-url: ${{ env.ACR_NAME }}.azurecr.io
-        container-registry-username: ${{ env.ACR_NAME }} 
+        namespace: ${{ env.NAMESPACE }}
+        container-registry-url: ${{ env.ACRNAME }}.azurecr.io
+        container-registry-username: ${{ env.ACRNAME }} 
         container-registry-password: ${ACR_PASSWORD}
-        secret-name: ${{ env.ACR_NAME }}-secret
+        secret-name: ${{ env.ACRNAME }}-secret
 
   Update-K8s-Manifests:
     name: Update K8s Deployment Manifest with Image Version
@@ -175,13 +178,13 @@ jobs:
       id: imgupd
       uses: mikefarah/yq@master
       with:
-        cmd: yq eval '.spec.template.spec.containers[0].image = "${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}"' -i workloads/azure-vote/front-deployment.yml
+        cmd: yq eval '.spec.template.spec.containers[0].image = "${{ env.ACRNAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}"' -i workloads/azure-vote/front-deployment.yml
 
     - name: Update Image Pull Secret Name
       id: imgpullsecret
       uses: mikefarah/yq@master
       with:
-        cmd: yq eval '.spec.template.spec.imagePullSecrets[0].name = "${{ env.ACR_NAME }}-secret"' -i workloads/azure-vote/front-deployment.yml
+        cmd: yq eval '.spec.template.spec.imagePullSecrets[0].name = "${{ env.ACRNAME }}-secret"' -i workloads/azure-vote/front-deployment.yml
 
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
