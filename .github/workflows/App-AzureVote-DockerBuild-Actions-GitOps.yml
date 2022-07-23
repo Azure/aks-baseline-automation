@@ -25,7 +25,7 @@ env:
   # default: "default"
   # required: false
   # type: string
-  APPREPO: https://github.com/Azure-Samples/azure-voting-app-redis
+  APPREPO: Azure-Samples/azure-voting-app-redis
   # description: 'The GitHub App code repo'
   # default: "azure-samples/azure-voting-app-redis"
   # required: false
@@ -40,7 +40,7 @@ env:
   # default: "./azure-vote"
   # required: false
   # type: string
-  ENVIRONMENT: https://github.com/Buchatech/aks-baseline-automation-bu
+  ENVIRONMENT: Buchatech/aks-baseline-automation-bu
   # description: 'A GitHub Environment to pull action secrets from'
   # required: true
   # type: string
