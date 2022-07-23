@@ -68,7 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ env.ENVIRONMENT }}
     env:
-      ACRNAME: "${{ env.ACRNAME}}"
+      ACRNAME: "${{ env.ACRNAME }}"
 
     steps:
       - name: Get application code from repo
