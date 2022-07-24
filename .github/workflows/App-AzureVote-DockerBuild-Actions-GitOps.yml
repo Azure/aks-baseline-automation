@@ -176,9 +176,6 @@ jobs:
     steps:
 
     - uses: actions/checkout@v2
-      with:
-        persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal access token.
-        fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
 
     - name: Update Image Version
       id: imgupd
@@ -195,6 +192,8 @@ jobs:
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
         commit_message: Update image version in K8s Deployment manifests file
+      env:
+          GITHUB_TOKEN: ${{ github.token }}
 
   ## Deploy:
     # runs-on: ubuntu-latest
