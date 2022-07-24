@@ -3,6 +3,7 @@
 # It is split into separate jobs for readability but could be squashed into a single job if that best suits your scenario
 #workflow_call
 on: [push]
+
 env:
   RG: CICD-AKS-Temp-5-12-22-01-RG
   # description: 'The Resource Group where your resources are deployed'
@@ -62,7 +63,7 @@ env:
 
 permissions:
       id-token: write
-      contents: read
+      contents: write
 
 jobs:
   BuildPush:
