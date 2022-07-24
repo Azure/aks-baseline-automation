@@ -49,6 +49,7 @@ env:
   # required: true
   # type: string
 
+# Remove Later
 # secrets:
 #       AZURE_CLIENT_ID:
 #         required: true
@@ -150,7 +151,7 @@ jobs:
       uses: azure/aks-set-context@v2.0
       with:
         resource-group: ${{ env.RG }}
-        cluster-name: ${{ env.AKS_NAME }}
+        cluster-name: ${{ env.AKSNAME }}
 
     - name: Create namespace
       run: |
