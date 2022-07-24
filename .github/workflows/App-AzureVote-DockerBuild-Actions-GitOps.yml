@@ -66,13 +66,9 @@ permissions:
 jobs:
   BuildPush:
     runs-on: ubuntu-latest
-    environment: ${{ env.ENVIRONMENT }}
-    env:
-       ACRNAME: "${{ env.ACRNAME }}"
-
     steps:
       - name: Get application code from repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@main
         with:
           repository: ${{ env.APPREPO}}
           ref: ${{ env.APPREPOREF}}
