@@ -176,8 +176,6 @@ jobs:
     steps:
 
     - uses: actions/checkout@v2
-      with:
-          token: ${{ secrets.GH_TOKEN }}
 
     - name: Update Image Version
       id: imgupd
