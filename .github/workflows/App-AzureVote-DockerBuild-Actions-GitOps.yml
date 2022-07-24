@@ -122,8 +122,11 @@ jobs:
           APPNAME: "${{ env.APPNAME }}"
         run: |
           cd $APPREPOPATH
-          docker build . -t $ACRSERVER/$APPNAME:${{ github.sha }}
-          docker push $ACRSERVER/$APPNAME:${{ github.sha }}
+          docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t ${{ env.ACRNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.run_number }} --label dockerfile-path=Dockerfile
+          docker push ${{ env.ACRNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.run_number }}
+
+        # docker build . -t $ACRSERVER/$APPNAME:${{ github.sha }}
+        # docker push $ACRSERVER/$APPNAME:${{ github.sha }}
 
   Create-ACR-Secret-in-K8s-:
     name: Create a K8s secret for ACR in the AKS cluster
@@ -182,7 +185,7 @@ jobs:
       id: imgupd
       uses: mikefarah/yq@master
       with:
-        cmd: yq eval '.spec.template.spec.containers[0].image = "${{ env.ACRNAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_number }}"' -i workloads/azure-vote/front-deployment.yml
+        cmd: yq eval '.spec.template.spec.containers[0].image = "${{ env.ACRNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.run_number }}"' -i workloads/azure-vote/front-deployment.yml
 
     - name: Update Image Pull Secret Name
       id: imgpullsecret
