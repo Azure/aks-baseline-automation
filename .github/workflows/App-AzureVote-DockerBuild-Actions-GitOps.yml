@@ -31,7 +31,7 @@ env:
   # default: "azure-samples/azure-voting-app-redis"
   # required: false
   # type: string
-  APPREPOREF: N/A
+  APPREPOREF: azure-samples/azure-voting-app-redis
   # description: 'The GitHub REF to use when referencing the App code repo'
   # default: "129888"
   # required: false
@@ -71,10 +71,9 @@ jobs:
     steps:
       - name: Get application code from repo
         uses: actions/checkout@main
-        # Remove later
-        ## with:
-        ##   repository: ${{ env.APPREPO}}
-        ##   ref: ${{ env.APPREPOREF}}
+        with:
+          repository: ${{ env.APPREPO}}
+          ref: ${{ env.APPREPOREF}}
 
       - name: Job parameter inspection
         run: |
