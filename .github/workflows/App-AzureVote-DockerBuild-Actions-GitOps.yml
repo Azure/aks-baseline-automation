@@ -26,12 +26,12 @@ env:
   # default: "default"
   # required: false
   # type: string
-  APPREPO: azure-samples/azure-voting-app-redis
+  APPREPO: buchatech/aks-baseline-automation-bu
   # description: 'The GitHub App code repo'
   # default: "azure-samples/azure-voting-app-redis"
   # required: false
   # type: string
-  APPREPOREF: azure-samples/azure-voting-app-redis
+  APPREPOREF: buchatech/aks-baseline-automation-bu
   # description: 'The GitHub REF to use when referencing the App code repo'
   # default: "129888"
   # required: false
