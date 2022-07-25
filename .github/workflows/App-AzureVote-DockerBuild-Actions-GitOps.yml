@@ -26,12 +26,12 @@ env:
   # default: "default"
   # required: false
   # type: string
-  APPREPO: buchatech/aks-baseline-automation-bu
+  APPREPO: azure-samples/azure-voting-app-redis
   # description: 'The GitHub App code repo'
   # default: "azure-samples/azure-voting-app-redis"
   # required: false
   # type: string
-  APPREPOREF: buchatech/aks-baseline-automation-bu
+  APPREPOREF: azure-samples/azure-voting-app-redis
   # description: 'The GitHub REF to use when referencing the App code repo'
   # default: "129888"
   # required: false
@@ -71,9 +71,9 @@ jobs:
     steps:
       - name: Get application code from repo
         uses: actions/checkout@main
-        with:
-          repository: ${{ env.APPREPO}}
-          ref: ${{ env.APPREPOREF}}
+        #with:
+          #repository: ${{ env.APPREPO}}
+          #ref: ${{ env.APPREPOREF}}
 
       - name: Job parameter inspection
         run: |
