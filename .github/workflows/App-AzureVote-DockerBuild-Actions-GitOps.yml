@@ -89,11 +89,17 @@ jobs:
           echo "::set-output name=acr_password::`az acr credential show -n ${{ env.ACRNAME }} --query passwords[0].value | xargs`"
           echo "::add-mask::`az acr credential show -n ${{ env.ACRNAME }} --query passwords[0].value | xargs`"
 
+      - uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.ACRNAME }}.azurecr.io
+          username: ${{ env.ACRNAME }}
+          password: ${{ steps.create-acr.outputs.acr_password }}
+
       # Builds and Pushes the container image to the Azure Container Registry (ACR)
       - name: Container build and push to a Azure Container Registry (ACR)
         env:
           APPREPOPATH: "${{ env.APPREPOPATH}}"
-          ACRSERVER: "${{ steps.create-acr.outputs.acr_password }}"
+          #ACRSERVER: "${{ steps.create-acr.outputs.acr_password }}"
           #ACRSERVER: "${{ steps.acrconnect.outputs.loginServer }}"
           APPNAME: "${{ env.APPNAME }}"
         run: |
