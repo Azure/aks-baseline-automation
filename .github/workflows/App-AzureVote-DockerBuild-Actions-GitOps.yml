@@ -42,7 +42,7 @@ jobs:
     steps:
       - name: Get application code from repo
         uses: actions/checkout@main
-        # Remove later
+        # Was not working with azure-samples/azure-voting-app-redis
         ## with:
         ##   repository: ${{ env.APPREPO}}
         ##   ref: ${{ env.APPREPOREF}}
@@ -58,28 +58,6 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # ACR
-      # - name: Connect to Azure Container Registry (ACR)
-      #   id: acrconnect
-      #   run: |
-      #     echo "Retrieving access token from $ACRNAME"
-      #     TOKEN=$(az acr login -n $ACRNAME --expose-token)
-
-      #     if [ -z "$TOKEN" ]
-      #     then
-      #       echo "ACR Token was not retrieved successfully"
-      #       exit 1
-      #     fi
-
-      #     ACRTOKEN=$(echo $TOKEN | jq -r ".accessToken")
-      #     LOGINSERVER=$(echo $TOKEN | jq -r ".loginServer")
-
-      #     echo "ACR Login Server: $LOGINSERVER"
-      #     echo "::set-output name=loginServer::$LOGINSERVER"
-
-      #     echo "Passing token as stdin to docker login"
-      #     echo $ACRTOKEN | docker login $LOGINSERVER -u 00000000-0000-0000-0000-000000000000 --password-stdin
-
       # Create Azure Container Registry (ACR) if it does not exist
       - name: Azure Container Registry (ACR)
         id: create-acr
@@ -89,6 +67,7 @@ jobs:
           echo "::set-output name=acr_password::`az acr credential show -n ${{ env.ACRNAME }} --query passwords[0].value | xargs`"
           echo "::add-mask::`az acr credential show -n ${{ env.ACRNAME }} --query passwords[0].value | xargs`"
 
+      # Logs into the Azure Container Registry (ACR)
       - uses: azure/docker-login@v1
         with:
           login-server: ${{ env.ACRNAME }}.azurecr.io
@@ -99,8 +78,6 @@ jobs:
       - name: Container build and push to a Azure Container Registry (ACR)
         env:
           APPREPOPATH: "${{ env.APPREPOPATH}}"
-          #ACRSERVER: "${{ steps.create-acr.outputs.acr_password }}"
-          #ACRSERVER: "${{ steps.acrconnect.outputs.loginServer }}"
           APPNAME: "${{ env.APPNAME }}"
         run: |
           cd $APPREPOPATH
