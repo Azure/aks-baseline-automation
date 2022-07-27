@@ -141,11 +141,11 @@ jobs:
     - uses: actions/checkout@v2
 
     # Updates the Kubernetes deployment manifest file with the image version hosted in ACR
-    - name: Update Image Version
-      id: imgupd
-      uses: mikefarah/yq@master
-      with:
-        cmd: yq eval '.spec.template.spec.containers[0].image = "${{ env.ACRNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.run_number }}"' -i workloads/azure-vote/front-deployment.yml
+#     - name: Update Image Version
+#       id: imgupd
+#       uses: mikefarah/yq@master
+#       with:
+#         cmd: yq eval '.spec.template.spec.containers[0].image = "${{ env.ACRNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.run_number }}"' -i workloads/azure-vote/front-deployment.yml
 
     # Updates the Kubernetes deployment manifest file with the Kubernetes secret used for connecting to the ACR
     - name: Update Image Pull Secret Name
