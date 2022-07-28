@@ -73,6 +73,10 @@ variable "azurerm_firewalls" {
   default = {}
 }
 
+variable "azurerm_firewall_policies" {
+  default = {}
+}
+
 variable "azurerm_firewall_application_rule_collection_definition" {
   default = {}
 }
