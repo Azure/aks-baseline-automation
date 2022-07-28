@@ -18,8 +18,8 @@ aks_clusters = {
     }
 
 
-    # kubernetes_version = "1.20.5"
-    vnet_key = "vnet_aks_re1"
+    kubernetes_version = "1.23.5"
+    vnet_key           = "vnet_aks_re1"
 
     # network plugin and network policy should be "azure" (recommended by Secure AKS baseline)
     network_profile = {
@@ -34,13 +34,9 @@ aks_clusters = {
     role_based_access_control = {
       enabled = true
       azure_active_directory = {
-        managed            = true
-        azure_rbac_enabled = true
-        # admin_group_object_names = ["aks-cluster-re1-admins"]
-        # admin_group_object_ids = ["50f1138f-1d8c-4eab-b643-e3a02820f244"]
-        # azuread_groups = {
-        #   keys = ["aks_cluster_re1_admins"]
-        # }
+        managed                = true
+        azure_rbac_enabled     = true
+        admin_group_object_ids = ["50f1138f-1d8c-4eab-b643-e3a02820f244"]
       }
     }
 
