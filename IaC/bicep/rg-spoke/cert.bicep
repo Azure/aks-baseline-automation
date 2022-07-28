@@ -136,7 +136,7 @@ resource createImportCert 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
       until [ $retryLoopCount -ge $retryMax ]
       do
         echo "Creating AKV Cert $certName with CN $certCommonName (attempt $retryLoopCount)..."
-        az keyvault certificate create --vault-name $akvName -n $certName -p "$(az keyvault certificate get-default-policy | sed -e s/CN=CLIGetDefaultPolicy/CN=${certCommonName}/g )" \
+        az keyvault secret create --vault-name $akvName -n $certName -p "$(az keyvault certificate get-default-policy | sed -e s/CN=CLIGetDefaultPolicy/CN=${certCommonName}/g )" \
           && break
 
         sleep $retrySleep
@@ -145,12 +145,12 @@ resource createImportCert 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 
       echo "Getting Certificate $certName";
       retryLoopCount=0
-      createdCert=$(az keyvault certificate show -n $certName --vault-name $akvName -o json)
+      createdCert=$(az keyvault secret show -n $certName --vault-name $akvName -o json)
       while [ -z "$(echo $createdCert | jq -r '.x509ThumbprintHex')" ] && [ $retryLoopCount -lt $retryMax ]
       do
         echo "Waiting for cert creation (attempt $retryLoopCount)..."
         sleep $retrySleep
-        createdCert=$(az keyvault certificate show -n $certName --vault-name $akvName -o json)
+        createdCert=$(az keyvault secret show -n $certName --vault-name $akvName -o json)
         retryLoopCount=$((retryLoopCount+1))
       done
 
