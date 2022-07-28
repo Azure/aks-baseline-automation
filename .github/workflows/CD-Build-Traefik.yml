@@ -65,6 +65,11 @@ jobs:
           echo "AKV name is ${{ inputs.AKVNAME }}"
           echo "MI name is ${{ inputs.MINAME }}"
 
+      - name: Dump github stuff
+        run: |
+          echo "Preparing to push files to ${{ github.ref}}"
+          echo "Preparing to push files to ${{ github.ref_name}}"
+
       - name: Azure Login
         uses: Azure/login@v1
         with:
