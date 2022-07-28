@@ -136,7 +136,7 @@ resource createImportCert 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
       until [ $retryLoopCount -ge $retryMax ]
       do
         echo "Creating AKV Cert $certName with CN $certCommonName (attempt $retryLoopCount)..."
-        az keyvault secret create --vault-name $akvName -n $certName -p "$(az keyvault certificate get-default-policy | sed -e s/CN=CLIGetDefaultPolicy/CN=${certCommonName}/g )" \
+        az keyvault secret create --vault-name $akvName -n $certName -p "$(az keyvault secret get-default-policy | sed -e s/CN=CLIGetDefaultPolicy/CN=${certCommonName}/g )" \
           && break
 
         sleep $retrySleep
