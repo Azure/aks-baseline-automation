@@ -13,9 +13,9 @@ env:
   # description: 'The Name of the AKS resource'
   ACRNAME: acr6222
   # description: 'The Name of the ACR resource'
-  APPNAME: webapp02
+  APPNAME: azvoteapp02
   # description: 'The Name of the Application to deploy'
-  NAMESPACE: webapp02-ns
+  NAMESPACE: azvoteapp02-ns
   # description: 'The Kubernetes Namespace to deploy the Application to'
   # default: "default"
   APPREPO: buchatech/aks-baseline-automation-bu
@@ -24,7 +24,7 @@ env:
   APPREPOREF: N/A
   # description: 'The GitHub REF to use when referencing the App code repo'
   # default: "129888"
-  APPREPOPATH: ./webapp
+  APPREPOPATH: ./azure-vote
   # description: 'The directory in the repo containing the Dockerfile'
   # default: "./azure-vote"
   ENVIRONMENT: buchatech/aks-baseline-automation-bu
@@ -85,76 +85,76 @@ jobs:
           docker push ${{ env.ACRNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.run_number }}
 
   Create-ACR-Secret-in-K8s-:
-    name: Create a K8s secret for ACR in the AKS cluster
-    needs: BuildPush
-    runs-on: ubuntu-latest
-    steps:
+      name: Create a K8s secret for ACR in the AKS cluster
+      needs: BuildPush
+      runs-on: ubuntu-latest
+      steps:
     
     # Logs into your Azure subscription
-    - uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     # Retrieves the credentials for pulling images from your Azure Container Registry
-    - name: Get ACR credentials
-      run: |
-        az acr update -n ${{ env.ACRNAME }} -g ${{ env.ACRRGNAME }} --admin-enabled true
-        ACR_USERNAME=$(az acr credential show -g ${{ env.ACRRGNAME }} -n ${{ env.ACRNAME }} --query username -o tsv)
-        ACR_PASSWORD=$(az acr credential show -g ${{ env.ACRRGNAME }} -n ${{ env.ACRNAME }} --query passwords[0].value -o tsv)
-        echo "::add-mask::${{ env.ACRNAME }}"
-        echo "::set-output name=username::${{ env.ACRNAME }}"
-        echo "::add-mask::${ACR_PASSWORD}"
-        echo "::set-output name=password::${ACR_PASSWORD}"
-      id: get-acr-creds
+      - name: Get ACR credentials
+        run: |
+          az acr update -n ${{ env.ACRNAME }} -g ${{ env.ACRRGNAME }} --admin-enabled true
+          ACR_USERNAME=$(az acr credential show -g ${{ env.ACRRGNAME }} -n ${{ env.ACRNAME }} --query username -o tsv)
+          ACR_PASSWORD=$(az acr credential show -g ${{ env.ACRRGNAME }} -n ${{ env.ACRNAME }} --query passwords[0].value -o tsv)
+          echo "::add-mask::${{ env.ACRNAME }}"
+          echo "::set-output name=username::${{ env.ACRNAME }}"
+          echo "::add-mask::${ACR_PASSWORD}"
+          echo "::set-output name=password::${ACR_PASSWORD}"
+        id: get-acr-creds
 
     # Retrieves your Azure Kubernetes Service cluster's kubeconfig file
-    - name: Get K8s context
-      uses: azure/aks-set-context@v2.0
-      with:
-        resource-group: ${{ env.RG }}
-        cluster-name: ${{ env.AKSNAME }}
+      - name: Get K8s context
+        uses: azure/aks-set-context@v2.0
+        with:
+          resource-group: ${{ env.RG }}
+          cluster-name: ${{ env.AKSNAME }}
 
     # Creates namespace in your Azure Kubernetes Service cluster's if it does not exist
-    - name: Create namespace
-      run: |
-        namespacePresent=`kubectl get namespace | grep ${{ env.NAMESPACE }} | wc -l`
-        if [ $namespacePresent -eq 0 ]
-        then
-            echo `kubectl create namespace ${{ env.NAMESPACE }}`
-        fi
+      - name: Create namespace
+        run: |
+          namespacePresent=`kubectl get namespace | grep ${{ env.NAMESPACE }} | wc -l`
+          if [ $namespacePresent -eq 0 ]
+          then
+              echo `kubectl create namespace ${{ env.NAMESPACE }}`
+          fi
          
-    - uses: azure/k8s-create-secret@v1
-      with:
-        namespace: ${{ env.NAMESPACE }}
-        container-registry-url: ${{ env.ACRNAME }}.azurecr.io
-        container-registry-username: ${{ env.ACRNAME }} 
-        container-registry-password: ${ACR_PASSWORD}
-        secret-name: ${{ env.ACRNAME }}-secret
+      - uses: azure/k8s-create-secret@v1
+        with:
+          namespace: ${{ env.NAMESPACE }}
+          container-registry-url: ${{ env.ACRNAME }}.azurecr.io
+          container-registry-username: ${{ env.ACRNAME }} 
+          container-registry-password: ${ACR_PASSWORD}
+          secret-name: ${{ env.ACRNAME }}-secret
 
   Update-K8s-Manifests:
-    name: Update K8s Deployment Manifest with Image Version
-    needs: BuildPush
-    runs-on: ubuntu-latest
-    steps:
+      name: Update K8s Deployment Manifest with Image Version
+      needs: BuildPush
+      runs-on: ubuntu-latest
+      steps:
 
     # Checks out the git repository
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
     # Updates the Kubernetes deployment manifest file with the image version hosted in ACR
-#     - name: Update Image Version
-#       id: imgupd
-#       uses: mikefarah/yq@master
-#       with:
-#         cmd: yq eval '.spec.template.spec.containers[0].image = "${{ env.ACRNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.run_number }}"' -i workloads/azure-vote/front-deployment.yml
+      - name: Update Image Version
+        id: imgupd
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq eval '.spec.template.spec.containers[0].image = "${{ env.ACRNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.run_number }}"' -i workloads/azure-vote/front-deployment.yml
 
     # Updates the Kubernetes deployment manifest file with the Kubernetes secret used for connecting to the ACR
-    - name: Update Image Pull Secret Name
-      id: imgpullsecret
-      uses: mikefarah/yq@master
-      with:
-        cmd: yq eval '.spec.template.spec.imagePullSecrets[0].name = "${{ env.ACRNAME }}-secret"' -i workloads/azure-vote/front-deployment.yml
+      - name: Update Image Pull Secret Name
+        id: imgpullsecret
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq eval '.spec.template.spec.imagePullSecrets[0].name = "${{ env.ACRNAME }}-secret"' -i workloads/azure-vote/front-deployment.yml
 
     # Commits the changes to the git repository
-    - uses: stefanzweifel/git-auto-commit-action@v4
-      with:
-        commit_message: Update image version in K8s Deployment manifests file
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Update image version in K8s Deployment manifests file
