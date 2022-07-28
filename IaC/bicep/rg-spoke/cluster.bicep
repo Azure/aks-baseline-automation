@@ -105,7 +105,7 @@ module akvCertFrontend './cert.bicep' = {
     location: location
     akvName: keyVault.name
     certificateName: 'frontendCertificate'
-    certificateCommonName:  'frontendCertificate'
+    certificateCommonName: 'bicycle.${domainName}'
   }
   scope: resourceGroup(resourceGroupName)
 }
@@ -373,7 +373,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       {
         name: 'probe-${aksBackendDomainName}'
         properties: {
-          protocol: 'Http'
+          protocol: 'Https'
           path: '/favicon.ico'
           interval: 30
           timeout: 30
@@ -448,7 +448,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
             id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/backendAddressPools/${aksBackendDomainName}'
           }
           backendHttpSettings: {
-            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/backendHttpSettingsCollection/aks-ingress-backendpool-httpsettings'
+            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/backendHttpSettingsCollection/aks-ingress-backendpool-httpssettings'
           }
         }
       }
