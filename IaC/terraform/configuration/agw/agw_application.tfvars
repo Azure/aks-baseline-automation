@@ -35,14 +35,26 @@ application_gateway_applications = {
     }
 
     backend_http_setting = {
-      port                                = 443
-      protocol                            = "Https"
-      pick_host_name_from_backend_address = true
-      # trusted_root_certificate_names      = ["wildcard-ingress"]
-      trusted_root_certificate_names = ["wildcard-ingress"]
+      port                        = 80
+      protocol                    = "Http"
+      host_name_from_backend_pool = true
+      timeout                     = 20
+      cookie_based_affinity       = "Disabled"
+      probe_key                   = "probe_1"
     }
 
-
+    probes = {
+      probe_1 = {
+        name                         = "probe-fqdn-backend-aks"
+        protocol                     = "Http"
+        path                         = "/favicon.ico"
+        interval                     = 30
+        timeout                      = 30
+        unhealthy_threshold          = 3
+        min_servers                  = 0
+        host_name_from_http_settings = true
+      }
+    }
 
     backend_pool = {
       fqdns = [
