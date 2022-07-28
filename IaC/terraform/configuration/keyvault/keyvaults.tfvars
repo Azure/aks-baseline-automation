@@ -3,31 +3,25 @@ keyvaults = {
 
   # This keyvault is used to store the complex password created for the AKS breakglass admin user
   secrets = {
-    name                = "secretsvault_re1"
-    resource_group_key  = "aks_re1"
-    region              = "region1"
-    sku_name            = "premium"
-    soft_delete_enabled = true
+    name                      = "secretsvault_re1"
+    resource_group_key        = "aks_re1"
+    region                    = "region1"
+    sku_name                  = "premium"
+    enable_rbac_authorization = true
 
-    creation_policies = {
-      logged_in_user = {
-        # if the key is set to "logged_in_user" add the user running terraform in the keyvault policy
-        secret_permissions      = ["Set", "Get", "List", "Delete", "Purge", "Recover"]
-        certificate_permissions = ["Create", "Get", "List", "Delete", "Purge", "Recover"]
+    network = {
+      bypass         = "AzureServices"
+      default_action = "Deny"
+      subnets = {
+        subnethub = {
+          vnet_key   = "vnet_hub_re1"
+          subnet_key = "AzureBastionSubnet"
+        }
+        subnetspoke = {
+          vnet_key   = "vnet_aks_re1"
+          subnet_key = "snet-clusternodes"
+        }
       }
-
-      ingress_msi = {
-        managed_identity_key    = "ingress"
-        secret_permissions      = ["Get"]
-        certificate_permissions = ["Get"]
-      }
-
-      apgw_keyvault_secrets = {
-        managed_identity_key    = "apgw_keyvault_secrets"
-        certificate_permissions = ["Get"]
-        secret_permissions      = ["Get"]
-      }
-
     }
   }
 }

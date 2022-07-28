@@ -7,9 +7,19 @@ role_mapping = {
   built_in_role_mapping = {
     keyvaults = {
       secrets = {
-        "Contributor" = {
+        "Key Vault Reader" = {
           managed_identities = {
-            keys = ["ingress"]
+            keys = ["ingress", "apgw_keyvault_secrets"]
+          }
+        }
+        "Key Vault Certificates Officer" = {
+          logged_in = {
+            keys = ["user"]
+          }
+        }
+        "Key Vault Secrets Officer" = {
+          logged_in = {
+            keys = ["user"]
           }
         } // "Contributor"
       }   // logged_in_subscription
@@ -30,6 +40,15 @@ role_mapping = {
       acr1 = {
         "AcrPull" = {
           aks_clusters = {
+            keys = ["cluster_re1"]
+          }
+        }
+      }
+    }
+    resource_groups = {
+      aks_re1 = {
+        "Monitoring Metrics Publisher" = {
+          managed_identities = {
             keys = ["cluster_re1"]
           }
         }
