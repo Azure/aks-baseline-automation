@@ -149,6 +149,7 @@ jobs:
       - name: Dump github ref
         run: |
           echo "Preparing to push files to ${{ github.ref}}"
+          echo "Branch is ${{ github.ref_name}}"
 
       - name: Push changes
         uses: ad-m/github-push-action@master
