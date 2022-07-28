@@ -13,6 +13,12 @@ azure_container_registries = {
     }
     # georeplication_region_keys = ["region2"]
 
+    network_rule_set = {
+      deny_public_access = {
+        default_action = "Deny"
+      }
+    }
+
     private_endpoints = {
       # Require enforce_private_link_endpoint_network_policies set to true on the subnet
       spoke_aks_re1-aks_nodepool_system = {
