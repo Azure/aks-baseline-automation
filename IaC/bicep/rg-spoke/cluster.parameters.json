@@ -20,7 +20,7 @@
         }  
         ,
         "gitOpsBootstrappingRepoHttpsUrl":{
-            "value": "https://github.com/mspnp/aks-baseline"
+            "value": "https://github.com/Azure/aks-baseline-automation"
         }
         ,
         "gitOpsBootstrappingRepoBranch":{
