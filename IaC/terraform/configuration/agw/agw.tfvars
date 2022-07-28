@@ -13,7 +13,16 @@ application_gateways = {
       }
     }
     zones        = ["1"]
-    enable_http2 = true
+    enable_http2 = false
+
+    ssl_profiles = {
+      profile1 = {
+        name = "SecureTLS"
+        ssl_policy = {
+          min_protocol_version = "TLSv1_2"
+        }
+      }
+    }
 
     identity = {
       managed_identity_keys = [
@@ -26,14 +35,6 @@ application_gateways = {
         name          = "public"
         public_ip_key = "agw_pip1_re1"
         subnet_key    = "application_gateway"
-      }
-      private = {
-        name                          = "private"
-        vnet_key                      = "vnet_aks_re1"
-        subnet_key                    = "application_gateway"
-        subnet_cidr_index             = 0 # It is possible to have more than one cidr block per subnet
-        private_ip_offset             = 4 # e.g. cidrhost(10.10.0.0/25,4) = 10.10.0.4 => AGW private IP address
-        private_ip_address_allocation = "Static"
       }
     }
 
@@ -55,6 +56,15 @@ application_gateways = {
         name = "wildcard-ingress"
         # data =
         keyvault_key = "secrets"
+      }
+    }
+
+    diagnostic_profiles = {
+      operations = {
+        name             = "agw_logs"
+        definition_key   = "azure_application_gateway"
+        destination_type = "log_analytics"
+        destination_key  = "central_logs"
       }
     }
   }
