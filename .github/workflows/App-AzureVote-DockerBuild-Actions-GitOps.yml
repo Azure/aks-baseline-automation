@@ -13,9 +13,9 @@ env:
   # description: 'The Name of the AKS resource'
   ACRNAME: acr6222
   # description: 'The Name of the ACR resource'
-  APPNAME: azvoteapp02
+  APPNAME: webapp02
   # description: 'The Name of the Application to deploy'
-  NAMESPACE: azvoteapp02-ns
+  NAMESPACE: webapp02-ns
   # description: 'The Kubernetes Namespace to deploy the Application to'
   # default: "default"
   APPREPO: buchatech/aks-baseline-automation-bu
@@ -24,7 +24,7 @@ env:
   APPREPOREF: N/A
   # description: 'The GitHub REF to use when referencing the App code repo'
   # default: "129888"
-  APPREPOPATH: ./azure-vote
+  APPREPOPATH: ./webapp
   # description: 'The directory in the repo containing the Dockerfile'
   # default: "./azure-vote"
   ENVIRONMENT: buchatech/aks-baseline-automation-bu
