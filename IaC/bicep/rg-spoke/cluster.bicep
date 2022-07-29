@@ -85,6 +85,8 @@ var keyVaultName = 'kv-${clusterName}'
 var aksIngressDomainName = 'aks-ingress.${domainName}'
 var aksBackendDomainName = 'bu0001a0008-00.${aksIngressDomainName}'
 var isUsingAzureRBACasKubernetesRBAC = (subscription().tenantId == k8sControlPlaneAuthorizationTenantId)
+param appGatewayListenerCertificate string
+param aksIngressControllerCertificate string
 
 module rg '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
   name: resourceGroupName
@@ -99,16 +101,16 @@ resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
   name: defaultAcrName
 }
 
-module akvCertFrontend './cert.bicep' = {
-  name: 'CreateFeKvCert'
-  params: {
-    location: location
-    akvName: keyVault.name
-    certificateName: 'frontendCertificate'
-    certificateCommonName: 'bicycle.${domainName}'
-  }
-  scope: resourceGroup(resourceGroupName)
-}
+// module akvCertFrontend './cert.bicep' = {
+//   name: 'CreateFeKvCert'
+//   params: {
+//     location: location
+//     akvName: keyVault.name
+//     certificateName: 'frontendCertificate'
+//     certificateCommonName: 'bicycle.${domainName}'
+//   }
+//   scope: resourceGroup(resourceGroupName)
+// }
 
 module nodeRgRbac '../CARML/Microsoft.Resources/resourceGroups/.bicep/nested_rbac.bicep' = {
   name: '${nodeResourceGroupName}-rbac'
@@ -304,6 +306,32 @@ module aksIngressDomain '../CARML/Microsoft.Network/privateDnsZones/deploy.bicep
   ]
 }
 
+module frontendCert '../CARML/Microsoft.KeyVault/vaults/secrets/deploy.bicep' = {
+  name: 'frontendCert'
+  params: {
+    value: appGatewayListenerCertificate
+    keyVaultName: keyVaultName
+    name: 'frontendCert'
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+  ]
+}
+
+module backendCert '../CARML/Microsoft.KeyVault/vaults/secrets/deploy.bicep' = {
+  name: 'backendCert'
+  params: {
+    value: aksIngressControllerCertificate
+    keyVaultName: keyVaultName
+    name: 'backendCert'
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+  ]
+}
+
 module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
   name: agwName
   params: {
@@ -317,7 +345,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       {
         name: 'root-cert-wildcard-aks-ingress'
         properties: {
-          keyVaultSecretId: '${keyVault.outputs.uri}secrets/${akvCertFrontend.outputs.certificateName}'
+          keyVaultSecretId: '${keyVault.outputs.uri}secrets/${frontendCert.outputs.name}'
         }
       }
     ]
@@ -365,7 +393,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       {
         name: '${agwName}-ssl-certificate'
         properties: {
-          keyVaultSecretId: '${keyVault.outputs.uri}secrets/frontendCertificate'
+          keyVaultSecretId: '${keyVault.outputs.uri}secrets/${frontendCert.outputs.name}'
         }
       }
     ]
@@ -459,7 +487,8 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
     rg
-    akvCertFrontend
+    frontendCert
+    backendCert
   ]
 }
 
