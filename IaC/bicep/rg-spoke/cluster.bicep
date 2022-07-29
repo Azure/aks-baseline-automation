@@ -826,7 +826,7 @@ module kubernetesConfigurationFlux2 '../CARML/Microsoft.KubernetesConfiguration/
     }
     kustomizations: {
       unified: {
-        path: './cluster-manifests'
+        path: './shared-services/cluster-manifests'
         dependsOn: []
         timeoutInSeconds: 300
         syncIntervalInSeconds: 300
