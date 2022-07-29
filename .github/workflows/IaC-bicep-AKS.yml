@@ -116,6 +116,12 @@ jobs:
           echo AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE: $AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE
           echo '::set-output name=AKS_INGRESS_CONTROLLER_CERTIFICATE::AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE
 
+      - name: "test"
+        id: test
+        run: |
+          echo ${{steps.cert.outputs.APP_GATEWAY_LISTENER_CERTIFICATE}}
+          echo $DOMAIN_NAME
+
       - name: Azure Login
         uses: Azure/login@v1.4.3
         with:
