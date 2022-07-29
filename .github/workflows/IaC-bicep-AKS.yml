@@ -110,9 +110,11 @@ jobs:
           openssl pkcs12 -export -out appgw.pfx -in appgw.crt -inkey appgw.key -passout pass:
           export APP_GATEWAY_LISTENER_CERTIFICATE_AKS_BASELINE=$(cat appgw.pfx | base64 | tr -d '\n')
           echo APP_GATEWAY_LISTENER_CERTIFICATE_AKS_BASELINE: $APP_GATEWAY_LISTENER_CERTIFICATE_AKS_BASELINE
+          echo '::set-output name=APP_GATEWAY_LISTENER_CERTIFICATE_AKS_BASELINE::APP_GATEWAY_LISTENER_CERTIFICATE_AKS_BASELINE
           openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out traefik-ingress-internal-aks-ingress-tls.crt -keyout traefik-ingress-internal-aks-ingress-tls.key -subj "/CN=*.aks-ingress.${DOMAIN_NAME_AKS_BASELINE}/O=Contoso AKS Ingress"
           export AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE=$(cat traefik-ingress-internal-aks-ingress-tls.crt | base64 | tr -d '\n')
           echo AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE: $AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE
+          echo '::set-output name=AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE::AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE
 
       - name: Azure Login
         uses: Azure/login@v1.4.3
@@ -165,6 +167,6 @@ jobs:
           region: ${{ github.event.inputs.REGION }}
           scope: subscription
           template: ./IaC/bicep/rg-spoke/cluster.bicep
-          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json appGatewayListenerCertificate=${{steps.cert.APP_GATEWAY_LISTENER_CERTIFICATE_AKS_BASELINE}} aksIngressControllerCertificate=${{steps.cert.AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE}} targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }} vNetResourceGroup=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }}
+          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json appGatewayListenerCertificate=${{steps.cert.outputs.APP_GATEWAY_LISTENER_CERTIFICATE_AKS_BASELINE}} aksIngressControllerCertificate=${{steps.cert.outputs.AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE}} targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }} vNetResourceGroup=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }}
           failOnStdErr: false
           deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
