@@ -572,7 +572,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
       {
         name: 'npsystem'
         count: 3
-        vmSize: 'Standard_DS2_v2'
+        vmSize: 'Standard_DS3_v2'
         osDiskSizeGB: 80
         osDiskType: 'Ephemeral'
         osType: 'Linux'
@@ -751,7 +751,7 @@ module managedIdentityOperatorRole '../CARML/Microsoft.ContainerService/managedC
       cluster.outputs.kubeletidentityObjectId
     ]
     roleDefinitionIdOrName: 'Managed Identity Operator'
-    resourceId: cluster.outputs.resourceId
+    resourceId: podmi_ingress_controller.outputs.resourceId
   }
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
