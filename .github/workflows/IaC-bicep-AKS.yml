@@ -120,7 +120,7 @@ jobs:
         id: test
         run: |
           echo ${{steps.cert.outputs.APP_GATEWAY_LISTENER_CERTIFICATE}}
-          echo $DOMAIN_NAME
+          echo $DOMAIN_NAME_AKS_BASELINE
 
       - name: Azure Login
         uses: Azure/login@v1.4.3
