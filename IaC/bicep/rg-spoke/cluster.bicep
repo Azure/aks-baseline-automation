@@ -21,8 +21,8 @@ param k8sControlPlaneAuthorizationTenantId string = subscription().tenantId
 // @description('The certificate data for app gateway TLS termination. It is base64')
 // param appGatewayListenerCertificate string = loadTextContent('appgw.crt')
 
-// @description('The Base64 encoded AKS Ingress Controller public certificate (as .crt or .cer) to be stored in Azure Key Vault as secret and referenced by Azure Application Gateway as a trusted root certificate.')
-// param aksIngressControllerCertificate string = loadTextContent('traefik-ingress-internal-aks-ingress-tls.crt')
+@description('The Base64 encoded AKS Ingress Controller public certificate (as .crt or .cer) to be stored in Azure Key Vault as secret and referenced by Azure Application Gateway as a trusted root certificate.')
+param aksIngressControllerCertificate string = loadTextContent('traefik-ingress-internal-aks-ingress-tls.crt')
 
 @description('IP ranges authorized to contact the Kubernetes API server. Passing an empty array will result in no IP restrictions. If any are provided, remember to also provide the public IP of the egress Azure Firewall otherwise your nodes will not be able to talk to the API server (e.g. Flux).')
 param clusterAuthorizedIPRanges array = []
