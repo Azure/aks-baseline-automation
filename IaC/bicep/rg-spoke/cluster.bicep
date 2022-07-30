@@ -751,7 +751,9 @@ module managedIdentityOperatorRole '../CARML/Microsoft.ContainerService/managedC
       cluster.outputs.kubeletidentityObjectId
     ]
     roleDefinitionIdOrName: 'Managed Identity Operator'
-    resourceId: podmi_ingress_controller.outputs.resourceId
+// the following line didn't work
+//    resourceId: podmi_ingress_controller.outputs.resourceId
+    resourceId: cluster.outputs.resourceId
   }
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
