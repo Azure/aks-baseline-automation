@@ -21,10 +21,6 @@ on:
         description: 'The Name of the ACR resource'
         required: true
         type: string
-      AKVNAME:
-        description: 'The Name of the AKV resource'
-        required: true
-        type: string
       clusterAdminAadGroupObjectId:
         description: 'K8S Admin Azure AAD Group ObjectID'
         required: true
@@ -55,7 +51,11 @@ jobs:
       - name: "Parameter Check"
         run: |
           echo "Environment : ${{ github.event.inputs.ENVIRONMENT }}"
-          echo "Resource Group : ${{ github.event.inputs.ResourceGroup }}"
+          echo "vnet Resource Group : ${{ github.event.inputs.ResourceGroup }}"
+          echo "vnet resource ID : ${{ github.event.inputs.clusterVnetResourceId }}"
+          echo "ACR : ${{ github.event.inputs.ACRNAME }}"
+          echo "K8S Admin Azure AAD Group ObjectID : ${{ github.event.inputs.clusterAdminAadGroupObjectId }}"
+          echo "K8S Reader Azure AAD Group ObjectID : ${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }}"
 
       - name: Azure Login
         uses: Azure/login@v1.4.3
