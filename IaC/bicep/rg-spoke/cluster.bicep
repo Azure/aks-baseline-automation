@@ -758,7 +758,7 @@ module managedIdentityOperatorRole '../CARML/Microsoft.ContainerService/managedC
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
     rg
-    podmi_ingress_controller
+//    podmi_ingress_controller
   ]
 }
 
