@@ -79,7 +79,7 @@ jobs:
       - name: Pull identity information
         run: |
           echo "TRAEFIK_USER_ASSIGNED_IDENTITY_RESOURCE_ID=$(az identity show -n $MINAME -g $RG --query id -o tsv)" >> $GITHUB_ENV
-          echo "TRAEFIK_USER_ASSIGNED_IDENTITY_CLIENT_ID=$(az identity show -n $MINAME -g $RG --query principalId -o tsv)" >> $GITHUB_ENV
+          echo "TRAEFIK_USER_ASSIGNED_IDENTITY_CLIENT_ID=$(az identity show -n $MINAME -g $RG --query clientId -o tsv)" >> $GITHUB_ENV
           echo "TRAEFIK_USER_ASSIGNED_IDENTITY_RESOURCE_ID= ${{ env.TRAEFIK_USER_ASSIGNED_IDENTITY_RESOURCE_ID }}"
           echo "TRAEFIK_USER_ASSIGNED_IDENTITY_CLIENT_ID= ${{ env.TRAEFIK_USER_ASSIGNED_IDENTITY_CLIENT_ID }}"
 
