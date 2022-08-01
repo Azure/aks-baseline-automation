@@ -11,9 +11,14 @@ on:
         default: 'cset'
         type: string
       DOMAIN:
-        description: 'The domain name to use for the certs'
+        description: 'The domain name to use for the certs (ie: contoso.com)'
         required: true
         default: 'contoso.com'
+        type: string
+      CN:
+        description: 'The CN to be used along with the Domain (ie: bicycle will result in fqdn of bycicle.contoso.com)'
+        required: true
+        default: 'bicycle'
         type: string
       AKVNAME:
         description: 'The Name of the AKV resource'
@@ -41,6 +46,7 @@ jobs:
     environment: ${{ inputs.ENVIRONMENT }}
     env:
       DOMAIN: "${{ inputs.DOMAIN}}"
+      CN: "${{ inputs.CN }}"
       AKVNAME: "${{ inputs.AKVNAME}}"
 
     steps:
@@ -51,6 +57,7 @@ jobs:
       - name: Job parameter inspection
         run: |
           echo "DOMAIN is ${{ inputs.DOMAIN }}"
+          echo "CN is ${{ inputs.CN }}"
           echo "AKV name is ${{ inputs.AKVNAME }}"
 
       - name: Azure Login
@@ -60,20 +67,46 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Create Certs 
+      - name: Generate Certs
         run: |
-          openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out appgw.crt -keyout appgw.key -subj "/CN=bicycle.${{ inputs.DOMAIN }}/O=Contoso Bicycle" -addext "subjectAltName = DNS:bicycle.${{ inputs.DOMAIN }}" -addext "keyUsage = digitalSignature" -addext "extendedKeyUsage = serverAuth"
+          openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out appgw.crt -keyout appgw.key -subj "/CN=${{ inputs.CN }}.${{ inputs.DOMAIN }}/O=Default" -addext "subjectAltName = DNS:${{ inputs.CN }}.${{ inputs.DOMAIN }}" -addext "keyUsage = digitalSignature" -addext "extendedKeyUsage = serverAuth"
           openssl pkcs12 -export -out appgw.pfx -in appgw.crt -inkey appgw.key -passout pass:
           openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out traefik-ingress-internal-aks-ingress-tls.crt -keyout traefik-ingress-internal-aks-ingress-tls.key -subj "/CN=*.aks-ingress.${{ inputs.DOMAIN }}/O=Contoso AKS Ingress"
-          echo "AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE=$(cat traefik-ingress-internal-aks-ingress-tls.crt | base64 | tr -d '\n')" >> $GITHUB_ENV
-          echo "AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE: ${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE }}"
-          echo "TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT=$(az role assignment create --role a4417e6f-fecd-4de8-b567-7b0420556985 --assignee-principal-type user --assignee-object-id $(az ad signed-in-user show --query 'id' -o tsv) --scope $(az keyvault show --name  ${{ inputs.AKVNAME }} --query 'id' -o tsv) --query 'id' -o tsv)"  >> $GITHUB_ENV
-          echo "TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT: ${{ env.TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT }}"
-          CURRENT_IP_ADDRESS=$(curl -s -4 https://ifconfig.io)
-          echo CURRENT_IP_ADDRESS: $CURRENT_IP_ADDRESS
-          az keyvault network-rule add -n ${{ inputs.AKVNAME }} --ip-address ${CURRENT_IP_ADDRESS}
           cat traefik-ingress-internal-aks-ingress-tls.crt traefik-ingress-internal-aks-ingress-tls.key > traefik-ingress-internal-aks-ingress-tls.pem
+          
+
+      - name: List Certs
+        run: |
+          ls -al
+
+      - name: Pull Certs into Variables
+        run: |
+          echo "AKS_INGRESS_CONTROLLER_CERTIFICATE=$(cat traefik-ingress-internal-aks-ingress-tls.crt | base64 | tr -d '\n')" >> $GITHUB_ENV
+          echo "AKS_INGRESS_CONTROLLER_CERTIFICATE: ${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE }}" >> $GITHUB_ENV
+
+      - name: Create role assignment for upload
+        run: |
+          echo "AKS_RESOURCE_ID=$(az keyvault show --name  ${{ inputs.AKVNAME }} --query 'id' -o tsv)" >> $GITHUB_ENV
+          echo "ASSIGNEE_OBJ_ID=$(az ad signed-in-user show --query 'id' -o tsv)" >> $GITHUB_ENV
+          echo "TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT=$(az role assignment create --role a4417e6f-fecd-4de8-b567-7b0420556985 --assignee-principal-type user --assignee-object-id ${{ env.ASSIGNEE_OBJ_ID }} --scope ${{ env.AKS_RESOURCE_ID }} --query 'id' -o tsv)"  >> $GITHUB_ENV
+          echo "TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT: $TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT"
+
+      - name: Add Network Rule
+        run: |
+          echo "CURRENT_IP_ADDRESS=$(curl -s -4 https://ifconfig.io)" >> $GITHUB_ENV
+          echo "CURRENT_IP_ADDRESS: $CURRENT_IP_ADDRESS"
+          az keyvault network-rule add -n ${{ inputs.AKVNAME }} --ip-address ${CURRENT_IP_ADDRESS}
+
+      - name: Import Cert
+        run: |
           az keyvault certificate import -f traefik-ingress-internal-aks-ingress-tls.pem -n traefik-ingress-internal-aks-ingress-tls --vault-name ${{ inputs.AKVNAME }}
-          az keyvault network-rule remove -n ${{ inputs.AKVNAME }} --ip-address "${CURRENT_IP_ADDRESS}/32"
-          az role assignment delete --ids $TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT
+
+
+      - name: Remove Network Rule
+        run: |
+          az keyvault network-rule remove -n ${{ inputs.AKVNAME }} --ip-address "${{ env.CURRENT_IP_ADDRESS }}/32"
+
+      - name: Remove role assignment
+        run: |
+          az role assignment delete --ids ${{ env.TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT }}
 
