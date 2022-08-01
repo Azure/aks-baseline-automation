@@ -17,25 +17,35 @@ provider "azurerm" {
 
 data "azurerm_client_config" "default" {}
 
+# Get kubeconfig from AKS clusters
+data "azurerm_kubernetes_cluster" "kubeconfig" {
+  name                = var.aks_clusters[var.aks_cluster_key].name
+  resource_group_name = var.resource_groups[var.aks_clusters[var.aks_cluster_key].resource_group_key].name
+
+  depends_on = [
+    module.caf.aks_clusters
+  ]
+}
+
 provider "kubectl" {
-  host                   = try(module.caf.aks_clusters[var.aks_cluster_key].kubeconfig.kube_admin_config.0.host, null)
-  username               = try(module.caf.aks_clusters[var.aks_cluster_key].kubeconfig.kube_admin_config.0.username, null)
-  password               = try(module.caf.aks_clusters[var.aks_cluster_key].kubeconfig.kube_admin_config.0.password, null)
-  client_key             = try(base64decode(module.caf.aks_clusters[var.aks_cluster_key].kubeconfig.kube_admin_config.0.client_key), null)
-  client_certificate     = try(base64decode(module.caf.aks_clusters[var.aks_cluster_key].kubeconfig.kube_admin_config.0.client_certificate), null)
-  cluster_ca_certificate = try(base64decode(module.caf.aks_clusters[var.aks_cluster_key].kubeconfig.kube_admin_config.0.cluster_ca_certificate), null)
+  host                   = try(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.host, null)
+  username               = try(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.username, null)
+  password               = try(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.password, null)
+  client_key             = try(base64decode(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.client_key), null)
+  client_certificate     = try(base64decode(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.client_certificate), null)
+  cluster_ca_certificate = try(base64decode(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.cluster_ca_certificate), null)
   load_config_file       = false
 }
 
 provider "kubernetes" {
-  host                   = try(module.caf.aks_clusters[var.aks_cluster_key].kubeconfig.kube_admin_config.0.host, null)
-  username               = try(module.caf.aks_clusters[var.aks_cluster_key].kubeconfig.kube_admin_config.0.username, null)
-  password               = try(module.caf.aks_clusters[var.aks_cluster_key].kubeconfig.kube_admin_config.0.password, null)
-  client_key             = try(base64decode(module.caf.aks_clusters[var.aks_cluster_key].kubeconfig.kube_admin_config.0.client_key), null)
-  client_certificate     = try(base64decode(module.caf.aks_clusters[var.aks_cluster_key].kubeconfig.kube_admin_config.0.client_certificate), null)
-  cluster_ca_certificate = try(base64decode(module.caf.aks_clusters[var.aks_cluster_key].kubeconfig.kube_admin_config.0.cluster_ca_certificate), null)
+  host                   = try(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.host, null)
+  username               = try(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.username, null)
+  password               = try(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.password, null)
+  client_key             = try(base64decode(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.client_key), null)
+  client_certificate     = try(base64decode(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.client_certificate), null)
+  cluster_ca_certificate = try(base64decode(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.cluster_ca_certificate), null)
 }
 
 provider "kustomization" {
-  kubeconfig_raw = module.caf.aks_clusters[var.aks_cluster_key].kubeconfig.kube_admin_config_raw
+  kubeconfig_raw = data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config_raw
 }
