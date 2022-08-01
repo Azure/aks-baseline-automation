@@ -70,12 +70,14 @@ jobs:
 
       - name: Generate Certs
         run: |
+          ls -al
           openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out appgw.crt -keyout appgw.key -subj "/CN=${{ inputs.CN }}.${{ inputs.DOMAIN }}/O=Default" -addext "subjectAltName = DNS:${{ inputs.CN }}.${{ inputs.DOMAIN }}" -addext "keyUsage = digitalSignature" -addext "extendedKeyUsage = serverAuth"
           openssl pkcs12 -export -out appgw.pfx -in appgw.crt -inkey appgw.key -passout pass:
           openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out traefik-ingress-internal-aks-ingress-tls.crt -keyout traefik-ingress-internal-aks-ingress-tls.key -subj "/CN=*.aks-ingress.${{ inputs.DOMAIN }}/O=Contoso AKS Ingress"
           cat traefik-ingress-internal-aks-ingress-tls.crt traefik-ingress-internal-aks-ingress-tls.key > traefik-ingress-internal-aks-ingress-tls.pem
           AKS_INGRESS_CONTROLLER_CERTIFICATE=$(cat traefik-ingress-internal-aks-ingress-tls.crt | base64 | tr -d '\n')
-          echo "AKS_INGRESS_CONTROLLER_CERTIFICATE=\'$AKS_INGRESS_CONTROLLER_CERTIFICATE\'" >> $GITHUB_ENV
+          echo "AKS_INGRESS_CONTROLLER_CERTIFICATE=$AKS_INGRESS_CONTROLLER_CERTIFICATE" >> $GITHUB_ENV
+          echo "AKS_INGRESS_CONTROLLER_CERTIFICATE=$AKS_INGRESS_CONTROLLER_CERTIFICATE"
 
       - name: List Certs
         run: |
@@ -84,13 +86,11 @@ jobs:
       - name: Create role assignment for upload
         run: |
           AKV_RESOURCE_ID=$(az keyvault show --name  ${{ inputs.AKVNAME }} --query 'id' -o tsv)
-          echo "AKV_RESOURCE_ID=\'$AKV_RESOURCE_ID\'" >> $GITHUB_ENV
+          echo "AKV_RESOURCE_ID=$AKV_RESOURCE_ID" >> $GITHUB_ENV
           ASSIGNEE_OBJ_ID=$(az ad signed-in-user show --query 'id' -o tsv)
-          echo "ASSIGNEE_OBJ_ID=\'$ASSIGNEE_OBJ_ID\'" >> $GITHUB_ENV
-          TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT=$(az role assignment create --role a4417e6f-fecd-4de8-b567-7b0420556985 --assignee-principal-type user --assignee-object-id ${{ env.ASSIGNEE_OBJ_ID }} --scope \'${{ env.AKV_RESOURCE_ID }}\' | jq '.id' )" >> $GITHUB_ENV
+          echo "ASSIGNEE_OBJ_ID=$ASSIGNEE_OBJ_ID" >> $GITHUB_ENV
           echo "AKS_RESOURCE_ID: $AKS_RESOURCE_ID"
           echo "ASSIGNEE_OBJ_ID: $ASSIGNEE_OBJ_ID"
-          echo "TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT: $TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT"
 
       - name: Add Network Rule
         run: |
@@ -106,8 +106,4 @@ jobs:
       - name: Remove Network Rule
         run: |
           az keyvault network-rule remove -n ${{ inputs.AKVNAME }} --ip-address "${{ env.CURRENT_IP_ADDRESS }}/32"
-
-      - name: Remove role assignment
-        run: |
-          az role assignment delete --ids ${{ env.TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT }}
 
