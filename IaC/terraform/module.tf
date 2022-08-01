@@ -1,6 +1,7 @@
 module "caf" {
-  source  = "aztfmod/caf/azurerm"
-  version = "~> 5.6.0"
+  #source  = "aztfmod/caf/azurerm"
+  #version = "~> 5.6.1"
+  source = "github.com/joselcaguilar/terraform-azurerm-caf?ref=5.6.1"
   # source = "./public"
 
   providers = {
