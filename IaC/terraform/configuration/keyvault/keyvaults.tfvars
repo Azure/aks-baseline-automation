@@ -19,7 +19,7 @@ keyvaults = {
         }
         subnetspoke = {
           vnet_key   = "vnet_aks_re1"
-          subnet_key = "snet-clusternodes"
+          subnet_key = "aks_nodepool_system"
         }
       }
     }
