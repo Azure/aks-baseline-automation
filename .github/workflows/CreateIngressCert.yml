@@ -73,16 +73,12 @@ jobs:
           openssl pkcs12 -export -out appgw.pfx -in appgw.crt -inkey appgw.key -passout pass:
           openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out traefik-ingress-internal-aks-ingress-tls.crt -keyout traefik-ingress-internal-aks-ingress-tls.key -subj "/CN=*.aks-ingress.${{ inputs.DOMAIN }}/O=Contoso AKS Ingress"
           cat traefik-ingress-internal-aks-ingress-tls.crt traefik-ingress-internal-aks-ingress-tls.key > traefik-ingress-internal-aks-ingress-tls.pem
-          
+          AKS_INGRESS_CONTROLLER_CERTIFICATE=$(cat traefik-ingress-internal-aks-ingress-tls.crt | base64 | tr -d '\n')
+          echo "AKS_INGRESS_CONTROLLER_CERTIFICATE=$AKS_INGRESS_CONTROLLER_CERTIFICATE" >> $GITHUB_ENV
 
       - name: List Certs
         run: |
           ls -al
-
-      - name: Pull Certs into Variables
-        run: |
-          echo "AKS_INGRESS_CONTROLLER_CERTIFICATE=$(cat traefik-ingress-internal-aks-ingress-tls.crt | base64 | tr -d '\n')" >> $GITHUB_ENV
-          echo "AKS_INGRESS_CONTROLLER_CERTIFICATE: ${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE }}" >> $GITHUB_ENV
 
       - name: Create role assignment for upload
         run: |
