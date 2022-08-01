@@ -48,7 +48,7 @@ role_mapping = {
     resource_groups = {
       aks_re1 = {
         "Monitoring Metrics Publisher" = {
-          managed_identities = {
+          aks_clusters = {
             keys = ["cluster_re1"]
           }
         }
