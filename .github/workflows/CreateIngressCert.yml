@@ -78,15 +78,20 @@ jobs:
           echo "AKS_INGRESS_CONTROLLER_CERTIFICATE=$AKS_INGRESS_CONTROLLER_CERTIFICATE" >> $GITHUB_ENV
           echo "AKS_INGRESS_CONTROLLER_CERTIFICATE=$AKS_INGRESS_CONTROLLER_CERTIFICATE"
 
-      - name: List Certs
+      - name: Create role assignment for upload
         run: |
-          ls -al
-          az ad sp show --id ${{ secrets.AZURE_CLIENT_ID }}
+          ASSIGNEE_OBJ_ID=$(az ad sp show --id ${{ secrets.AZURE_CLIENT_ID }} --query id -o tsv)
+          echo "ASSIGNEE_OBJ_ID: $ASSIGNEE_OBJ_ID" >> $GITHUB_ENV
+          AKV_RESOURCE_ID=$(az keyvault show -n ${{ inputs.AKVNAME }} --query id -o tsv)
+          echo "AKV_RESOURCE_ID: $AKV_RESOURCE_ID" >> $GITHUB_ENV
+          TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT=$(az role assignment create --role a4417e6f-fecd-4de8-b567-7b0420556985 --assignee-principal-type serviceprincipal --assignee-object-id ${{ env.ASSIGNEE_OBJ_ID }} --scope \'${{ env.AKV_RESOURCE_ID }}\' | jq '.id' )
+          echo "TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT=$TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT" >> $GITHUB_ENV
+          # put a sleep step
 
       - name: Add Network Rule
         run: |
-          echo "CURRENT_IP_ADDRESS=$(curl -s -4 https://ifconfig.io)" >> $GITHUB_ENV
-          echo "CURRENT_IP_ADDRESS: $CURRENT_IP_ADDRESS"
+          CURRENT_IP_ADDRESS=$(curl -s -4 https://ifconfig.io)
+          echo "CURRENT_IP_ADDRESS: $CURRENT_IP_ADDRESS" >> $GITHUB_ENV
           az keyvault network-rule add -n ${{ inputs.AKVNAME }} --ip-address ${CURRENT_IP_ADDRESS}
 
       - name: Import Cert
@@ -97,4 +102,8 @@ jobs:
       - name: Remove Network Rule
         run: |
           az keyvault network-rule remove -n ${{ inputs.AKVNAME }} --ip-address "${{ env.CURRENT_IP_ADDRESS }}/32"
+
+      - name: Remove role assignment
+        run: |
+          az role assignment delete --ids ${{ env.TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT }}
 
