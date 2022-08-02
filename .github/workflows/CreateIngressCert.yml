@@ -106,4 +106,4 @@ jobs:
       - name: Remove role assignment
         run: |
           az role assignment delete --ids ${{ env.TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT }}
-
+          
