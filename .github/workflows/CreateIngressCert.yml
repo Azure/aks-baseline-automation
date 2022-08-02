@@ -84,7 +84,7 @@ jobs:
           echo "ASSIGNEE_OBJ_ID: $ASSIGNEE_OBJ_ID" >> $GITHUB_ENV
           AKV_RESOURCE_ID=$(az keyvault show -n ${{ inputs.AKVNAME }} --query id -o tsv)
           echo "AKV_RESOURCE_ID: $AKV_RESOURCE_ID" >> $GITHUB_ENV
-          TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT=$(az role assignment create --role a4417e6f-fecd-4de8-b567-7b0420556985 --assignee-principal-type serviceprincipal --assignee-object-id ${{ env.ASSIGNEE_OBJ_ID }} --scope \'${{ env.AKV_RESOURCE_ID }}\' | jq '.id' )
+          TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT=$(az role assignment create --role a4417e6f-fecd-4de8-b567-7b0420556985 --assignee-principal-type serviceprincipal --assignee-object-id $ASSIGNEE_OBJ_ID --scope $AKV_RESOURCE_ID | jq '.id' )
           echo "TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT=$TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT" >> $GITHUB_ENV
           # put a sleep step
 
