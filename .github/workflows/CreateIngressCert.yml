@@ -91,7 +91,7 @@ jobs:
       - name: Add Network Rule
         run: |
           CURRENT_IP_ADDRESS=$(curl -s -4 https://ifconfig.io)
-          echo "CURRENT_IP_ADDRESS: $CURRENT_IP_ADDRESS" >> $GITHUB_ENV
+          echo "CURRENT_IP_ADDRESS=$CURRENT_IP_ADDRESS" >> $GITHUB_ENV
           az keyvault network-rule add -n ${{ inputs.AKVNAME }} --ip-address ${CURRENT_IP_ADDRESS}
 
       - name: Import Cert
