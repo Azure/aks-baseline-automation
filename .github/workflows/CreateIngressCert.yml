@@ -81,6 +81,7 @@ jobs:
       - name: List Certs
         run: |
           ls -al
+          az ad sp show --id ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Add Network Rule
         run: |
