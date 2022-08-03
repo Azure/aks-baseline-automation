@@ -11,16 +11,6 @@ resource "null_resource" "akvNetworkDenied" {
     when        = create
     interpreter = ["pwsh", "-NoLogo", "-NoProfile", "-NonInteractive", "-command"]
     command     = <<-EOC
-      $stopwatch =  [system.diagnostics.stopwatch]::StartNew()
-      $result = $false
-      do{
-        $crtList = (az keyvault certificate list --vault-name ${self.triggers.keyVaultName}) | ConvertFrom-Json
-        if($crtList.Count -eq 2){
-          $result = $true
-          break
-        }
-        Start-Sleep(3)
-      } until ($result -or $stopwatch.Elapsed.TotalSeconds -ge 180)
       az keyvault update -n ${self.triggers.keyVaultName} --default-action Deny
     EOC
   }
@@ -33,7 +23,7 @@ resource "null_resource" "akvNetworkDenied" {
     EOC
   }
 
-  depends_on = [module.caf.security]
+  depends_on = [module.caf.keyvault_certificate_requests]
 }
 
 
