@@ -17,10 +17,14 @@ provider "azurerm" {
 
 data "azurerm_client_config" "default" {}
 
+locals {
+  resourceGroupKey = var.aks_clusters[var.aks_cluster_key].resource_group_key
+}
+
 # Get kubeconfig from AKS clusters
 data "azurerm_kubernetes_cluster" "kubeconfig" {
   name                = var.aks_clusters[var.aks_cluster_key].name
-  resource_group_name = var.resource_groups[var.aks_cluster_key].name
+  resource_group_name = var.resource_groups[local.resourceGroupKey].name
 
   depends_on = [
     module.caf.aks_clusters
