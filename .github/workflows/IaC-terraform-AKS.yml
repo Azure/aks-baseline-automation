@@ -59,7 +59,8 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az storage account create -n ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }} -g MyResourceGroup -l ${{ github.event.inputs.REGION }} --sku Standard_LRS --https-only $true --min-tls-version TLS1_2
+            az group create -l ${{ github.event.inputs.REGION }} -n ${{ env.TF_BACKEND_RSG }}
+            az storage account create -n ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }} -g ${{ env.TF_BACKEND_RSG }} -l ${{ github.event.inputs.REGION }} --sku Standard_LRS --https-only $true --min-tls-version TLS1_2
             az storage container create -n tfstate --account-name ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }}
 
       - uses: hashicorp/setup-terraform@v1
@@ -78,7 +79,7 @@ jobs:
           
           if [[ ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }} -ne "" ]]
           then
-            terraform init -upgrade -backend-config=storage_account_name=${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }} -backend-config=container_name=tfstate -backend-config=key=aks-baseline.tfstate -backend-config=resource_group_name=${{ env.TF_BACKEND_RSG}}
+            terraform init -upgrade -backend-config=storage_account_name=${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }} -backend-config=container_name=tfstate -backend-config=key=aks-baseline.tfstate -backend-config=resource_group_name=${{ env.TF_BACKEND_RSG }}
           else
             terraform init -upgrade
           fi
