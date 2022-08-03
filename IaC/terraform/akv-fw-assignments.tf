@@ -24,7 +24,7 @@ resource "null_resource" "akvNetworkDenied" {
     EOC
   }
 
-  depends_on = [module.caf.security.keyvault_certificate_requests]
+  depends_on = [module.caf.security]
 }
 
 
