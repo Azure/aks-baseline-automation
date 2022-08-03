@@ -11,16 +11,6 @@ role_mapping = {
           managed_identities = {
             keys = ["ingress", "apgw_keyvault_secrets"]
           }
-        }
-        "Key Vault Certificates Officer" = {
-          logged_in = {
-            keys = ["user"]
-          }
-        }
-        "Key Vault Secrets Officer" = {
-          logged_in = {
-            keys = ["user"]
-          }
         } // "Contributor"
       }   // logged_in_subscription
     }     // subscriptions
