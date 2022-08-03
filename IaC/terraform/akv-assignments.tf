@@ -1,36 +1,3 @@
-# Denying access to AKV from the internet
-# resource "null_resource" "akvNetworkDenied" {
-#   for_each = module.caf.keyvaults
-
-#   triggers = {
-#     timestamp    = timestamp()
-#     keyVaultName = module.caf.keyvaults[each.key].name
-#   }
-
-#   provisioner "local-exec" {
-#     when        = create
-#     interpreter = ["pwsh", "-NoLogo", "-NoProfile", "-NonInteractive", "-command"]
-#     command     = <<-EOC
-#       az keyvault update -n ${self.triggers.keyVaultName} --default-action Deny
-#     EOC
-#   }
-
-#   provisioner "local-exec" {
-#     when        = destroy
-#     interpreter = ["pwsh", "-NoLogo", "-NoProfile", "-NonInteractive", "-command"]
-#     command     = <<-EOC
-#       az keyvault update -n ${self.triggers.keyVaultName} --default-action Allow
-#     EOC
-#   }
-
-#   depends_on = [module.caf.keyvault_certificate_requests]
-# }
-
-# Remove this data block when CICD runner is connected to any subnet
-data "http" "myip" {
-  url = "http://ipv4.icanhazip.com"
-}
-
 # User identities role assignments
 resource "azurerm_role_assignment" "user_key_vault_certificates_officer" {
   for_each = module.caf.keyvaults
