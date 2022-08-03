@@ -11,7 +11,7 @@ keyvaults = {
 
     network = {
       bypass         = "AzureServices"
-      default_action = "Deny"
+      default_action = "Allow"
       subnets = {
         subnethub = {
           vnet_key   = "vnet_hub_re1"
