@@ -45,14 +45,14 @@ application_gateway_applications = {
 
     probes = {
       probe_1 = {
-        name                         = "probe-fqdn-backend-aks"
-        protocol                     = "Http"
-        path                         = "/favicon.ico"
-        interval                     = 30
-        timeout                      = 30
-        unhealthy_threshold          = 3
-        min_servers                  = 0
-        host_name_from_http_settings = true
+        name                                      = "probe-fqdn-backend-aks"
+        protocol                                  = "Http"
+        path                                      = "/favicon.ico"
+        interval                                  = 30
+        timeout                                   = 30
+        unhealthy_threshold                       = 3
+        min_servers                               = 0
+        pick_host_name_from_backend_http_settings = true
       }
     }
 
