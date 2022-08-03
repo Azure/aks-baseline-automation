@@ -11,8 +11,7 @@ keyvaults = {
 
     network = {
       bypass         = "AzureServices"
-      default_action = "Deny"
-      ip_rules       = ["${chomp(data.http.myip.body)}/32"] # Remove this line when CICD runner is connected to any subnet
+      default_action = "Allow" # Set the default_action to "Deny" when CICD self-hosted runner is connected to any subnet
       subnets = {
         subnethub = {
           vnet_key   = "vnet_hub_re1"
