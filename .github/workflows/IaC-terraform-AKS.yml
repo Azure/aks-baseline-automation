@@ -79,7 +79,7 @@ jobs:
           
           if [[ ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }} -ne "" ]]
           then
-            terraform init -upgrade -backend-config=storage_account_name=${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }} -backend-config=container_name=tfstate -backend-config=key=aks-baseline.tfstate -backend-config=resource_group_name=${{ env.TF_BACKEND_RSG }}
+            terraform init -upgrade -backend-config=storage_account_name="${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }}" -backend-config=container_name="tfstate" -backend-config=key="aks-baseline.tfstate" -backend-config=resource_group_name="${{ env.TF_BACKEND_RSG }}"
           else
             terraform init -upgrade
           fi
