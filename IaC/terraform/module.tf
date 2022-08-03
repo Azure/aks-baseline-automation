@@ -1,7 +1,7 @@
 module "caf" {
   #source  = "aztfmod/caf/azurerm"
   #version = "~> 5.6.1"
-  source = "github.com/aztfmod/terraform-azurerm-caf" # Referenced to main branch in the repo until issue #1280 is resolved on 5.6.1
+  source = "git::https://github.com/joselcaguilar/terraform-azurerm-caf?ref=bug/agw-private-subnet-cidr-optional" # Referenced to main branch in the repo until issue #1280 is resolved on 5.6.1
   # source = "./public"
 
   providers = {
