@@ -3,14 +3,15 @@ resource "null_resource" "akvNetworkDenied" {
   count = length(module.caf.keyvaults)
 
   triggers = {
-    timestamp = timestamp()
+    timestamp    = timestamp()
+    keyVaultName = module.caf.keyvaults[count.index].name
   }
 
   provisioner "local-exec" {
     when        = create
     interpreter = ["pwsh", "-NoLogo", "-NoProfile", "-NonInteractive", "-command"]
     command     = <<-EOC
-      az keyvault update -n ${module.caf.keyvaults[count.index].name} --default-action Deny
+      az keyvault update -n ${self.triggers.keyVaultName} --default-action Deny
     EOC
   }
 
@@ -18,7 +19,7 @@ resource "null_resource" "akvNetworkDenied" {
     when        = destroy
     interpreter = ["pwsh", "-NoLogo", "-NoProfile", "-NonInteractive", "-command"]
     command     = <<-EOC
-      az keyvault update -n ${module.caf.keyvaults[count.index].name} --default-action Allow
+      az keyvault update -n ${self.triggers.keyVaultName} --default-action Allow
       Start-sleep(10)
     EOC
   }
