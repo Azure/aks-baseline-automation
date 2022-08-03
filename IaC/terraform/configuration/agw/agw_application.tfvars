@@ -35,12 +35,12 @@ application_gateway_applications = {
     }
 
     backend_http_setting = {
-      port                        = 80
-      protocol                    = "Http"
-      host_name_from_backend_pool = true
-      timeout                     = 20
-      cookie_based_affinity       = "Disabled"
-      probe_key                   = "probe_1"
+      port                                = 80
+      protocol                            = "Http"
+      pick_host_name_from_backend_address = true
+      timeout                             = 20
+      cookie_based_affinity               = "Disabled"
+      probe_key                           = "probe_1"
     }
 
     probes = {
