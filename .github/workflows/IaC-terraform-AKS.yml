@@ -77,9 +77,8 @@ jobs:
           git clone https://github.com/Azure/caf-terraform-landingzones.git landingzone
           parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
           
-          if [[ ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }} -ne "" ]]
+          if [[ ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }} == "" ]]
           then
-            echo "debug-flag"
             terraform init -upgrade -backend-config=storage_account_name="${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }}" -backend-config=container_name="tfstate" -backend-config=key="aks-baseline.tfstate" -backend-config=resource_group_name="${{ env.TF_BACKEND_RSG }}"
           else
             terraform init -upgrade
