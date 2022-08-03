@@ -1,3 +1,32 @@
+# Denying access to AKV from the internet
+resource "null_resource" "akvNetworkDenied" {
+  for_each = module.caf.keyvaults
+
+  triggers = {
+    timestamp = timestamp()
+  }
+
+  provisioner "local-exec" {
+    when        = create
+    interpreter = ["pwsh", "-NoLogo", "-NoProfile", "-NonInteractive", "-command"]
+    command     = <<-EOC
+      az keyvault update -n ${each.value.name)} --default-action Deny
+    EOC
+  }
+
+  provisioner "local-exec" {
+    when        = destroy
+    interpreter = ["pwsh", "-NoLogo", "-NoProfile", "-NonInteractive", "-command"]
+    command     = <<-EOC
+      az keyvault update -n ${each.value.name)} --default-action Allow
+      Start-sleep(10)
+    EOC
+  }
+
+  depends_on = [module.caf.security.keyvault_certificate_requests]
+}
+
+
 # User identities role assignments
 resource "azurerm_role_assignment" "user_key_vault_certificates_officer" {
   for_each = module.caf.keyvaults
