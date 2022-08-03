@@ -10,7 +10,7 @@ resource "null_resource" "akvNetworkDenied" {
     when        = create
     interpreter = ["pwsh", "-NoLogo", "-NoProfile", "-NonInteractive", "-command"]
     command     = <<-EOC
-      az keyvault update -n ${each.value.name)} --default-action Deny
+      az keyvault update -n ${each.value.name} --default-action Deny
     EOC
   }
 
@@ -18,7 +18,7 @@ resource "null_resource" "akvNetworkDenied" {
     when        = destroy
     interpreter = ["pwsh", "-NoLogo", "-NoProfile", "-NonInteractive", "-command"]
     command     = <<-EOC
-      az keyvault update -n ${each.value.name)} --default-action Allow
+      az keyvault update -n ${each.value.name} --default-action Allow
       Start-sleep(10)
     EOC
   }
