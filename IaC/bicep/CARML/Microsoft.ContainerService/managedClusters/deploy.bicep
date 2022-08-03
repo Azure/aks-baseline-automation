@@ -21,7 +21,7 @@ param userAssignedIdentities object = {}
 ])
 param aksClusterNetworkPlugin string = ''
 
-@description('Optional. Specifies the network policy used for building Kubernetes network. - calico or azure')
+@description('Optional. Specifies the network policy used for building Kubernetes network. - calico or azure.')
 @allowed([
   ''
   'azure'
@@ -58,7 +58,7 @@ param managedOutboundIPCount int = 0
 ])
 param aksClusterOutboundType string = 'loadBalancer'
 
-@description('Optional. Tier of a managed cluster SKU. - Free or Paid')
+@description('Optional. Tier of a managed cluster SKU. - Free or Paid.')
 @allowed([
   'Free'
   'Paid'
@@ -122,16 +122,22 @@ param usePrivateDNSZone bool = false
 @description('Required. Properties of the primary agent pool.')
 param primaryAgentPoolProfile array
 
-@description('Optional. Define one or more secondary/additional agent pools')
+@description('Optional. Define one or more secondary/additional agent pools.')
 param agentPools array = []
 
 @description('Optional. Specifies whether the httpApplicationRouting add-on is enabled or not.')
 param httpApplicationRoutingEnabled bool = false
 
+@description('Optional. Specifies whether the ingressApplicationGateway (AGIC) add-on is enabled or not.')
+param ingressApplicationGatewayEnabled bool = false
+
+@description('Conditional. Specifies the resource ID of connected application gateway. Required if `ingressApplicationGatewayEnabled` is set to `true`.')
+param appGatewayResourceId string = ''
+
 @description('Optional. Specifies whether the aciConnectorLinux add-on is enabled or not.')
 param aciConnectorLinuxEnabled bool = false
 
-@description('Optional. Specifies whether the azurepolicy add-on is enabled or not.')
+@description('Optional. Specifies whether the azurepolicy add-on is enabled or not. For security reasons, this setting should be enabled.')
 param azurePolicyEnabled bool = true
 
 @description('Optional. Specifies the azure policy version to use.')
@@ -202,7 +208,7 @@ param autoScalerProfileMaxTotalUnreadyPercentage string = '45'
 @description('Optional. For scenarios like burst/batch scale where you do not want CA to act before the kubernetes scheduler could schedule all the pods, you can tell CA to ignore unscheduled pods before they are a certain age. Values must be an integer followed by a unit ("s" for seconds, "m" for minutes, "h" for hours, etc).')
 param autoScalerProfileNewPodScaleUpDelay string = '0s'
 
-@description('Optional. Specifies the ok total unready count for the auto-scaler of the AKS cluster.')
+@description('Optional. Specifies the OK total unready count for the auto-scaler of the AKS cluster.')
 param autoScalerProfileOkTotalUnreadyCount string = '3'
 
 @allowed([
@@ -266,46 +272,41 @@ param diagnosticLogsRetentionInDays int = 365
 @description('Optional. Enable telemetry via the Customer Usage Attribution ID (GUID).')
 param enableDefaultTelemetry bool = true
 
-@description('Optional. Array of role assignment objects that contain the \'roleDefinitionIdOrName\' and \'principalId\' to define RBAC role assignments on this resource. In the roleDefinitionIdOrName attribute, you can provide either the display name of the role definition, or its fully qualified ID in the following format: \'/providers/Microsoft.Authorization/roleDefinitions/c2f4ef07-c644-48eb-af81-4b1b4947fb11\'')
+@description('Optional. Array of role assignment objects that contain the \'roleDefinitionIdOrName\' and \'principalId\' to define RBAC role assignments on this resource. In the roleDefinitionIdOrName attribute, you can provide either the display name of the role definition, or its fully qualified ID in the following format: \'/providers/Microsoft.Authorization/roleDefinitions/c2f4ef07-c644-48eb-af81-4b1b4947fb11\'.')
 param roleAssignments array = []
 
 @allowed([
+  ''
   'CanNotDelete'
-  'NotSpecified'
   'ReadOnly'
 ])
 @description('Optional. Specify the type of lock.')
-param lock string = 'NotSpecified'
+param lock string = ''
 
 @description('Optional. Tags of the resource.')
 param tags object = {}
+
+@description('Optional. The resource ID of the disc encryption set to apply to the clsuter. For security reasons, this value should be provided.')
+param diskEncryptionSetID string = ''
 
 @description('Optional. The name of logs that will be streamed.')
 @allowed([
   'kube-apiserver'
   'kube-audit'
-  'kube-audit-admin'
   'kube-controller-manager'
   'kube-scheduler'
   'cluster-autoscaler'
-  'cloud-controller-manager'
+  'kube-audit-admin'
   'guard'
-  'csi-azuredisk-controller'
-  'csi-azurefile-controller'
-  'csi-snapshot-controller'
 ])
 param diagnosticLogCategoriesToEnable array = [
   'kube-apiserver'
   'kube-audit'
-  'kube-audit-admin'
   'kube-controller-manager'
   'kube-scheduler'
   'cluster-autoscaler'
-  'cloud-controller-manager'
+  'kube-audit-admin'
   'guard'
-  'csi-azuredisk-controller'
-  'csi-azurefile-controller'
-  'csi-snapshot-controller'
 ]
 
 @description('Optional. The name of metrics that will be streamed.')
@@ -340,10 +341,10 @@ var diagnosticsMetrics = [for metric in diagnosticMetricsToEnable: {
 
 var identityType = systemAssignedIdentity ? 'SystemAssigned' : (!empty(userAssignedIdentities) ? 'UserAssigned' : 'None')
 
-var identity = identityType != 'None' ? {
+var identity = {
   type: identityType
   userAssignedIdentities: !empty(userAssignedIdentities) ? userAssignedIdentities : null
-} : null
+}
 
 var aksClusterLinuxProfile = {
   adminUsername: aksClusterAdminUsername
@@ -363,6 +364,8 @@ var lbProfile = {
   effectiveOutboundIPs: []
 }
 
+var enableReferencedModulesTelemetry = false
+
 resource defaultTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (enableDefaultTelemetry) {
   name: 'pid-47ed15a6-730a-4827-bcb4-0fd963ffbd82-${uniqueString(deployment().name, location)}'
   properties: {
@@ -375,16 +378,17 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (ena
   }
 }
 
-resource managedCluster 'Microsoft.ContainerService/managedClusters@2022-01-01' = {
+resource managedCluster 'Microsoft.ContainerService/managedClusters@2022-03-02-preview' = {
   name: name
   location: location
-  tags: (empty(tags) ? null : tags)
+  tags: tags
   identity: identity
   sku: {
     name: 'Basic'
     tier: aksClusterSkuTier
   }
   properties: {
+    diskEncryptionSetID: !empty(diskEncryptionSetID) ? diskEncryptionSetID : null
     kubernetesVersion: (empty(aksClusterKubernetesVersion) ? null : aksClusterKubernetesVersion)
     dnsPrefix: aksClusterDnsPrefix
     agentPoolProfiles: primaryAgentPoolProfile
@@ -393,6 +397,13 @@ resource managedCluster 'Microsoft.ContainerService/managedClusters@2022-01-01' 
     addonProfiles: {
       httpApplicationRouting: {
         enabled: httpApplicationRoutingEnabled
+      }
+      ingressApplicationGateway: {
+        enabled: ingressApplicationGatewayEnabled && !empty(appGatewayResourceId)
+        config: {
+          applicationGatewayId: !empty(appGatewayResourceId) ? any(appGatewayResourceId) : null
+          effectiveApplicationGatewayId: !empty(appGatewayResourceId) ? any(appGatewayResourceId) : null
+        }
       }
       omsagent: {
         enabled: omsAgentEnabled && !empty(monitoringWorkspaceId)
@@ -526,14 +537,15 @@ module managedCluster_agentPools 'agentPools/deploy.bicep' = [for (agentPool, in
     vmSize: contains(agentPool, 'vmSize') ? agentPool.vmSize : 'Standard_D2s_v3'
     vnetSubnetId: contains(agentPool, 'vnetSubnetId') ? agentPool.vnetSubnetId : ''
     workloadRuntime: contains(agentPool, 'workloadRuntime') ? agentPool.workloadRuntime : ''
+    enableDefaultTelemetry: enableReferencedModulesTelemetry
   }
 }]
 
-resource managedCluster_lock 'Microsoft.Authorization/locks@2017-04-01' = if (lock != 'NotSpecified') {
+resource managedCluster_lock 'Microsoft.Authorization/locks@2017-04-01' = if (!empty(lock)) {
   name: '${managedCluster.name}-${lock}-lock'
   properties: {
-    level: lock
-    notes: (lock == 'CanNotDelete') ? 'Cannot delete resource or child resources.' : 'Cannot modify the resource or child resources.'
+    level: any(lock)
+    notes: lock == 'CanNotDelete' ? 'Cannot delete resource or child resources.' : 'Cannot modify the resource or child resources.'
   }
   scope: managedCluster
 }
@@ -551,7 +563,7 @@ resource managedCluster_diagnosticSettings 'Microsoft.Insights/diagnosticsetting
   scope: managedCluster
 }
 
-module managedCluster_rbac '.bicep/nested_rbac.bicep' = [for (roleAssignment, index) in roleAssignments: {
+module managedCluster_roleAssignments '.bicep/nested_roleAssignments.bicep' = [for (roleAssignment, index) in roleAssignments: {
   name: '${uniqueString(deployment().name, location)}-ManagedCluster-Rbac-${index}'
   params: {
     description: contains(roleAssignment, 'description') ? roleAssignment.description : ''
@@ -562,16 +574,16 @@ module managedCluster_rbac '.bicep/nested_rbac.bicep' = [for (roleAssignment, in
   }
 }]
 
-@description('The resource ID of the managed cluster')
+@description('The resource ID of the managed cluster.')
 output resourceId string = managedCluster.id
 
-@description('The resource group the managed cluster was deployed into')
+@description('The resource group the managed cluster was deployed into.')
 output resourceGroupName string = resourceGroup().name
 
-@description('The name of the managed cluster')
+@description('The name of the managed cluster.')
 output name string = managedCluster.name
 
-@description('The control plane FQDN of the managed cluster')
+@description('The control plane FQDN of the managed cluster.')
 output controlPlaneFQDN string = enablePrivateCluster ? managedCluster.properties.privateFQDN : managedCluster.properties.fqdn
 
 @description('The principal ID of the system assigned identity.')
@@ -582,3 +594,6 @@ output kubeletidentityObjectId string = contains(managedCluster.properties, 'ide
 
 @description('The Object ID of the OMS agent identity.')
 output omsagentIdentityObjectId string = contains(managedCluster.properties, 'addonProfiles') ? contains(managedCluster.properties.addonProfiles, 'omsagent') ? contains(managedCluster.properties.addonProfiles.omsagent, 'identity') ? managedCluster.properties.addonProfiles.omsagent.identity.objectId : '' : '' : ''
+
+@description('The location the resource was deployed into.')
+output location string = managedCluster.location

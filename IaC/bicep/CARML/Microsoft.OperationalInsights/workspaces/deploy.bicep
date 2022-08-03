@@ -1,10 +1,10 @@
-@description('Required. Name of the Log Analytics workspace')
+@description('Required. Name of the Log Analytics workspace.')
 param name string
 
 @description('Optional. Location for all resources.')
 param location string = resourceGroup().location
 
-@description('Optional. Service Tier: PerGB2018, Free, Standalone, PerGB or PerNode')
+@description('Optional. Service Tier: PerGB2018, Free, Standalone, PerGB or PerNode.')
 @allowed([
   'Free'
   'Standalone'
@@ -19,16 +19,19 @@ param storageInsightsConfigs array = []
 @description('Optional. List of services to be linked.')
 param linkedServices array = []
 
+@description('Conditional. List of Storage Accounts to be linked. Required if \'forceCmkForQuery\' is set to \'true\' and \'savedSearches\' is not empty.')
+param linkedStorageAccounts array = []
+
 @description('Optional. Kusto Query Language searches to save.')
 param savedSearches array = []
 
 @description('Optional. LAW data sources to configure.')
 param dataSources array = []
 
-@description('Optional. LAW gallerySolutions from the gallery.')
+@description('Optional. List of gallerySolutions to be created in the log analytics workspace.')
 param gallerySolutions array = []
 
-@description('Optional. Number of days data will be retained for')
+@description('Optional. Number of days data will be retained for.')
 @minValue(0)
 @maxValue(730)
 param dataRetention int = 365
@@ -71,15 +74,18 @@ param diagnosticEventHubAuthorizationRuleId string = ''
 @description('Optional. Name of the diagnostic event hub within the namespace to which logs are streamed. Without this, an event hub is created for each log category.')
 param diagnosticEventHubName string = ''
 
+@description('Optional. Indicates whether customer managed storage is mandatory for query management.')
+param forceCmkForQuery bool = true
+
 @allowed([
+  ''
   'CanNotDelete'
-  'NotSpecified'
   'ReadOnly'
 ])
 @description('Optional. Specify the type of lock.')
-param lock string = 'NotSpecified'
+param lock string = ''
 
-@description('Optional. Array of role assignment objects that contain the \'roleDefinitionIdOrName\' and \'principalId\' to define RBAC role assignments on this resource. In the roleDefinitionIdOrName attribute, you can provide either the display name of the role definition, or its fully qualified ID in the following format: \'/providers/Microsoft.Authorization/roleDefinitions/c2f4ef07-c644-48eb-af81-4b1b4947fb11\'')
+@description('Optional. Array of role assignment objects that contain the \'roleDefinitionIdOrName\' and \'principalId\' to define RBAC role assignments on this resource. In the roleDefinitionIdOrName attribute, you can provide either the display name of the role definition, or its fully qualified ID in the following format: \'/providers/Microsoft.Authorization/roleDefinitions/c2f4ef07-c644-48eb-af81-4b1b4947fb11\'.')
 param roleAssignments array = []
 
 @description('Optional. Tags of the resource.')
@@ -128,6 +134,8 @@ var diagnosticsMetrics = [for metric in diagnosticMetricsToEnable: {
 
 var logAnalyticsSearchVersion = 1
 
+var enableReferencedModulesTelemetry = false
+
 resource defaultTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (enableDefaultTelemetry) {
   name: 'pid-47ed15a6-730a-4827-bcb4-0fd963ffbd82-${uniqueString(deployment().name, location)}'
   properties: {
@@ -158,6 +166,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-08
     }
     publicNetworkAccessForIngestion: publicNetworkAccessForIngestion
     publicNetworkAccessForQuery: publicNetworkAccessForQuery
+    forceCmkForQuery: forceCmkForQuery
   }
 }
 
@@ -181,6 +190,7 @@ module logAnalyticsWorkspace_storageInsightConfigs 'storageInsightConfigs/deploy
     containers: contains(storageInsightsConfig, 'containers') ? storageInsightsConfig.containers : []
     tables: contains(storageInsightsConfig, 'tables') ? storageInsightsConfig.tables : []
     storageAccountId: storageInsightsConfig.storageAccountId
+    enableDefaultTelemetry: enableReferencedModulesTelemetry
   }
 }]
 
@@ -189,8 +199,19 @@ module logAnalyticsWorkspace_linkedServices 'linkedServices/deploy.bicep' = [for
   params: {
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.name
     name: linkedService.name
-    resourceId: linkedService.resourceId
+    resourceId: contains(linkedService, 'resourceId') ? linkedService.resourceId : ''
     writeAccessResourceId: contains(linkedService, 'writeAccessResourceId') ? linkedService.writeAccessResourceId : ''
+    enableDefaultTelemetry: enableReferencedModulesTelemetry
+  }
+}]
+
+module logAnalyticsWorkspace_linkedStorageAccounts 'linkedStorageAccounts/deploy.bicep' = [for (linkedStorageAccount, index) in linkedStorageAccounts: {
+  name: '${uniqueString(deployment().name, location)}-LAW-LinkedStorageAccount-${index}'
+  params: {
+    logAnalyticsWorkspaceName: logAnalyticsWorkspace.name
+    name: linkedStorageAccount.name
+    resourceId: linkedStorageAccount.resourceId
+    enableDefaultTelemetry: enableReferencedModulesTelemetry
   }
 }]
 
@@ -199,13 +220,18 @@ module logAnalyticsWorkspace_savedSearches 'savedSearches/deploy.bicep' = [for (
   params: {
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.name
     name: '${savedSearch.name}${uniqueString(deployment().name)}'
+    etag: contains(savedSearch, 'eTag') ? savedSearch.etag : '*'
     displayName: savedSearch.displayName
     category: savedSearch.category
     query: savedSearch.query
     functionAlias: contains(savedSearch, 'functionAlias') ? savedSearch.functionAlias : ''
     functionParameters: contains(savedSearch, 'functionParameters') ? savedSearch.functionParameters : ''
     version: contains(savedSearch, 'version') ? savedSearch.version : 2
+    enableDefaultTelemetry: enableReferencedModulesTelemetry
   }
+  dependsOn: [
+    logAnalyticsWorkspace_linkedStorageAccounts
+  ]
 }]
 
 module logAnalyticsWorkspace_dataSources 'dataSources/deploy.bicep' = [for (dataSource, index) in dataSources: {
@@ -225,30 +251,32 @@ module logAnalyticsWorkspace_dataSources 'dataSources/deploy.bicep' = [for (data
     syslogName: contains(dataSource, 'syslogName') ? dataSource.syslogName : ''
     syslogSeverities: contains(dataSource, 'syslogSeverities') ? dataSource.syslogSeverities : []
     performanceCounters: contains(dataSource, 'performanceCounters') ? dataSource.performanceCounters : []
+    enableDefaultTelemetry: enableReferencedModulesTelemetry
   }
 }]
 
-module logAnalyticsWorkspace_solutions '.bicep/nested_solutions.bicep' = [for (gallerySolution, index) in gallerySolutions: if (!empty(gallerySolutions)) {
+module logAnalyticsWorkspace_solutions '../../Microsoft.OperationsManagement/solutions/deploy.bicep' = [for (gallerySolution, index) in gallerySolutions: if (!empty(gallerySolutions)) {
   name: '${uniqueString(deployment().name, location)}-LAW-Solution-${index}'
   params: {
-    gallerySolution: gallerySolution.name
+    name: gallerySolution.name
     location: location
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.name
-    product: gallerySolution.product
-    publisher: gallerySolution.publisher
+    product: contains(gallerySolution, 'product') ? gallerySolution.product : 'OMSGallery'
+    publisher: contains(gallerySolution, 'publisher') ? gallerySolution.publisher : 'Microsoft'
+    enableDefaultTelemetry: enableReferencedModulesTelemetry
   }
 }]
 
-resource logAnalyticsWorkspace_lock 'Microsoft.Authorization/locks@2017-04-01' = if (lock != 'NotSpecified') {
+resource logAnalyticsWorkspace_lock 'Microsoft.Authorization/locks@2017-04-01' = if (!empty(lock)) {
   name: '${logAnalyticsWorkspace.name}-${lock}-lock'
   properties: {
-    level: lock
-    notes: (lock == 'CanNotDelete') ? 'Cannot delete resource or child resources.' : 'Cannot modify the resource or child resources.'
+    level: any(lock)
+    notes: lock == 'CanNotDelete' ? 'Cannot delete resource or child resources.' : 'Cannot modify the resource or child resources.'
   }
   scope: logAnalyticsWorkspace
 }
 
-module logAnalyticsWorkspace_rbac '.bicep/nested_rbac.bicep' = [for (roleAssignment, index) in roleAssignments: {
+module logAnalyticsWorkspace_roleAssignments '.bicep/nested_roleAssignments.bicep' = [for (roleAssignment, index) in roleAssignments: {
   name: '${uniqueString(deployment().name, location)}-LAW-Rbac-${index}'
   params: {
     description: contains(roleAssignment, 'description') ? roleAssignment.description : ''
@@ -259,14 +287,17 @@ module logAnalyticsWorkspace_rbac '.bicep/nested_rbac.bicep' = [for (roleAssignm
   }
 }]
 
-@description('The resource ID of the deployed log analytics workspace')
+@description('The resource ID of the deployed log analytics workspace.')
 output resourceId string = logAnalyticsWorkspace.id
 
-@description('The resource group of the deployed log analytics workspace')
+@description('The resource group of the deployed log analytics workspace.')
 output resourceGroupName string = resourceGroup().name
 
-@description('The name of the deployed log analytics workspace')
+@description('The name of the deployed log analytics workspace.')
 output name string = logAnalyticsWorkspace.name
 
-@description('The ID associated with the workspace')
+@description('The ID associated with the workspace.')
 output logAnalyticsWorkspaceId string = logAnalyticsWorkspace.properties.customerId
+
+@description('The location the resource was deployed into.')
+output location string = logAnalyticsWorkspace.location
