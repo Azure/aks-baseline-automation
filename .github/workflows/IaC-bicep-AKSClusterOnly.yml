@@ -1,0 +1,132 @@
+name: 'Deploy CARML AKS Cluster only'
+
+on:
+  workflow_dispatch:
+    inputs:
+      ENVIRONMENT:
+        description: 'A GitHub Environment to pull action secrets from'
+        required: true
+        type: environment
+      REGION:
+        description: 'The Azure region to deploy to'
+        required: true
+        default: westus2
+      ResourceGroup:
+        description: 'The vnet resource group'
+        required: true
+      clusterVnetResourceId:
+        description: 'The vnet resource ID (not uuid)'
+        required: true
+      ACRNAME:
+        description: 'The Name of the ACR resource'
+        required: true
+        type: string
+      clusterAdminAadGroupObjectId:
+        description: 'K8S Admin Azure AAD Group ObjectID'
+        required: true
+        type: text
+      a0008NamespaceReaderAadGroupObjectId:
+        description: 'K8S Reader Azure AAD Group ObjectID'
+        required: true
+        type: text
+
+env:
+  event_sha: +refs/pull/${{ github.event.issue.number }}/merge
+
+permissions:
+      id-token: write
+      contents: read
+
+jobs:
+  prereqs:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.ENVIRONMENT }}
+    name: Prerequisite Checks
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: "Parameter Check"
+        run: |
+          echo "Environment : ${{ github.event.inputs.ENVIRONMENT }}"
+          echo "vnet Resource Group : ${{ github.event.inputs.ResourceGroup }}"
+          echo "vnet resource ID : ${{ github.event.inputs.clusterVnetResourceId }}"
+          echo "ACR : ${{ github.event.inputs.ACRNAME }}"
+          echo "K8S Admin Azure AAD Group ObjectID : ${{ github.event.inputs.clusterAdminAadGroupObjectId }}"
+          echo "K8S Reader Azure AAD Group ObjectID : ${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }}"
+
+      - name: Azure Login
+        uses: Azure/login@v1.4.3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      #Helps with errors that can occur during deployment: OIDCIssuerFeatureFlagNotEnabled: Enabling OIDC issuer is not allowed since feature 'Microsoft.ContainerService/EnableOIDCIssuerPreview' is not enabled
+      #                                                    AzureDefenderFeatureFlagNotEnabled: AzureDefender installation is not allowed since feature 'Microsoft.ContainerService/AKS-AzureDefender' is not enabled.
+      - name: "Check Preview Features"
+        shell: pwsh
+        run: |
+          write-output "Verifying required Resource Providers Features are registered"
+          $aksfeatures = az feature list --query "[?contains(name, 'Microsoft.ContainerService')]" | ConvertFrom-Json
+
+          $featureName='AKS-ExtensionManager'
+          write-output "-- $featureName"
+          $feature = $aksfeatures |  Where-Object {$_.name -like "*$featureName"}
+          $feature.properties.state
+          if ($feature.properties.state -ne 'Registered') {
+            Write-Output $feature
+            Write-Error "$featureName NOT registered"
+          }
+
+          $featureName='EnableOIDCIssuerPreview'
+          write-output "-- $featureName"
+          $feature = $aksfeatures |  Where-Object {$_.name -like "*$featureName"}
+          $feature.properties.state
+          if ($feature.properties.state -ne 'Registered') {
+            Write-Output $feature
+            Write-Error "$featureName NOT registered"
+          }
+
+          $featureName='AKS-AzureDefender'
+          write-output "-- $featureName"
+          $feature = $aksfeatures |  Where-Object {$_.name -like "*$featureName"}
+          $feature.properties.state
+          if ($feature.properties.state -ne 'Registered') {
+            Write-Output $feature
+            Write-Error "$featureName NOT registered"
+          }
+
+  deployment:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.ENVIRONMENT }}
+    name: Deployment
+    needs: [prereqs]
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Azure Login
+        uses: Azure/login@v1.4.3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+
+      - name: "Deploy Cluster"
+        id: cluster
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
+          region: ${{ github.event.inputs.REGION }}
+          scope: subscription
+          template: ./IaC/bicep/rg-spoke/cluster.bicep
+          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json targetVnetResourceId=${{ github.event.inputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }} vNetResourceGroup=${{ github.event.inputs.ResourceGroup }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }} gitOpsBootstrappingRepoBranch=${{ github.ref_name }}
+          failOnStdErr: false
+          deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
+          

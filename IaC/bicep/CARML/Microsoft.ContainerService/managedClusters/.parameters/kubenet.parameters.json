@@ -14,7 +14,7 @@
                     "enableAutoScaling": true,
                     "minCount": 1,
                     "maxCount": 3,
-                    "vmSize": "Standard_DS2_v2",
+                    "vmSize": "Standard_DS3_v2",
                     "osType": "Linux",
                     "storageProfile": "ManagedDisks",
                     "type": "VirtualMachineScaleSets",
@@ -34,7 +34,7 @@
             "value": [
                 {
                     "name": "userpool1",
-                    "vmSize": "Standard_DS2_v2",
+                    "vmSize": "Standard_DS3_v2",
                     "osDiskSizeGB": 128,
                     "count": 2,
                     "osType": "Linux",
@@ -58,7 +58,7 @@
                 },
                 {
                     "name": "userpool2",
-                    "vmSize": "Standard_DS2_v2",
+                    "vmSize": "Standard_DS3_v2",
                     "osDiskSizeGB": 128,
                     "count": 2,
                     "osType": "Linux",

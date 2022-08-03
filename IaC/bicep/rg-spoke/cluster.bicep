@@ -600,7 +600,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
       {
         name: 'npsystem'
         count: 3
-        vmSize: 'Standard_DS2_v2'
+        vmSize: 'Standard_DS3_v2'
         osDiskSizeGB: 80
         osDiskType: 'Ephemeral'
         osType: 'Linux'
@@ -870,7 +870,7 @@ module kubernetesConfigurationFlux2 '../CARML/Microsoft.KubernetesConfiguration/
     }
     kustomizations: {
       unified: {
-        path: './cluster-manifests'
+        path: './shared-services/cluster-manifests'
         dependsOn: []
         timeoutInSeconds: 300
         syncIntervalInSeconds: 300
