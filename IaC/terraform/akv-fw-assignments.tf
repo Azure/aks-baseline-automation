@@ -1,10 +1,10 @@
 # Denying access to AKV from the internet
 resource "null_resource" "akvNetworkDenied" {
-  count = length(module.caf.keyvaults)
+  for_each = module.caf.keyvaults
 
   triggers = {
     timestamp    = timestamp()
-    keyVaultName = module.caf.keyvaults[count.index].name
+    keyVaultName = module.caf.keyvaults[each.key].name
   }
 
   provisioner "local-exec" {
