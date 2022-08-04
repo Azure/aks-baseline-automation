@@ -35,8 +35,9 @@ application_gateway_applications = {
     }
 
     backend_http_setting = {
-      port                                = 80
-      protocol                            = "Http"
+      port                                = 443
+      protocol                            = "Https"
+      trusted_root_certificate_names = ["wildcard-ingress"]
       pick_host_name_from_backend_address = true
       timeout                             = 20
       cookie_based_affinity               = "Disabled"
