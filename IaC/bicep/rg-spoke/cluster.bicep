@@ -347,7 +347,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       {
         name: 'root-cert-wildcard-aks-ingress'
         properties: {
-          keyVaultSecretId: '${keyVault.outputs.uri}secrets/${backendCert.outputs.name}'
+          keyVaultSecretId: '${keyVault.outputs.uri}secrets/${frontendCert.outputs.name}'
         }
       }
     ]
