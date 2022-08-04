@@ -148,11 +148,11 @@ module clusterLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep
     //   }
     // ]
     gallerySolutions: [
-      {
-        name: 'ContainerInsights'
-        product: 'OMSGallery'
-        publisher: 'Microsoft'
-      }
+      // {
+      //   name: 'ContainerInsights'
+      //   product: 'OMSGallery'
+      //   publisher: 'Microsoft'
+      // }
       {
         name: 'KeyVaultAnalytics'
         product: 'OMSGallery'
