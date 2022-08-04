@@ -316,6 +316,7 @@ module frontendCert '../CARML/Microsoft.KeyVault/vaults/secrets/deploy.bicep' = 
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
     rg
+    keyVault
   ]
 }
 
@@ -329,6 +330,7 @@ module backendCert '../CARML/Microsoft.KeyVault/vaults/secrets/deploy.bicep' = {
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
     rg
+    keyVault
   ]
 }
 
