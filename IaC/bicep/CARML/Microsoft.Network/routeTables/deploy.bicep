@@ -11,14 +11,14 @@ param routes array = []
 param disableBgpRoutePropagation bool = false
 
 @allowed([
-  ''
   'CanNotDelete'
+  'NotSpecified'
   'ReadOnly'
 ])
 @description('Optional. Specify the type of lock.')
-param lock string = ''
+param lock string = 'NotSpecified'
 
-@description('Optional. Array of role assignment objects that contain the \'roleDefinitionIdOrName\' and \'principalId\' to define RBAC role assignments on this resource. In the roleDefinitionIdOrName attribute, you can provide either the display name of the role definition, or its fully qualified ID in the following format: \'/providers/Microsoft.Authorization/roleDefinitions/c2f4ef07-c644-48eb-af81-4b1b4947fb11\'.')
+@description('Optional. Array of role assignment objects that contain the \'roleDefinitionIdOrName\' and \'principalId\' to define RBAC role assignments on this resource. In the roleDefinitionIdOrName attribute, you can provide either the display name of the role definition, or its fully qualified ID in the following format: \'/providers/Microsoft.Authorization/roleDefinitions/c2f4ef07-c644-48eb-af81-4b1b4947fb11\'')
 param roleAssignments array = []
 
 @description('Optional. Tags of the resource.')
@@ -49,16 +49,16 @@ resource routeTable 'Microsoft.Network/routeTables@2021-05-01' = {
   }
 }
 
-resource routeTable_lock 'Microsoft.Authorization/locks@2017-04-01' = if (!empty(lock)) {
+resource routeTable_lock 'Microsoft.Authorization/locks@2017-04-01' = if (lock != 'NotSpecified') {
   name: '${routeTable.name}-${lock}-lock'
   properties: {
-    level: any(lock)
+    level: lock
     notes: lock == 'CanNotDelete' ? 'Cannot delete resource or child resources.' : 'Cannot modify the resource or child resources.'
   }
   scope: routeTable
 }
 
-module routeTable_roleAssignments '.bicep/nested_roleAssignments.bicep' = [for (roleAssignment, index) in roleAssignments: {
+module routeTable_rbac '.bicep/nested_rbac.bicep' = [for (roleAssignment, index) in roleAssignments: {
   name: '${uniqueString(deployment().name, location)}-RouteTable-Rbac-${index}'
   params: {
     description: contains(roleAssignment, 'description') ? roleAssignment.description : ''
@@ -69,14 +69,11 @@ module routeTable_roleAssignments '.bicep/nested_roleAssignments.bicep' = [for (
   }
 }]
 
-@description('The resource group the route table was deployed into.')
+@description('The resource group the route table was deployed into')
 output resourceGroupName string = resourceGroup().name
 
-@description('The name of the route table.')
+@description('The name of the route table')
 output name string = routeTable.name
 
-@description('The resource ID of the route table.')
+@description('The resource ID of the route table')
 output resourceId string = routeTable.id
-
-@description('The location the resource was deployed into.')
-output location string = routeTable.location
