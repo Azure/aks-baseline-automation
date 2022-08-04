@@ -5,8 +5,8 @@
 role_mapping = {
 
   built_in_role_mapping = {
-    keyvaults = {
-      secrets = {
+    resource_groups = {
+      aks_re1 = {
         "Key Vault Reader" = {
           managed_identities = {
             keys = ["ingress", "apgw_keyvault_secrets"]
