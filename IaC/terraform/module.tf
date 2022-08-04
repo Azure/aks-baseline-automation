@@ -58,18 +58,3 @@ module "caf" {
     keyvault_certificate_requests = var.keyvault_certificate_requests
   }
 }
-
-module "caf_security" {
-  source  = "aztfmod/caf/azurerm"
-  version = "~> 5.6.0"
-
-  providers = {
-    azurerm.vhub = azurerm.vhub
-  }
-
-  security = {
-    keyvault_certificate_requests = var.keyvault_certificate_requests
-  }
-
-  depends_on = [module.caf.role_mapping, module.caf.aks_clusters, module.caf.keyvaults]
-}
