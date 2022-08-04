@@ -54,9 +54,20 @@ module "caf" {
     virtual_machines           = var.virtual_machines
     azure_container_registries = var.azure_container_registries
   }
+}
+
+module "caf_security" {
+  source  = "aztfmod/caf/azurerm"
+  version = "~> 5.6.0"
+  # source = "./public"
+
+  providers = {
+    azurerm.vhub = azurerm.vhub
+  }
 
   security = {
     keyvault_certificate_requests = var.keyvault_certificate_requests
   }
 
+  depends_on = [module.caf.role_mapping, module.caf.aks_clusters]
 }
