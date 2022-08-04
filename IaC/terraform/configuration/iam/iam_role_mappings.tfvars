@@ -5,6 +5,33 @@
 role_mapping = {
 
   built_in_role_mapping = {
+    keyvaults = {
+      secrets = {
+        "Key Vault Reader" = {
+          managed_identities = {
+            keys = ["ingress", "apgw_keyvault_secrets"]
+          }
+        }
+        "Key Vault Secrets User" = {
+          managed_identities = {
+            keys = ["ingress", "apgw_keyvault_secrets"]
+          }
+        }
+        "Key Vault Certificates Officer" = {
+          logged_in = {
+            keys = ["user"]
+          }
+          managed_identities = {
+            keys = ["ingress", "apgw_keyvault_secrets"]
+          }
+        }
+        "Key Vault Secrets Officer" = {
+          logged_in = {
+            keys = ["user"]
+          }
+        }
+      }
+    }
     aks_clusters = {
       cluster_re1 = {
         "Azure Kubernetes Service RBAC Cluster Admin" = {
@@ -31,29 +58,6 @@ role_mapping = {
         "Monitoring Metrics Publisher" = {
           aks_clusters = {
             keys = ["cluster_re1"]
-          }
-        }
-        "Key Vault Reader" = {
-          managed_identities = {
-            keys = ["ingress", "apgw_keyvault_secrets"]
-          }
-        }
-        "Key Vault Secrets User" = {
-          managed_identities = {
-            keys = ["ingress", "apgw_keyvault_secrets"]
-          }
-        }
-        "Key Vault Certificates Officer" = {
-          logged_in = {
-            keys = ["user"]
-          }
-          managed_identities = {
-            keys = ["ingress", "apgw_keyvault_secrets"]
-          }
-        }
-        "Key Vault Secrets Officer" = {
-          logged_in = {
-            keys = ["user"]
           }
         }
       }
