@@ -7,12 +7,13 @@ This template deploys a data source for a Log Analytics workspace.
 - [Resource Types](#Resource-Types)
 - [Parameters](#Parameters)
 - [Outputs](#Outputs)
+- [Template references](#Template-references)
 
 ## Resource Types
 
 | Resource Type | API Version |
 | :-- | :-- |
-| `Microsoft.OperationalInsights/workspaces/dataSources` | [2020-08-01](https://docs.microsoft.com/en-us/azure/templates/Microsoft.OperationalInsights/2020-08-01/workspaces/dataSources) |
+| `Microsoft.OperationalInsights/workspaces/dataSources` | 2020-08-01 |
 
 ## Parameters
 
@@ -20,12 +21,8 @@ This template deploys a data source for a Log Analytics workspace.
 | Parameter Name | Type | Default Value | Allowed Values | Description |
 | :-- | :-- | :-- | :-- | :-- |
 | `kind` | string | `'AzureActivityLog'` | `[AzureActivityLog, WindowsEvent, WindowsPerformanceCounter, IISLogs, LinuxSyslog, LinuxSyslogCollection, LinuxPerformanceObject, LinuxPerformanceCollection]` | The kind of the DataSource. |
-| `name` | string |  |  | Name of the solution. |
-
-**Conditional parameters**
-| Parameter Name | Type | Description |
-| :-- | :-- | :-- |
-| `logAnalyticsWorkspaceName` | string | The name of the parent Log Analytics workspace. Required if the template is used in a standalone deployment. |
+| `logAnalyticsWorkspaceName` | string |  |  | Name of the Log Analytics workspace |
+| `name` | string |  |  | Name of the solution |
 
 **Optional parameters**
 | Parameter Name | Type | Default Value | Description |
@@ -49,10 +46,6 @@ This template deploys a data source for a Log Analytics workspace.
 
 Tag names and tag values can be provided as needed. A tag can be left without a value.
 
-<details>
-
-<summary>Parameter JSON format</summary>
-
 ```json
 "tags": {
     "value": {
@@ -66,30 +59,14 @@ Tag names and tag values can be provided as needed. A tag can be left without a 
 }
 ```
 
-</details>
-
-<details>
-
-<summary>Bicep format</summary>
-
-```bicep
-tags: {
-    Environment: 'Non-Prod'
-    Contact: 'test.user@testcompany.com'
-    PurchaseOrder: '1234'
-    CostCenter: '7890'
-    ServiceName: 'DeploymentValidation'
-    Role: 'DeploymentValidation'
-}
-```
-
-</details>
-<p>
-
 ## Outputs
 
 | Output Name | Type | Description |
 | :-- | :-- | :-- |
-| `name` | string | The name of the deployed data source. |
-| `resourceGroupName` | string | The resource group where the data source is deployed. |
-| `resourceId` | string | The resource ID of the deployed data source. |
+| `name` | string | The name of the deployed data source |
+| `resourceGroupName` | string | The resource group where the data source is deployed |
+| `resourceId` | string | The resource ID of the deployed data source |
+
+## Template references
+
+- [Workspaces/Datasources](https://docs.microsoft.com/en-us/azure/templates/Microsoft.OperationalInsights/2020-08-01/workspaces/dataSources)

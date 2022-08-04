@@ -133,6 +133,7 @@ module acrAks '../CARML/Microsoft.ContainerRegistry/registries/deploy.bicep' = {
     retentionPolicyDays: 15
     retentionPolicyStatus: 'enabled'
     publicNetworkAccess: 'Disabled'
+    encryptionStatus: 'disabled'
     dataEndpointEnabled: true
     networkRuleBypassOptions: 'AzureServices'
     zoneRedundancy: 'Disabled' // This Preview feature only supports three regions at this time, and eastus2's paired region (centralus), does not support this. So disabling for now.
@@ -167,8 +168,8 @@ module acrPrivateEndpoint '../CARML/Microsoft.Network/privateEndpoints/deploy.bi
   params: {
     name: 'nodepools'
     location: location
-    subnetResourceId: spokeVirtualNetwork::snetClusterNodes.id
-    groupIds: [
+    targetSubnetResourceId: spokeVirtualNetwork::snetClusterNodes.id
+    groupId: [
       'registry'
     ]
     serviceResourceId: acrAks.outputs.resourceId
