@@ -53,6 +53,10 @@ module "caf" {
     virtual_machines           = var.virtual_machines
     azure_container_registries = var.azure_container_registries
   }
+
+  security = {
+    keyvault_certificate_requests = var.keyvault_certificate_requests
+  }
 }
 
 module "caf_security" {
@@ -67,5 +71,5 @@ module "caf_security" {
     keyvault_certificate_requests = var.keyvault_certificate_requests
   }
 
-  depends_on = [module.caf.role_mapping, module.caf.aks_clusters]
+  depends_on = [module.caf.role_mapping, module.caf.aks_clusters, module.caf.keyvaults]
 }
