@@ -58,6 +58,7 @@ jobs:
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       
   DockerBuildPushACR:
+    #This job builds an applications Dockerfile and pushes it to a Registry
     needs: [ReusableWF, Deploy]
     uses: ./.github/workflows/App-AzureVote-DockerBuild-Actions.yml
     with:
@@ -73,10 +74,11 @@ jobs:
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       
   GitOpsAppDeploy:
-    #Because this workflow commits and pushes against the repo it's running against, we can't let it run against this repo
-    if: github.repository != 'Azure/aks-baseline-automation'
+    #This job deploys all of the infrastucture using AKS Construction
     needs: [ReusableWF, Deploy, DockerBuildPushACR]
     uses: ./.github/workflows/App-GitOps.yml
+    #Because this workflow commits and pushes against the repo it's running against, we can't let it run against this repo
+    if: github.repository != 'Azure/aks-baseline-automation'
     with:
       ENVIRONMENT: ${{ needs.ReusableWF.outputs.ENVIRONMENT }}
       RG: ${{ needs.ReusableWF.outputs.RG }}
