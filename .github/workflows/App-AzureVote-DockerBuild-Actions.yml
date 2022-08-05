@@ -44,6 +44,10 @@ on:
         description: 'A GitHub Environment to pull action secrets from'
         required: true
         type: string
+      JUSTBUILDPUSH:
+        description: 'Only Build and Push with no deploy?'
+        required: true
+        type: boolean
 
     secrets:
       AZURE_CLIENT_ID:
@@ -119,6 +123,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.ENVIRONMENT }}
     needs: [BuildPush]
+    if: ${{ inputs.JUSTBUILDPUSH == 'false' }}
 
     steps:
       - name: Get application k8s manifests from repo
