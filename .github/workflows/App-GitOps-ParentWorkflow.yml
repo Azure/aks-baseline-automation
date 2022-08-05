@@ -9,6 +9,7 @@ on:
         description: 'A GitHub Environment to pull action secrets from'
         type: environment
         required: false
+        default: cset
       ResourceGroup:
         description: 'Resource Group Name'
         type: string
@@ -49,6 +50,7 @@ jobs:
       AKSNAME: ${{ needs.Deploy.outputs.AKSNAME}}
       ACRNAME: ${{ needs.Deploy.outputs.ACRNAME}}
       APPNAME: basevote2
+      JUSTBUILDPUSH: true
     secrets:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
