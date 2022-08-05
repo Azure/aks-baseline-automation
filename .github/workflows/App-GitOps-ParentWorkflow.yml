@@ -25,9 +25,14 @@ jobs:
     outputs:
       ENVIRONMENT: ${{ github.event.inputs.Environment }}
       RG: ${{ github.event.inputs.ResourceGroup }}
+    env:
+      REPONAME: ${{ github.event.repository.name }}
     steps:
       - name: Dummy step
         run: echo "Resuable workflows can't be directly reference ENV/INPUTS (yet)"
+        
+      - name: Github param output
+        run: echo "GitHub repository is $REPONAME"
         
   Deploy:
     #This job deploys all of the infrastucture using AKS Construction
