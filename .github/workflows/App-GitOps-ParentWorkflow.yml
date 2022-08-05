@@ -61,13 +61,15 @@ jobs:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       
-#  GitOpsAppDeploy:
-#    needs: [ReusableWF, Deploy, DockerBuildPushACR]
-#    uses: ./.github/workflows/SOME-FILE-THAT-DOESNT-EXIST-YET.yml
-#    with:
-#      ENVIRONMENT: ${{ needs.ReusableWF.outputs.ENVIRONMENT }}
-#      SOMEPARAM: 'somevalue'
-#    secrets:
-#      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-#      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-#      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  GitOpsAppDeploy:
+    needs: [ReusableWF, Deploy, DockerBuildPushACR]
+    uses: ./.github/workflows/App-Gitops.yml
+    with:
+      ENVIRONMENT: ${{ needs.ReusableWF.outputs.ENVIRONMENT }}
+      RG: ${{ needs.ReusableWF.outputs.RG }}
+      AKSNAME: ${{ needs.Deploy.outputs.AKSNAME}}
+      ACRNAME: ${{ needs.Deploy.outputs.ACRNAME}}
+    secrets:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
