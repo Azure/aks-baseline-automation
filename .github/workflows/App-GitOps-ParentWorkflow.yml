@@ -13,7 +13,8 @@ on:
         description: 'Resource Group Name'
         type: string
         required: true
-        
+        default: 'AppsGitOps
+
 jobs:
   ReusableWF:
     runs-on: ubuntu-latest
@@ -31,7 +32,7 @@ jobs:
     with:
       environment: ${{ needs.ReusableWF.outputs.ENVIRONMENT }}
       templateVersion: 0.8.8
-      rg: az-k8s-cv8j-rg
+      rg: ${{ needs.ReusableWF.outputs.RG }}
       resourceName: az-k8s-cv8j
       templateParams: resourceName=az-k8s-cv8j agentCount=1 upgradeChannel=node-image agentCountMax=3 enable_aad=true AksDisableLocalAccounts=true enableAzureRBAC=true registries_sku=Standard omsagent=true retentionInDays=30 networkPolicy=azure azurepolicy=audit aksOutboundTrafficType=managedNATGateway
     secrets:
