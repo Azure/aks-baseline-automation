@@ -2,6 +2,9 @@
 # 1. AKS and Infrastructure creation
 # 2. Application building and storage in ACR
 # 3. GitOps configuration of app deployment
+#
+# It is intended to be run from your own cloned or forked repository.
+# As it will change the Application Manifests to reference an Azure Container Registry Image
 
 name: Application GitOps
 
@@ -71,7 +74,7 @@ jobs:
       
   GitOpsAppDeploy:
     #Because this workflow commits and pushes against the repo it's running against, we can't let it run against this repo
-    if: github.event.repository.name != 'aks-baseline-automation'
+    if: github.repository != 'Azure/aks-baseline-automation'
     needs: [ReusableWF, Deploy, DockerBuildPushACR]
     uses: ./.github/workflows/App-GitOps.yml
     with:
