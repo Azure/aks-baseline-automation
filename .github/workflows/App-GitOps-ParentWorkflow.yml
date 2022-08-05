@@ -27,12 +27,15 @@ jobs:
       RG: ${{ github.event.inputs.ResourceGroup }}
     env:
       REPONAME: ${{ github.event.repository.name }}
+      FULLREPONAME: ${{ github.repository }}
     steps:
       - name: Dummy step
         run: echo "Resuable workflows can't be directly reference ENV/INPUTS (yet)"
         
       - name: Github param output
-        run: echo "GitHub repository is $REPONAME"
+        run: | 
+          echo "GitHub repository is $REPONAME"
+          echo "GitHub org and repo are $FULLREPONAME"
         
   Deploy:
     #This job deploys all of the infrastucture using AKS Construction
@@ -67,6 +70,8 @@ jobs:
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       
   GitOpsAppDeploy:
+    #Because this workflow commits and pushes against the repo it's running against, we can't let it run against this repo
+    if: github.event.repository.name != 'aks-baseline-automation'
     needs: [ReusableWF, Deploy, DockerBuildPushACR]
     uses: ./.github/workflows/App-GitOps.yml
     with:
