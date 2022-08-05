@@ -1,6 +1,9 @@
-# This is a basic workflow to help you get started with Actions
+# This is the parent orchestrating workflow that coordinates
+# 1. AKS and Infrastructure creation
+# 2. Application building and storage in ACR
+# 3. GitOps configuration of app deployment
 
-name: AppGitOps
+name: Application GitOps
 
 on:
   workflow_dispatch:
@@ -27,6 +30,8 @@ jobs:
         run: echo "Resuable workflows can't be directly reference ENV/INPUTS (yet)"
         
   Deploy:
+    #This job deploys all of the infrastucture using AKS Construction
+    #The GitHub workflow config was created using the Deployment Helper.
     #EDIT THIS CONFIG HERE: https://azure.github.io/AKS-Construction/?deploy.clusterAdminRole=false&deploy.clusterIPWhitelist=false&deploy.kvCertSecretRole=false&deploy.acrPushRole=false&cluster.agentCount=1&cluster.maxCount=3&cluster.upgradeChannel=node-image&cluster.apisecurity=none&addons.registry=Standard&addons.ingress=none&addons.networkPolicy=azure&addons.csisecret=none&net.vnet_opt=default&net.aksOutboundTrafficType=managedNATGateway&net.natGwIpCount=2
     needs: [ReusableWF]
     uses: Azure/AKS-Construction/.github/workflows/AKSC_Deploy.yml@main
@@ -56,3 +61,13 @@ jobs:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       
+#  GitOpsAppDeploy:
+#    needs: [ReusableWF, Deploy, DockerBuildPushACR]
+#    uses: ./.github/workflows/SOME-FILE-THAT-DOESNT-EXIST-YET.yml
+#    with:
+#      ENVIRONMENT: ${{ needs.ReusableWF.outputs.ENVIRONMENT }}
+#      SOMEPARAM: 'somevalue'
+#    secrets:
+#      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+#      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+#      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
