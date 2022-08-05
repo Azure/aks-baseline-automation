@@ -63,7 +63,7 @@ jobs:
       
   GitOpsAppDeploy:
     needs: [ReusableWF, Deploy, DockerBuildPushACR]
-    uses: ./.github/workflows/App-Gitops.yml
+    uses: ./.github/workflows/App-GitOps.yml
     with:
       ENVIRONMENT: ${{ needs.ReusableWF.outputs.ENVIRONMENT }}
       RG: ${{ needs.ReusableWF.outputs.RG }}
