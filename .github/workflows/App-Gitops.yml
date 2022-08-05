@@ -1,0 +1,57 @@
+# This workflow demonstrates App GitOps
+
+on:
+  workflow_call:
+    inputs:
+      RG:
+        description: 'The Resource Group where your resources are deployed'
+        required: true
+        type: string
+      AKSNAME:
+        description: 'The Name of the AKS resource'
+        required: true
+        type: string
+      ACRNAME:
+        description: 'The Name of the ACR resource'
+        required: true
+        type: string
+      IMAGENAMETAG:
+        description: 'The container image in the ACR'
+        required: false
+        type: string
+      ENVIRONMENT:
+        description: 'A GitHub Environment to pull action secrets from'
+        required: true
+        type: string
+
+    secrets:
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_SUBSCRIPTION_ID:
+        required: true
+
+permissions:
+      id-token: write
+      contents: read
+
+jobs:
+  Job1:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT }}
+    env:
+      ACRNAME: "${{ inputs.ACRNAME}}"
+    steps:
+      - name: Do stuff
+        run: |
+          echo ${{ inputs.ACRNAME }}
+        
+  Job2:
+    needs: Job1
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT }}
+    steps:
+      - name: Do stuff
+        run: |
+          echo ${{ inputs.ACRNAME }}
