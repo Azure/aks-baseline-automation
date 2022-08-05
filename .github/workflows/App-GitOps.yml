@@ -54,4 +54,4 @@ jobs:
     steps:
       - name: Do stuff
         run: |
-          echo ${{ inputs.ACRNAME }}
+          echo ${{ inputs.IMAGENAMETAG }}
