@@ -56,7 +56,12 @@ on:
         required: true
       AZURE_SUBSCRIPTION_ID:
         required: true
-
+        
+    outputs:
+      IMAGENAMETAG:
+        description: "The created image and tag in ACR"
+        value: ${{ jobs.BuildPush.outputs.IMAGENAMETAG }}
+        
 permissions:
       id-token: write
       contents: read
@@ -65,6 +70,8 @@ jobs:
   BuildPush:
     runs-on: ubuntu-latest
     environment: ${{ inputs.ENVIRONMENT }}
+    outputs:
+      IMAGENAMETAG: ${{ steps.buildpush.outputs.IMAGENAMETAG }}
     env:
       ACRNAME: "${{ inputs.ACRNAME}}"
 
@@ -110,6 +117,7 @@ jobs:
           echo $ACRTOKEN | docker login $LOGINSERVER -u 00000000-0000-0000-0000-000000000000 --password-stdin
 
       - name: Container build and push to a Azure Container Registry (ACR)
+        id: buildpush
         env:
           APPREPOPATH: "${{ inputs.APPREPOPATH}}"
           ACRSERVER: "${{ steps.acrconnect.outputs.loginServer }}"
@@ -118,6 +126,7 @@ jobs:
           cd $APPREPOPATH
           docker build . -t $ACRSERVER/$APPNAME:${{ github.sha }}
           docker push $ACRSERVER/$APPNAME:${{ github.sha }}
+          echo "::set-output name=IMAGENAMETAG::$ACRSERVER/$APPNAME:${{ github.sha }}"
 
   Deploy:
     runs-on: ubuntu-latest
