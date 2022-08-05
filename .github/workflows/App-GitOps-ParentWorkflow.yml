@@ -69,6 +69,7 @@ jobs:
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: ${{ needs.Deploy.outputs.AKSNAME}}
       ACRNAME: ${{ needs.Deploy.outputs.ACRNAME}}
+      IMAGENAMETAG: ${{ needs.DockerBuildPushACR.outputs.IMAGENAMETAG}}
     secrets:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
