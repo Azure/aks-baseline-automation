@@ -232,7 +232,7 @@ spec:
         # image: <your-acr-instance-name>.azurecr.io/library/traefik:v2.5.3
         # in order to use the public image, replace the image setting with the following line
         # - image: docker.io/library/traefik:v2.5.3
-      - image: acraksq3h7s2lbcnc62.azurecr.io/library/traefik:v2.5.3
+      - image: acrakstoghxjlabf6yu.azurecr.io/library/traefik:v2.5.3
         name: traefik-ingress-controller
         resources:
           requests:

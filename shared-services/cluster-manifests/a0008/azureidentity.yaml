@@ -5,8 +5,8 @@ metadata:
   namespace: a0008
 spec:
   type: 0
-  resourceID: /subscriptions/82e70289-bf40-45f9-8476-eab93d2031f4/resourcegroups/rg-BU0001A0008-westus2/providers/Microsoft.ManagedIdentity/userAssignedIdentities/podmi-ingress-controller
-  clientID: c28c88e5-be56-4246-aab8-9518b14b767a
+  resourceID: /subscriptions/82e70289-bf40-45f9-8476-eab93d2031f4/resourcegroups/rg-BU0001A0008-westeurope/providers/Microsoft.ManagedIdentity/userAssignedIdentities/podmi-ingress-controller
+  clientID: 28c779d6-d868-40f5-aebc-8d941b48d241
 ---
 apiVersion: aadpodidentity.k8s.io/v1
 kind: AzureIdentityBinding
