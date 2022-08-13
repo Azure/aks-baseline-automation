@@ -104,7 +104,7 @@ data:
       level = "DEBUG"
       format = "json"
     [api]
-      dashboard = false
+      dashboard = true
     [providers]
       # Configuration reload frequency:
       #   * duration that Traefik waits for, after a configuration reload, before taking into account any new configuration refresh event
