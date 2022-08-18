@@ -171,18 +171,3 @@ resource createImportCert 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     cleanupPreference: cleanupPreference
   }
 }
-
-@description('Certificate name')
-output certificateNameFE string = createImportCert.properties.outputs.name
-
-@description('KeyVault secret id to the created version')
-output certificateSecretId string = createImportCert.properties.outputs.certSecretId.versioned
-
-@description('KeyVault secret id which uses the unversioned uri')
-output certificateSecretIdUnversioned string = createImportCert.properties.outputs.certSecretId.unversioned
-
-@description('Certificate Thumbprint')
-output certificateThumbprint string = createImportCert.properties.outputs.thumbprint
-
-@description('Certificate Thumbprint (in hex)')
-output certificateThumbprintHex string = createImportCert.properties.outputs.thumbprintHex
