@@ -239,6 +239,13 @@ module keyVault '../CARML/Microsoft.KeyVault/vaults/deploy.bicep' = {
           podmi_ingress_controller.outputs.principalId
         ]
       }
+      {
+        roleDefinitionIdOrName: 'Key Vault Administrator'
+        principalIds: [
+          mi_appgateway_frontend.outputs.principalId
+          podmi_ingress_controller.outputs.principalId
+        ]
+      }
     ]
     privateEndpoints: [
       {
