@@ -155,18 +155,18 @@ resource createImportCert 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 
         sleep $retrySleep
         retryLoopCount=$((retryLoopCount+1))
-
-        #Retry loop to catch errors (usually RBAC delays)
-        retryLoopCount=0
-        until [ $retryLoopCount -ge $retryMax ]
-        do
-          echo "Creating AKV Cert $certNameBE with CN $certCommonNameBE (attempt $retryLoopCount)..."
-          az keyvault certificate create --vault-name $akvName -n $certNameBE -p "$(az keyvault certificate get-default-policy | sed -e s/CN=CLIGetDefaultPolicy/CN=${certCommonNameBE}/g )" \
-            && break
+    done
+      #Retry loop to catch errors (usually RBAC delays)
+      retryLoopCount=0
+      until [ $retryLoopCount -ge $retryMax ]
+      do
+        echo "Creating AKV Cert $certNameBE with CN $certCommonNameBE (attempt $retryLoopCount)..."
+        az keyvault certificate create --vault-name $akvName -n $certNameBE -p "$(az keyvault certificate get-default-policy | sed -e s/CN=CLIGetDefaultPolicy/CN=${certCommonNameBE}/g )" \
+          && break
   
-          sleep $retrySleep
-          retryLoopCount=$((retryLoopCount+1))
-      done
+        sleep $retrySleep
+        retryLoopCount=$((retryLoopCount+1))
+    done
     '''
     cleanupPreference: cleanupPreference
   }
