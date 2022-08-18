@@ -499,6 +499,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
   dependsOn: [
     rg
     akvCertFrontend
+    keyVault
   ]
 }
 
