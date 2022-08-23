@@ -226,6 +226,13 @@ module keyVault '../CARML/Microsoft.KeyVault/vaults/deploy.bicep' = {
     secrets: {}
     roleAssignments: [
       {
+        roleDefinitionIdOrName: 'Key Vault Certificates Officer'
+        principalIds: [
+          mi_appgateway_frontend.outputs.principalId
+          podmi_ingress_controller.outputs.principalId
+        ]
+      }
+      {
         roleDefinitionIdOrName: 'Key Vault Secrets User'
         principalIds: [
           mi_appgateway_frontend.outputs.principalId
