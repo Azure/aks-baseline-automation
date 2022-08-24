@@ -1,0 +1,55 @@
+name: 'Bicep Unit Tests'
+
+# Uncomment the trigger conditions below to enable this workflow
+on:
+  push:
+
+# Set the default working directory to point at the bicep folder
+defaults:
+  run:
+    working-directory: IAC/bicep
+
+env:
+  LOCATION: "eastus"
+  
+# Special permissions required for OIDC authentication
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  bicep-unit-tests:
+    name: 'Bicep Unit Tests'
+    runs-on: ubuntu-latest
+    # Bicep What-if / Validate functions also check if your role has permisisons to create the resources
+    # The account here actually needs to have read/write permisisons.
+    environment: production
+    
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # Authenticate to Az CLI using OIDC
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    # Checks that all Bicep configuration files adhere to a canonical format
+    - name: Bicep Lint
+      uses: Azure/cli@v1
+      with:
+        inlineScript: az bicep build --file main.bicep
+        
+    # Validate whether a template is valid at subscription scope
+    - name: Bicep Validate
+      uses: Azure/cli@v1
+      with:
+        inlineScript: |
+          az deployment sub validate \
+            --name validate-${{ github.run_id }} \
+            --template-file main.bicep \
+            --location $LOCATION 

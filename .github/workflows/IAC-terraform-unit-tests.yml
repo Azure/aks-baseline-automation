@@ -1,0 +1,36 @@
+name: 'Terraform Unit Tests'
+
+# Uncomment the trigger conditions below to enable this workflow
+# on:
+#   push:
+
+# Set the default working directory to point at the terraform folder
+defaults:
+  run:
+    working-directory: IAC/terraform
+
+jobs:
+  terraform-unit-tests:
+    name: 'Terraform Unit Tests'
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # Install the latest version of Terraform CLI
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Terraform Init
+      run: terraform init -backend=false
+
+    # Validate terraform files (see https://www.terraform.io/cli/commands/validate)
+    - name: Terraform Validate
+      run: terraform validate
+
+    # Checks that all Terraform configuration files adhere to a canonical format (see https://www.terraform.io/cli/commands/fmt)
+    - name: Terraform Format
+      run: terraform fmt -check -recursive
