@@ -151,7 +151,7 @@ jobs:
           deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
 
       - name: "Cert Import into Key Vault"
-        id: cert import
+        id: cert_import
         run: |
           echo ${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE }} > localIngressCertFile
           az keyvault certificate import --vault-name kv-aks-yxk5yjltpxat2 -n testcert -f localIngressCertFile
