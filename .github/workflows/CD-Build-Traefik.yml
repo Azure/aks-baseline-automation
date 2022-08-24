@@ -78,7 +78,7 @@ jobs:
 
       - name: Push to a Azure Container Registry (ACR)
         run: |
-          az acr import --source docker.io/library/traefik:v2.5.3 -n 'acrakstoghxjlabf6yu' --force
+          az acr import --source docker.io/library/traefik:v2.5.3 -n ${{ inputs.ACRNAME }} --force
 
       - name: Pull identity information
         run: |
