@@ -153,6 +153,6 @@ jobs:
       - name: "Cert Import into Key Vault"
         id: cert_import
         run: |
-          echo ${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE }} > localIngressCertFile
-          az keyvault certificate import --vault-name kv-aks-yxk5yjltpxat2 -n testcert -f localIngressCertFile
+          echo ${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE }} > localIngressCertFile.pem
+          az keyvault certificate import --vault-name kv-aks-yxk5yjltpxat2 -n testcert -f localIngressCertFile.pem
           
