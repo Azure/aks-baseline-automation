@@ -74,7 +74,7 @@ jobs:
 
       - name: list ACR images
         run: |
-          az acr lsit -g $RG
+          az acr list -g $RG
 
       - name: Push to a Azure Container Registry (ACR)
         run: |
