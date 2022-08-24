@@ -149,4 +149,10 @@ jobs:
           parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json appGatewayListenerCertificate=${{ env.APP_GATEWAY_LISTENER_CERTIFICATE }} aksIngressControllerCertificate=${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE }} targetVnetResourceId=${{ github.event.inputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }} vNetResourceGroup=${{ github.event.inputs.ResourceGroup }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }} gitOpsBootstrappingRepoBranch=${{ github.ref_name }}
           failOnStdErr: false
           deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
+
+      - name: "Cert Import into Key Vault"
+        id: cert import
+        run: |
+          echo ${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE }} > localIngressCertFile
+          az keyvault certificate import --vault-name kv-aks-yxk5yjltpxat2 -n testcert -f localIngressCertFile
           
