@@ -1,8 +1,8 @@
 name: 'Bicep Unit Tests'
 
 # Uncomment the trigger conditions below to enable this workflow
-on:
-  push:
+# on:
+#   push:
 
 # Set the default working directory to point at the bicep folder
 defaults:
