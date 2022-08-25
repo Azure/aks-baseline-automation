@@ -21,6 +21,22 @@ on:
         description: 'Existing AKS Name'
         required: false
   pull_request:
+    inputs:
+        Environment:
+          description: 'A GitHub Environment to pull action secrets from'
+          type: environment
+          required: true
+        ResourceGroup:
+          description: 'Resource Group Name'
+          type: string
+          required: false
+        ExistingACR:
+          description: 'Existing ACR Name'
+          type: string
+          required: false
+        ExistingAKS:
+          description: 'Existing AKS Name'
+          required: false
   push:
     
 
