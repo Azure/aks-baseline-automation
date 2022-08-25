@@ -11,9 +11,9 @@ env:
   # description: 'The Resource Group where your resources are deployed'
   Region: "eastus2"
   # description: Region to be used
-  AKSNAME: myApp0809
+  AKSNAME: myapp0809
   # description: 'The Name of the AKS resource'
-  ACRNAME: myApp0809
+  ACRNAME: myapp0809
   # description: 'The Name of the ACR resource'
   # note: ensure this is lowercase.
   APPNAME: azure-vote
