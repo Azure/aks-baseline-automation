@@ -71,6 +71,12 @@ jobs:
             echo "::set-output name=password::${$ACR_PASSWORD}"
           azPSVersion: "latest"
       
+      - name: Get ACR Password
+        id: acr-pwd
+        run: |
+          ACR_PASSWORD=$(az acr credential show -g ${{ env.ResourceGroupName }} -n ${{ env.ACRNAME }} --query passwords[0].value -o tsv)
+          echo "::set-output name=password::$ACR_PASSWORD"
+  
       # Retrieves your Azure Kubernetes Service cluster's kubeconfig file
       - name: Get K8s context
         uses: azure/aks-set-context@v2.0
@@ -91,7 +97,7 @@ jobs:
         with:
           login-server: ${{ env.ACRNAME }}.azurecr.io
           username: ${{ env.ACRNAME }}
-          password: ${{ steps.create-resources.outputs.password }}
+          password: ${{ steps.acr-pwd.outputs.password }}
       
       - name: Get application code from repo
         uses: actions/checkout@main
