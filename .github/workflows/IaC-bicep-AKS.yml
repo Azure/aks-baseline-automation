@@ -191,7 +191,8 @@ jobs:
           failOnStdErr: false
           deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
 
-      - run: echo "AKV_NAME=${{ steps.cluster.outputs.keyVaultName }}" >> $GITHUB_ENV
+      - run: echo "AKV_NAME is ${{ steps.deploy.outputs.keyVaultName }}" 
+      - run: echo "AKV_NAME=${{ steps.deploy.outputs.keyVaultName }}" >> $GITHUB_ENV
 
       - name: "Test AKV_NAME"
         id: akv_name
