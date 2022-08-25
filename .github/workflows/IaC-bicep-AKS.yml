@@ -194,7 +194,6 @@ jobs:
       - name: "Test AKV_NAME"
         id: akv_name
         run: |
-#          echo "AKV_NAME is ${{ steps.cluster.outputs.keyVaultName }}"
           export AKV_NAME=$(az deployment group list -g "rg-BU0001A0008-${{ github.event.inputs.REGION }}"|grep 'kv-aks')
           echo "AKV_NAME=${AKV_NAME}" >> $GITHUB_ENV
 
