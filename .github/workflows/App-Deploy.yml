@@ -1,0 +1,146 @@
+# This workflow demonstrates building and pushing a container image to an Azure Container Registry.
+# The workflow then updates the necessary Kubernetes manifest deployment file so a GitOps operator can sync from the manifest file deploying the application to an Azure Kubernetes Service cluster.
+# It is split into separate jobs for readability but could be squashed into a single job if that best suits your scenario.
+
+on: 
+  workflow_dispatch:
+
+env:
+  ResourceGroupName: aks-baseline-gitops
+  # description: 'The Resource Group where your resources are deployed'
+  Region: "eastus2"
+  # description: Region to be used
+  AKSNAME: myApp0809
+  # description: 'The Name of the AKS resource'
+  ACRNAME: myApp0809
+  # description: 'The Name of the ACR resource'
+  # note: ensure this is lowercase.
+  APPNAME: azure-vote
+  # description: 'The Name of the Application to deploy'
+  # note: ensure this is lowercase.
+  NAMESPACE: "default"
+  # description: 'The Kubernetes Namespace to deploy the Application to'
+  # default: "default"
+  # note: ensure this is lowercase.
+  APPREPO: azure-samples/azure-voting-app-redis
+  # description: 'The GitHub App code repo'
+  # default: "azure-samples/azure-voting-app-redis"
+  # note: you can host app code in your repo.
+  APPREPOREF: <<PUTYOURVALUEHERE>>
+  # description: 'The GitHub REF to use when referencing the App code repo'
+  # default: "129888"
+  # optional
+  APPREPOPATH: ./azure-vote
+  # description: 'The directory in the repo containing the Dockerfile'
+  # default: "./azure-vote"
+  ENVIRONMENT: "dev"
+  # description: 'A GitHub Environment to pull action secrets from'
+  # optional. Use if app repo is different from repo that GitHub Actions workflow is running from.
+  ACRRGNAME: <<PUTYOURVALUEHERE>>
+  # description: 'Resource Group of the Azure Container Registry'
+
+permissions:
+      id-token: write
+      contents: write
+
+jobs:
+  BuildPush:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get application code from repo
+        uses: actions/checkout@main
+        with:
+          repository: ${{ env.APPREPO}}
+          ref: ${{ env.APPREPOREF}}
+      
+      # Logs into your Azure subscription
+      - uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        enable-AzPSSession: true
+
+      - name: Run Azure PowerShell script to create necessary resources
+        id: create-resources
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            ./createAppInfra.ps1 -ResourceGroupName ${{ env.ResourceGroupName }} -ACRName $ ${{ env.ACRNAME }} -AKSName $ ${{ env.AKSNAME }} -Location $Region
+            $ACR_USERNAME=$(az acr credential show -g ${{ env.ACRRGNAME }} -n ${{ env.ACRNAME }} --query username -o tsv)
+            $ACR_PASSWORD=$(az acr credential show -g ${{ env.ACRRGNAME }} -n ${{ env.ACRNAME }} --query passwords[0].value -o tsv)
+            echo "::set-output name=username::${$ACR_USERNAME}"
+            echo "::add-mask::${$ACR_PASSWORD}"
+            echo "::set-output name=password::${$ACR_PASSWORD}"
+          azPSVersion: "latest"
+      
+      # Retrieves your Azure Kubernetes Service cluster's kubeconfig file
+      - name: Get K8s context
+        uses: azure/aks-set-context@v2.0
+        with:
+          resource-group: ${{ env.ResourceGroupName }}
+          cluster-name: ${{ env.AKSNAME }}
+
+      # Creates namespace in your Azure Kubernetes Service cluster's if it does not exist
+      - name: Create namespace
+        run: |
+          namespacePresent=`kubectl get namespace | grep ${{ env.NAMESPACE }} | wc -l`
+          if [ $namespacePresent -eq 0 ]
+          then
+              echo `kubectl create namespace ${{ env.NAMESPACE }}`
+          fi
+      # Logs into the Azure Container Registry (ACR)
+      - uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.ACRNAME }}.azurecr.io
+          username: ${{ env.ACRNAME }}
+          password: ${{ steps.create-resources.outputs.password }}
+      
+
+      # Builds and Pushes the container image to the Azure Container Registry (ACR)
+      - name: Container build and push to a Azure Container Registry (ACR)
+        env:
+          APPREPOPATH: "${{ env.APPREPOPATH}}"
+          APPNAME: "${{ env.APPNAME }}"
+        run: |
+          cd $APPREPOPATH
+          docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t ${{ env.ACRNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.run_number }} --label dockerfile-path=Dockerfile
+          docker push ${{ env.ACRNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.run_number }}
+
+  Update-K8s-Manifests:
+    name: Update K8s Deployment Manifest with Image Version
+    needs: BuildPush
+    runs-on: ubuntu-latest
+    steps:
+
+    # Checks out the git repository
+    - uses: actions/checkout@v2
+
+    # Logs into your Azure subscription
+    - uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      enable-AzPSSession: true
+
+    - name: Run Azure PowerShell script to create necessary resources
+      id: create-resources
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          $line = Get-Content workloads/azure-vote/front-deployment.yml | Select-String image: | Select-Object -ExpandProperty Line
+          $content = Get-Content workloads/azure-vote/front-deployment.yml
+          $content | ForEach-Object {$_ -replace $line,"        image: ${{ env.ACRNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.run_number }}"} | Set-Content workloads/azure-vote/front-deployment.yml
+        azPSVersion: "latest"
+    # Updates the Kubernetes deployment manifest file with the image version hosted in ACR
+    # - name: Update Image Version
+    #   id: imgupd
+    #   uses: mikefarah/yq@master
+    #   with:
+    #     cmd: yq eval '.spec.template.spec.containers[0].image = "${{ env.ACRNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.run_number }}"' -i workloads/azure-vote/front-deployment.yml
+
+    # Commits the changes to the git repository
+    - uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: Update image version in K8s Deployment manifests file
