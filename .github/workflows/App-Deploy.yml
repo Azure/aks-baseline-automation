@@ -6,55 +6,55 @@ on:
   workflow_dispatch:
     inputs:
       ResourceGroup:
-          description: 'The Resource Group where your resources are deployed'
-          required: false
-          default: "gitops-example"
-          type: string
-        AKSName:
-          description: 'The Name of the AKS resource'
-          required: false
-          default: "myappaks1"
-          type: string
-        ACRName:
-          description: 'The Name of the ACR resource'
-          required: false
-          default: "myappacr1"
-          type: string
-        AppName:
-          description: 'The Name of the Application to deploy'
-          required: false
-          default: "azure-vote"
-          type: string
-        Namespace:
-          description: 'The Kubernetes Namespace to deploy the Application to'
-          default: "default"
-          required: false
-          type: string
-        AppRepo:
-          description: 'The GitHub App code repo'
-          default: "azure-samples/azure-voting-app-redis"
-          required: false
-          type: string
-        AppRepoRef:
-          description: 'The GitHub REF to use when referencing the App code repo'
-          default: "129888"
-          required: false
-          type: string
-        AppRepoPath:
-          description: 'The directory in the repo containing the Dockerfile'
-          default: "./azure-vote"
-          required: false
-          type: string
-        Environment:
-          description: 'A GitHub Environment to pull action secrets from'
-          required: false
-          default: dev
-          type: environment  
-        Region:
-          description: 'Location where the resources need to be deployed'
-          required: false
-          default: "eastus2"
-          type: string
+        description: 'The Resource Group where your resources are deployed'
+        required: false
+        default: "gitops-example"
+        type: string
+      AKSName:
+        description: 'The Name of the AKS resource'
+        required: false
+        default: "myappaks1"
+        type: string
+      ACRName:
+        description: 'The Name of the ACR resource'
+        required: false
+        default: "myappacr1"
+        type: string
+      AppName:
+        description: 'The Name of the Application to deploy'
+        required: false
+        default: "azure-vote"
+        type: string
+      Namespace:
+        description: 'The Kubernetes Namespace to deploy the Application to'
+        default: "default"
+        required: false
+        type: string
+      AppRepo:
+        description: 'The GitHub App code repo'
+        default: "azure-samples/azure-voting-app-redis"
+        required: false
+        type: string
+      AppRepoRef:
+        description: 'The GitHub REF to use when referencing the App code repo'
+        default: "129888"
+        required: false
+        type: string
+      AppRepoPath:
+        description: 'The directory in the repo containing the Dockerfile'
+        default: "./azure-vote"
+        required: false
+        type: string
+      Environment:
+        description: 'A GitHub Environment to pull action secrets from'
+        required: false
+        default: dev
+        type: environment  
+      Region:
+        description: 'Location where the resources need to be deployed'
+        required: false
+        default: "eastus2"
+        type: string
 
 permissions:
       id-token: write
