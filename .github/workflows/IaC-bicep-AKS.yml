@@ -129,6 +129,27 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: "Cert Import into Key Vault"
+        id: cert_import
+        run: |
+          ASSIGNEE_OBJ_ID=$(az ad sp show --id ${{ secrets.AZURE_CLIENT_ID }} --query id -o tsv)
+          echo "ASSIGNEE_OBJ_ID=$ASSIGNEE_OBJ_ID" >> $GITHUB_ENV
+          AKV_RESOURCE_ID=$(az keyvault show -n ${{ steps.cluster.outputs.keyVaultName }} --query id -o tsv)
+          echo "AKV_RESOURCE_ID=$AKV_RESOURCE_ID" >> $GITHUB_ENV
+          TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT=$(az role assignment create --role a4417e6f-fecd-4de8-b567-7b0420556985 --assignee-principal-type serviceprincipal --assignee-object-id $ASSIGNEE_OBJ_ID --scope $AKV_RESOURCE_ID | jq '.id' )
+          echo "TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT=$TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT" >> $GITHUB_ENV
+
+          sleep 60
+
+          CURRENT_IP_ADDRESS=$(curl -s -4 https://ifconfig.io)
+          echo "CURRENT_IP_ADDRESS=$CURRENT_IP_ADDRESS" >> $GITHUB_ENV
+          az keyvault network-rule add -n ${{ steps.cluster.outputs.keyVaultName }} --ip-address ${CURRENT_IP_ADDRESS}
+
+          sleep 30
+
+          cat traefik-ingress-internal-aks-ingress-tls.crt traefik-ingress-internal-aks-ingress-tls.key > traefik-ingress-internal-aks-ingress-tls.pem
+          az keyvault certificate import -f traefik-ingress-internal-aks-ingress-tls.pem -n traefik-ingress-internal-aks-ingress-tls --vault-name ${{ steps.cluster.outputs.keyVaultName }}
+
       - name: "Deploy Hub"
         id: hub
         uses: azure/arm-deploy@v1
@@ -176,26 +197,5 @@ jobs:
           parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json appGatewayListenerCertificate=${{ env.APP_GATEWAY_LISTENER_CERTIFICATE }} aksIngressControllerCertificate=${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE }} targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }} vNetResourceGroup=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }} gitOpsBootstrappingRepoBranch=${{ github.ref_name }}
           failOnStdErr: false
           deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
-        
-      - name: "Cert Import into Key Vault"
-        id: cert_import
-        run: |
-          ASSIGNEE_OBJ_ID=$(az ad sp show --id ${{ secrets.AZURE_CLIENT_ID }} --query id -o tsv)
-          echo "ASSIGNEE_OBJ_ID=$ASSIGNEE_OBJ_ID" >> $GITHUB_ENV
-          AKV_RESOURCE_ID=$(az keyvault show -n ${{ steps.cluster.outputs.keyVaultName }} --query id -o tsv)
-          echo "AKV_RESOURCE_ID=$AKV_RESOURCE_ID" >> $GITHUB_ENV
-          TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT=$(az role assignment create --role a4417e6f-fecd-4de8-b567-7b0420556985 --assignee-principal-type serviceprincipal --assignee-object-id $ASSIGNEE_OBJ_ID --scope $AKV_RESOURCE_ID | jq '.id' )
-          echo "TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT=$TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT" >> $GITHUB_ENV
-
-          sleep 60
-
-          CURRENT_IP_ADDRESS=$(curl -s -4 https://ifconfig.io)
-          echo "CURRENT_IP_ADDRESS=$CURRENT_IP_ADDRESS" >> $GITHUB_ENV
-          az keyvault network-rule add -n ${{ steps.cluster.outputs.keyVaultName }} --ip-address ${CURRENT_IP_ADDRESS}
-
-          sleep 30
-
-          cat traefik-ingress-internal-aks-ingress-tls.crt traefik-ingress-internal-aks-ingress-tls.key > traefik-ingress-internal-aks-ingress-tls.pem
-          az keyvault certificate import -f traefik-ingress-internal-aks-ingress-tls.pem -n traefik-ingress-internal-aks-ingress-tls --vault-name ${{ steps.cluster.outputs.keyVaultName }}
 
 
