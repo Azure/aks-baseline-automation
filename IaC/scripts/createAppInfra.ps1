@@ -60,7 +60,7 @@ Write-Output "*** Check if cluster $AKSName exists"
 $checkAKS = az aks show -n $AKSName -g $ResourceGroupName | ConvertFrom-Json
 if (!$checkAKS) {
   Write-Warning "*** WARN! AKS $AKSName does not exist. Creating..."
-  az aks create -n $AKSName -g $ResourceGroupName --location $Location --attach-acr $ACRName
+  az aks create -g $ResourceGroupName -n $AKSName --enable-managed-identity --node-count 1 --enable-addons monitoring --enable-msi-auth-for-monitoring  --generate-ssh-keys --attach-acr $ACRName
 
   if ($LastExitCode -ne 0) {
     throw "*** Error - could not create cluster"
