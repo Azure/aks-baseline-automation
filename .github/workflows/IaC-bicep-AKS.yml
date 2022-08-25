@@ -191,13 +191,13 @@ jobs:
           failOnStdErr: false
           deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
 
-      - run: echo "AKV_NAME is ${{ steps.deploy.outputs.keyVaultName }}" 
-      - run: echo "AKV_NAME=${{ steps.deploy.outputs.keyVaultName }}" >> $GITHUB_ENV
-
       - name: "Test AKV_NAME"
         id: akv_name
         run: |
-          echo "AKV_NAME is ${{ env.AKV_NAME }}"
+#          echo "AKV_NAME is ${{ steps.cluster.outputs.keyVaultName }}"
+          AKV_NAME=$(az deployment group list -g "rg-BU0001A0008-${{ github.event.inputs.REGION }}"|grep 'kv-aks')
+          echo "AKV_NAME=$AKV_NAME" >> $GITHUB_ENV
+
 
       - name: Azure Login
         uses: Azure/login@v1.4.3
@@ -221,10 +221,10 @@ jobs:
 
           CURRENT_IP_ADDRESS=$(curl -s -4 https://ifconfig.io)
           echo "CURRENT_IP_ADDRESS=$CURRENT_IP_ADDRESS" >> $GITHUB_ENV
-          az keyvault network-rule add -n ${{ github.event.inputs.keyvault }} --ip-address ${CURRENT_IP_ADDRESS}
+          az keyvault network-rule add -n ${{ env.AKV_NAME }} --ip-address ${CURRENT_IP_ADDRESS}
 
           sleep 30
 
           cat traefik-ingress-internal-aks-ingress-tls.crt traefik-ingress-internal-aks-ingress-tls.key > traefik-ingress-internal-aks-ingress-tls.pem
-          az keyvault certificate import -f traefik-ingress-internal-aks-ingress-tls.pem -n traefik-ingress-internal-aks-ingress-tls --vault-name ${{ github.event.inputs.keyvault }}
+          az keyvault certificate import -f traefik-ingress-internal-aks-ingress-tls.pem -n traefik-ingress-internal-aks-ingress-tls --vault-name ${{ env.AKV_NAME }}
 
