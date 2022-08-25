@@ -46,6 +46,7 @@ permissions:
 
 jobs:
   BuildPush:
+    environment: dev
     runs-on: ubuntu-latest
     steps:
       - name: Get application code from repo
@@ -111,6 +112,7 @@ jobs:
   Update-K8s-Manifests:
     name: Update K8s Deployment Manifest with Image Version
     needs: BuildPush
+    environment: dev
     runs-on: ubuntu-latest
     steps:
 
