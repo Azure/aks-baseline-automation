@@ -22,6 +22,7 @@ $checkRg = az group exists --name $ResourceGroupName | ConvertFrom-Json
 if (!$checkRg) {
   Write-Warning "*** WARN! Resource Group $ResourceGroupName does not exist. Creating..."
   $name = "$DefaultPrefix-rg"
+  $ResourceGroupName = $name
   az group create --name $name --location $Location
 
   if ($LastExitCode -ne 0) {
@@ -42,6 +43,7 @@ Write-Output "*** Check if ACR $ACRName exists"
 $checkAcr = az acr show --name $ACRName | ConvertFrom-Json
 if (!$checkAcr) {
   Write-Warning "*** WARN! ACR $ACRName does not exist. Creating..."
+  $ACRName = $DefaultPrefix
   az acr create -n $DefaultPrefix -g $ResourceGroupName --location $Location --sku Standard --admin-enabled
 
   if ($LastExitCode -ne 0) {
@@ -62,8 +64,8 @@ Write-Output "*** Check if cluster $AKSName exists"
 $checkAKS = az aks show -n $AKSName -g $ResourceGroupName | ConvertFrom-Json
 if (!$checkAKS) {
   Write-Warning "*** WARN! AKS $AKSName does not exist. Creating..."
-  
-  $name = "$DefaultPrefixaks"
+
+  $name = "$($DefaultPrefix)aks"
   az aks create -g $ResourceGroupName -n $name --enable-managed-identity --node-count 1 --enable-addons monitoring --enable-msi-auth-for-monitoring  --generate-ssh-keys --attach-acr $ACRName
 
   if ($LastExitCode -ne 0) {
