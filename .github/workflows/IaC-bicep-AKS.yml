@@ -183,24 +183,17 @@ jobs:
           deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
           - run: echo "AKV_NAME=${{ steps.cluster.outputs.keyVaultName }}" >> $GITHUB_ENV 
 
+      - name: "Test AKV_NAME"
+        id: akv_name
+        run: |
+          echo "AKV_NAME is ${{ env.AKV_NAME }}" 
+
       - name: Azure Login
         uses: Azure/login@v1.4.3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        
-      - name: Bicep Output
-        uses: Azure/bicep-build-action@v1.0.0
-        with:
-          bicepFilePath: ./IaC/bicep/rg-spoke/cluster.bicep
-          outputFilePath: aksdeploy.json
-
-      - name: "Test AKV_NAME"
-        id: akv_name
-        run: |
-          echo "AKV_NAME is ${{ env.AKV_NAME }}" 
-
 
       - name: "Cert Import into Key Vault"
         id: cert_import
