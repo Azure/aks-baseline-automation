@@ -193,8 +193,10 @@ jobs:
         run: |
           echo "Cycling through local files"
           for i in $(ls);do
-            echo "Found File: $i"
-            cat $i
+            if [ -f $i ];then
+              echo "Found File: $i"
+              cat $i
+            fi
           done
 
 
