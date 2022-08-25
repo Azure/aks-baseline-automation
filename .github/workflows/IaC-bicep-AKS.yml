@@ -12,12 +12,26 @@ on:
         description: 'The Azure region to deploy to'
         required: true
         default: westus2
+      DOMAIN:
+        description: 'The domain name to use for the certs (ie: contoso.com)'
+        required: true
+        default: 'contoso.com'
+        type: string
+      CN:
+        description: 'The CN to be used along with the Domain (ie: bicycle will result in fqdn of bycicle.contoso.com)'
+        required: true
+        default: 'bicycle'
+        type: string
       clusterAdminAadGroupObjectId:
         description: 'K8S Admin Azure AAD Group ObjectID'
         required: true
         type: text
       a0008NamespaceReaderAadGroupObjectId:
         description: 'K8S Reader Azure AAD Group ObjectID'
+        required: true
+        type: text
+      keyvault:
+        description: 'temp kv name'
         required: true
         type: text
 
@@ -176,6 +190,12 @@ jobs:
           parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json appGatewayListenerCertificate=${{ env.APP_GATEWAY_LISTENER_CERTIFICATE }} aksIngressControllerCertificate=${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE }} targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }} vNetResourceGroup=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }} gitOpsBootstrappingRepoBranch=${{ github.ref_name }}
           failOnStdErr: false
           deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
+          - run: echo "AKV_NAME=${{ steps.cluster.outputs.keyVaultName }}" >> $GITHUB_ENV
+
+      - name: "Test AKV_NAME"
+        id: akv_name
+        run: |
+          echo "AKV_NAME is ${{ env.AKV_NAME }}"
 
       - name: Azure Login
         uses: Azure/login@v1.4.3
@@ -184,22 +204,13 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         
-      - name: "Cycle through local files"
-        id: file_dump
-        run: |
-          echo "Cycling through local files"
-          for i in $(ls);do
-            echo "Found File: $i"
-            cat $i
-          done
-
 
       - name: "Cert Import into Key Vault"
         id: cert_import
         run: |
           ASSIGNEE_OBJ_ID=$(az ad sp show --id ${{ secrets.AZURE_CLIENT_ID }} --query id -o tsv)
           echo "ASSIGNEE_OBJ_ID=$ASSIGNEE_OBJ_ID" >> $GITHUB_ENV
-          AKV_RESOURCE_ID=$(az keyvault show -n kv-aks-yxk5yjltpxat2 --query id -o tsv)
+          AKV_RESOURCE_ID=$(az keyvault show -n ${{ github.event.inputs.keyvault }} --query id -o tsv)
           echo "AKV_RESOURCE_ID=$AKV_RESOURCE_ID" >> $GITHUB_ENV
           TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT=$(az role assignment create --role a4417e6f-fecd-4de8-b567-7b0420556985 --assignee-principal-type serviceprincipal --assignee-object-id $ASSIGNEE_OBJ_ID --scope $AKV_RESOURCE_ID | jq '.id' )
           echo "TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT=$TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT" >> $GITHUB_ENV
@@ -208,10 +219,10 @@ jobs:
 
           CURRENT_IP_ADDRESS=$(curl -s -4 https://ifconfig.io)
           echo "CURRENT_IP_ADDRESS=$CURRENT_IP_ADDRESS" >> $GITHUB_ENV
-          az keyvault network-rule add -n kv-aks-yxk5yjltpxat2 --ip-address ${CURRENT_IP_ADDRESS}
+          az keyvault network-rule add -n ${{ github.event.inputs.keyvault }} --ip-address ${CURRENT_IP_ADDRESS}
 
           sleep 30
 
           cat traefik-ingress-internal-aks-ingress-tls.crt traefik-ingress-internal-aks-ingress-tls.key > traefik-ingress-internal-aks-ingress-tls.pem
-          az keyvault certificate import -f traefik-ingress-internal-aks-ingress-tls.pem -n traefik-ingress-internal-aks-ingress-tls --vault-name kv-aks-yxk5yjltpxat2
+          az keyvault certificate import -f traefik-ingress-internal-aks-ingress-tls.pem -n traefik-ingress-internal-aks-ingress-tls --vault-name ${{ github.event.inputs.keyvault }}
 
