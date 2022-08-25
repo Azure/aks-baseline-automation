@@ -4,40 +4,59 @@
 
 on: 
   workflow_dispatch:
+    inputs:
+      Environment:
+        description: 'A GitHub Environment to pull action secrets from'
+        type: environment
+        required: true
+      ResourceGroup:
+        description: 'Resource Group Name'
+        type: string
+        required: false
+      ExistingACR:
+        description: 'Existing ACR Name'
+        type: string
+        required: false
+      ExistingAKS:
+        description: 'Existing AKS Name'
+        required: false
   pull_request:
+  push:
+    
 
 env:
-  ResourceGroupName: aks-baseline-gitops
+  DefaultResourcePrefix: "gitopsapp1"
+  ResourceGroupName: ${{ github.event.inputs.ResourceGroup }}
   # description: 'The Resource Group where your resources are deployed'
   Region: "eastus2"
   # description: Region to be used
-  AKSNAME: myapp0809
+  AKSName: ${{ github.event.inputs.ExistingAKS }}
   # description: 'The Name of the AKS resource'
-  ACRNAME: myapp0809
+  ACRName: ${{ github.event.inputs.ExistingACR }}
   # description: 'The Name of the ACR resource'
   # note: ensure this is lowercase.
-  APPNAME: azure-vote
+  AppName: azure-vote
   # description: 'The Name of the Application to deploy'
   # note: ensure this is lowercase.
-  NAMESPACE: "default"
+  Namespace: "default"
   # description: 'The Kubernetes Namespace to deploy the Application to'
   # default: "default"
   # note: ensure this is lowercase.
-  APPREPO: azure-samples/azure-voting-app-redis
+  AppRepo: azure-samples/azure-voting-app-redis
   # description: 'The GitHub App code repo'
   # default: "azure-samples/azure-voting-app-redis"
   # note: you can host app code in your repo.
-  APPREPOREF: "129888"
+  AppRepoREF: "129888"
   # description: 'The GitHub REF to use when referencing the App code repo'
   # default: "129888"
   # optional
-  APPREPOPATH: ./azure-vote
+  AppRepoPATH: ./azure-vote
   # description: 'The directory in the repo containing the Dockerfile'
   # default: "./azure-vote"
-  ENVIRONMENT: "dev"
+  Environment: ${{ github.event.inputs.Environment }}
   # description: 'A GitHub Environment to pull action secrets from'
   # optional. Use if app repo is different from repo that GitHub Actions workflow is running from.
-  ACRRGNAME: <<PUTYOURVALUEHERE>>
+  ACRRgName: ""
   # description: 'Resource Group of the Azure Container Registry'
 
 permissions:
@@ -46,7 +65,7 @@ permissions:
 
 jobs:
   BuildPush:
-    environment: dev
+    environment: ${{ env.Environment }}
     runs-on: ubuntu-latest
     steps:
       - name: Get application code from repo
@@ -66,15 +85,13 @@ jobs:
         with:
           inlineScript: |
             cd IaC/scripts
-            ./createAppInfra.ps1 -ResourceGroupName ${{ env.ResourceGroupName }} -ACRName ${{ env.ACRNAME }} -AKSName ${{ env.AKSNAME }} -Location ${{ env.Region }}
-            $ACR_PASSWORD=$(az acr credential show -g ${{ env.ResourceGroupName }} -n ${{ env.ACRNAME }} --query passwords[0].value -o tsv)
-            echo "::set-output name=password::${$ACR_PASSWORD}"
+            ./createAppInfra.ps1 -ResourceGroupName ${{ env.ResourceGroupName }} -ACRName ${{ env.ACRName }} -AKSName ${{ env.AKSName }} -Location ${{ env.Region }} -DefaultPrefix ${{ env.DefaultResourcePrefix }}
           azPSVersion: "latest"
       
       - name: Get ACR Password
         id: acr-pwd
         run: |
-          ACR_PASSWORD=$(az acr credential show -g ${{ env.ResourceGroupName }} -n ${{ env.ACRNAME }} --query passwords[0].value -o tsv)
+          ACR_PASSWORD=$(az acr credential show -g ${{ env.ResourceGroupName }} -n ${{ env.ACRName }} --query passwords[0].value -o tsv)
           echo "::set-output name=password::$ACR_PASSWORD"
   
       # Retrieves your Azure Kubernetes Service cluster's kubeconfig file
@@ -82,43 +99,44 @@ jobs:
         uses: azure/aks-set-context@v2.0
         with:
           resource-group: ${{ env.ResourceGroupName }}
-          cluster-name: ${{ env.AKSNAME }}
+          cluster-name: ${{ env.AKSName }}
 
       # Creates namespace in your Azure Kubernetes Service cluster's if it does not exist
       - name: Create namespace
         run: |
-          namespacePresent=`kubectl get namespace | grep ${{ env.NAMESPACE }} | wc -l`
+          namespacePresent=`kubectl get namespace | grep ${{ env.Namespace }} | wc -l`
           if [ $namespacePresent -eq 0 ]
           then
-              echo `kubectl create namespace ${{ env.NAMESPACE }}`
+              echo `kubectl create namespace ${{ env.Namespace }}`
           fi
+
       # Logs into the Azure Container Registry (ACR)
       - uses: azure/docker-login@v1
         with:
-          login-server: ${{ env.ACRNAME }}.azurecr.io
-          username: ${{ env.ACRNAME }}
+          login-server: ${{ env.ACRName }}.azurecr.io
+          username: ${{ env.ACRName }}
           password: ${{ steps.acr-pwd.outputs.password }}
       
       - name: Get application code from repo
         uses: actions/checkout@main
         with:
-          repository: ${{ env.APPREPO}}
-          ref: ${{ env.APPREPOREF}}
+          repository: ${{ env.AppRepo}}
+          ref: ${{ env.AppRepoREF}}
 
       # Builds and Pushes the container image to the Azure Container Registry (ACR)
       - name: Container build and push to a Azure Container Registry (ACR)
         env:
-          APPREPOPATH: "${{ env.APPREPOPATH}}"
-          APPNAME: "${{ env.APPNAME }}"
+          AppRepoPATH: "${{ env.AppRepoPATH}}"
+          AppName: "${{ env.AppName }}"
         run: |
-          cd $APPREPOPATH
-          docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t ${{ env.ACRNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.run_number }} --label dockerfile-path=Dockerfile
-          docker push ${{ env.ACRNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.run_number }}
+          cd $AppRepoPATH
+          docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t ${{ env.ACRName }}.azurecr.io/${{ env.AppName }}:${{ github.run_number }} --label dockerfile-path=Dockerfile
+          docker push ${{ env.ACRName }}.azurecr.io/${{ env.AppName }}:${{ github.run_number }}
 
   Update-K8s-Manifests:
     name: Update K8s Deployment Manifest with Image Version
     needs: BuildPush
-    environment: dev
+    environment: ${{ env.Environment }}
     runs-on: ubuntu-latest
     steps:
 
@@ -133,21 +151,14 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         enable-AzPSSession: true
 
-    - name: Run Azure PowerShell script to create necessary resources
-      id: create-resources
+    - name: Update image name in manifest file
       uses: azure/powershell@v1
       with:
         inlineScript: |
           $line = Get-Content workloads/azure-vote/front-deployment.yml | Select-String image: | Select-Object -ExpandProperty Line
           $content = Get-Content workloads/azure-vote/front-deployment.yml
-          $content | ForEach-Object {$_ -replace $line,"        image: ${{ env.ACRNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.run_number }}"} | Set-Content workloads/azure-vote/front-deployment.yml
+          $content | ForEach-Object {$_ -replace $line,"        image: ${{ env.ACRName }}.azurecr.io/${{ env.AppName }}:${{ github.run_number }}"} | Set-Content workloads/azure-vote/front-deployment.yml
         azPSVersion: "latest"
-    # Updates the Kubernetes deployment manifest file with the image version hosted in ACR
-    # - name: Update Image Version
-    #   id: imgupd
-    #   uses: mikefarah/yq@master
-    #   with:
-    #     cmd: yq eval '.spec.template.spec.containers[0].image = "${{ env.ACRNAME }}.azurecr.io/${{ env.APPNAME }}:${{ github.run_number }}"' -i workloads/azure-vote/front-deployment.yml
 
     # Commits the changes to the git repository
     - uses: stefanzweifel/git-auto-commit-action@v4
