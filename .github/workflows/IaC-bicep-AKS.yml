@@ -129,6 +129,61 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      # - name: "Deploy Hub"
+      #   id: hub
+      #   uses: azure/arm-deploy@v1
+      #   with:
+      #     subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
+      #     region: ${{ github.event.inputs.REGION }}
+      #     scope: subscription
+      #     template: ./IaC/bicep/rg-hub/hub-default.bicep
+      #     parameters: ./IaC/bicep/rg-hub/hub-default.parameters.json  resourceGroupName=rg-enterprise-networking-hubs-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }}
+      #     failOnStdErr: false
+      #     deploymentName: carml-hub-${{ github.event.inputs.REGION }}
+
+      # - name: "Deploy Spoke"
+      #   id: spoke
+      #   uses: azure/arm-deploy@v1
+      #   with:
+      #     subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
+      #     region: ${{ github.event.inputs.REGION }}
+      #     scope: subscription
+      #     template: ./IaC/bicep/rg-spoke/spoke.bicep
+      #     parameters: ./IaC/bicep/rg-spoke/spoke.parameters.json hubVnetResourceId=${{ steps.hub.outputs.hubVnetId }} hubLaWorkspaceResourceId=${{ steps.hub.outputs.hubLaWorkspaceResourceId }} hubFwResourceId=${{ steps.hub.outputs.hubFwResourceId }} resourceGroupName=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }}
+      #     failOnStdErr: false
+      #     deploymentName: carml-spoke-${{ github.event.inputs.REGION }}
+
+      # - name: "Deploy Registry"
+      #   id: registry
+      #   uses: azure/arm-deploy@v1
+      #   with:
+      #     subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
+      #     region: ${{ github.event.inputs.REGION }}
+      #     scope: subscription
+      #     template: ./IaC/bicep/rg-spoke/acr.bicep
+      #     parameters: ./IaC/bicep/rg-spoke/acr.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }}
+      #     failOnStdErr: false
+      #     deploymentName: carml-registry-${{ github.event.inputs.REGION }}
+
+      - name: "Deploy Cluster"
+        id: cluster
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
+          region: ${{ github.event.inputs.REGION }}
+          scope: subscription
+          template: ./IaC/bicep/rg-spoke/cluster.bicep
+          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json appGatewayListenerCertificate=${{ env.APP_GATEWAY_LISTENER_CERTIFICATE }} aksIngressControllerCertificate=${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE }} targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }} vNetResourceGroup=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }} gitOpsBootstrappingRepoBranch=${{ github.ref_name }}
+          failOnStdErr: false
+          deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
+
+      - name: Azure Login
+        uses: Azure/login@v1.4.3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        
       - name: "Cert Import into Key Vault"
         id: cert_import
         run: |
@@ -149,53 +204,5 @@ jobs:
 
           cat traefik-ingress-internal-aks-ingress-tls.crt traefik-ingress-internal-aks-ingress-tls.key > traefik-ingress-internal-aks-ingress-tls.pem
           az keyvault certificate import -f traefik-ingress-internal-aks-ingress-tls.pem -n traefik-ingress-internal-aks-ingress-tls --vault-name ${{ steps.cluster.outputs.keyVaultName }}
-
-      - name: "Deploy Hub"
-        id: hub
-        uses: azure/arm-deploy@v1
-        with:
-          subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
-          region: ${{ github.event.inputs.REGION }}
-          scope: subscription
-          template: ./IaC/bicep/rg-hub/hub-default.bicep
-          parameters: ./IaC/bicep/rg-hub/hub-default.parameters.json  resourceGroupName=rg-enterprise-networking-hubs-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }}
-          failOnStdErr: false
-          deploymentName: carml-hub-${{ github.event.inputs.REGION }}
-
-      - name: "Deploy Spoke"
-        id: spoke
-        uses: azure/arm-deploy@v1
-        with:
-          subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
-          region: ${{ github.event.inputs.REGION }}
-          scope: subscription
-          template: ./IaC/bicep/rg-spoke/spoke.bicep
-          parameters: ./IaC/bicep/rg-spoke/spoke.parameters.json hubVnetResourceId=${{ steps.hub.outputs.hubVnetId }} hubLaWorkspaceResourceId=${{ steps.hub.outputs.hubLaWorkspaceResourceId }} hubFwResourceId=${{ steps.hub.outputs.hubFwResourceId }} resourceGroupName=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }}
-          failOnStdErr: false
-          deploymentName: carml-spoke-${{ github.event.inputs.REGION }}
-
-      - name: "Deploy Registry"
-        id: registry
-        uses: azure/arm-deploy@v1
-        with:
-          subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
-          region: ${{ github.event.inputs.REGION }}
-          scope: subscription
-          template: ./IaC/bicep/rg-spoke/acr.bicep
-          parameters: ./IaC/bicep/rg-spoke/acr.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }}
-          failOnStdErr: false
-          deploymentName: carml-registry-${{ github.event.inputs.REGION }}
-
-      - name: "Deploy Cluster"
-        id: cluster
-        uses: azure/arm-deploy@v1
-        with:
-          subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
-          region: ${{ github.event.inputs.REGION }}
-          scope: subscription
-          template: ./IaC/bicep/rg-spoke/cluster.bicep
-          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json appGatewayListenerCertificate=${{ env.APP_GATEWAY_LISTENER_CERTIFICATE }} aksIngressControllerCertificate=${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE }} targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }} vNetResourceGroup=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }} gitOpsBootstrappingRepoBranch=${{ github.ref_name }}
-          failOnStdErr: false
-          deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
 
 
