@@ -12,6 +12,16 @@ on:
         description: 'The Azure region to deploy to'
         required: true
         default: westus2
+      DOMAIN:
+        description: 'The domain name to use for the certs (ie: contoso.com)'
+        required: true
+        default: 'contoso.com'
+        type: string
+      CN:
+        description: 'The CN to be used along with the Domain (ie: bicycle will result in fqdn of bycicle.contoso.com)'
+        required: true
+        default: 'bicycle'
+        type: string
       clusterAdminAadGroupObjectId:
         description: 'K8S Admin Azure AAD Group ObjectID'
         required: true
@@ -109,22 +119,13 @@ jobs:
       - name: "Cert Generation"
         id: cert
         run: |
-          export DOMAIN_NAME_AKS_BASELINE="contoso.com"
-          openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out appgw.crt -keyout appgw.key -subj "/CN=bicycle.${DOMAIN_NAME_AKS_BASELINE}/O=Contoso Bicycle" -addext "subjectAltName = DNS:bicycle.${DOMAIN_NAME_AKS_BASELINE}" -addext "keyUsage = digitalSignature" -addext "extendedKeyUsage = serverAuth"
+          openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out appgw.crt -keyout appgw.key -subj "/CN=${{ github.event.inputs.CN }}.${{ github.event.inputs.DOMAIN }}/O=Contoso Bicycle" -addext "subjectAltName = DNS:${{ github.event.inputs.CN }}.${{ github.event.inputs.DOMAIN }}" -addext "keyUsage = digitalSignature" -addext "extendedKeyUsage = serverAuth"
           openssl pkcs12 -export -out appgw.pfx -in appgw.crt -inkey appgw.key -passout pass:
           export APP_GATEWAY_LISTENER_CERTIFICATE_AKS_BASELINE=$(cat appgw.pfx | base64 | tr -d '\n')
-          echo APP_GATEWAY_LISTENER_CERTIFICATE: $APP_GATEWAY_LISTENER_CERTIFICATE_AKS_BASELINE
           echo "APP_GATEWAY_LISTENER_CERTIFICATE=$APP_GATEWAY_LISTENER_CERTIFICATE_AKS_BASELINE" >> $GITHUB_ENV
-          openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out traefik-ingress-internal-aks-ingress-tls.crt -keyout traefik-ingress-internal-aks-ingress-tls.key -subj "/CN=*.aks-ingress.${DOMAIN_NAME_AKS_BASELINE}/O=Contoso AKS Ingress"
+          openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out traefik-ingress-internal-aks-ingress-tls.crt -keyout traefik-ingress-internal-aks-ingress-tls.key -subj "/CN=*.aks-ingress.${{ github.event.inputs.DOMAIN }}/O=Contoso AKS Ingress"
           export AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE=$(cat traefik-ingress-internal-aks-ingress-tls.crt | base64 | tr -d '\n')
-          echo AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE: $AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE
           echo "AKS_INGRESS_CONTROLLER_CERTIFICATE=$AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE" >> $GITHUB_ENV
-
-      - name: "test"
-        id: test
-        run: |
-          echo "${{ env.APP_GATEWAY_LISTENER_CERTIFICATE }}"
-          echo "${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE }}"
 
       - name: Azure Login
         uses: Azure/login@v1.4.3
@@ -180,6 +181,7 @@ jobs:
           parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json appGatewayListenerCertificate=${{ env.APP_GATEWAY_LISTENER_CERTIFICATE }} aksIngressControllerCertificate=${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE }} targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }} vNetResourceGroup=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }} gitOpsBootstrappingRepoBranch=${{ github.ref_name }}
           failOnStdErr: false
           deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
+          - run: echo "AKV_NAME=${{ steps.cluster.outputs.keyVaultName }}" >> $GITHUB_ENV 
 
       - name: Azure Login
         uses: Azure/login@v1.4.3
@@ -188,17 +190,16 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         
-      - name: "Cycle through local files"
-        id: file_dump
+      - name: Bicep Output
+        uses: Azure/bicep-build-action@v1.0.0
+        with:
+          bicepFilePath: ./IaC/bicep/rg-spoke/cluster.bicep
+          outputFilePath: aksdeploy.json
+
+      - name: "Test AKV_NAME"
+        id: akv_name
         run: |
-          echo "Cycling through local files"
-          ls -al
-          for i in $(ls);do
-            if [ -f $i ];then
-              echo "Found File: $i"
-              cat $i
-            fi
-          done
+          echo "AKV_NAME is ${{ env.AKV_NAME }}" 
 
 
       - name: "Cert Import into Key Vault"
