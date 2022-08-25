@@ -27,7 +27,7 @@ env:
   # description: 'The GitHub App code repo'
   # default: "azure-samples/azure-voting-app-redis"
   # note: you can host app code in your repo.
-  APPREPOREF: <<PUTYOURVALUEHERE>>
+  APPREPOREF: "129888"
   # description: 'The GitHub REF to use when referencing the App code repo'
   # default: "129888"
   # optional
