@@ -6,7 +6,6 @@
 param(
   [Parameter()]
   [String]$ResourceGroupName,
-  [String]$DefaultPrefix,
   [String]$AKSName,
   [String]$ACRName,
   [String]$Location
@@ -21,9 +20,7 @@ Write-Output "*** Check if Resource Group $ResourceGroupName exists"
 $checkRg = az group exists --name $ResourceGroupName | ConvertFrom-Json
 if (!$checkRg) {
   Write-Warning "*** WARN! Resource Group $ResourceGroupName does not exist. Creating..."
-  $name = "$DefaultPrefix-rg"
-  $ResourceGroupName = $name
-  az group create --name $name --location $Location
+  az group create --name $ResourceGroupName --location $Location
 
   if ($LastExitCode -ne 0) {
     throw "*** Error - could not create resource group"
@@ -43,8 +40,7 @@ Write-Output "*** Check if ACR $ACRName exists"
 $checkAcr = az acr show --name $ACRName | ConvertFrom-Json
 if (!$checkAcr) {
   Write-Warning "*** WARN! ACR $ACRName does not exist. Creating..."
-  $ACRName = $DefaultPrefix
-  az acr create -n $DefaultPrefix -g $ResourceGroupName --location $Location --sku Standard --admin-enabled
+  az acr create -n $ACRName -g $ResourceGroupName --location $Location --sku Standard --admin-enabled
 
   if ($LastExitCode -ne 0) {
     throw "*** Error - could not create ACR"
@@ -65,8 +61,7 @@ $checkAKS = az aks show -n $AKSName -g $ResourceGroupName | ConvertFrom-Json
 if (!$checkAKS) {
   Write-Warning "*** WARN! AKS $AKSName does not exist. Creating..."
 
-  $name = "$($DefaultPrefix)aks"
-  az aks create -g $ResourceGroupName -n $name --enable-managed-identity --node-count 1 --enable-addons monitoring --enable-msi-auth-for-monitoring  --generate-ssh-keys --attach-acr $ACRName
+  az aks create -g $ResourceGroupName -n $AKSName --enable-managed-identity --node-count 1 --enable-addons monitoring --enable-msi-auth-for-monitoring  --generate-ssh-keys --attach-acr $ACRName
 
   if ($LastExitCode -ne 0) {
     throw "*** Error - could not create cluster"

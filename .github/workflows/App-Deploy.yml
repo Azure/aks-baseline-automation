@@ -4,76 +4,58 @@
 
 on: 
   workflow_dispatch:
-    inputs:
-      Environment:
-        description: 'A GitHub Environment to pull action secrets from'
-        type: environment
-        required: true
-      ResourceGroup:
-        description: 'Resource Group Name'
-        type: string
-        required: false
-      ExistingACR:
-        description: 'Existing ACR Name'
-        type: string
-        required: false
-      ExistingAKS:
-        description: 'Existing AKS Name'
-        required: false
   pull_request:
     inputs:
+      ResourceGroup:
+          description: 'The Resource Group where your resources are deployed'
+          required: false
+          default: "gitops-example"
+          type: string
+        AKSName:
+          description: 'The Name of the AKS resource'
+          required: false
+          default: "myappaks1"
+          type: string
+        ACRName:
+          description: 'The Name of the ACR resource'
+          required: false
+          default: "myappacr1"
+          type: string
+        AppName:
+          description: 'The Name of the Application to deploy'
+          required: false
+          default: "azure-vote"
+          type: string
+        Namespace:
+          description: 'The Kubernetes Namespace to deploy the Application to'
+          default: "default"
+          required: false
+          type: string
+        AppRepo:
+          description: 'The GitHub App code repo'
+          default: "azure-samples/azure-voting-app-redis"
+          required: false
+          type: string
+        AppRepoRef:
+          description: 'The GitHub REF to use when referencing the App code repo'
+          default: "129888"
+          required: false
+          type: string
+        AppRepoPath:
+          description: 'The directory in the repo containing the Dockerfile'
+          default: "./azure-vote"
+          required: false
+          type: string
         Environment:
           description: 'A GitHub Environment to pull action secrets from'
-          type: environment
-          required: true
-        ResourceGroup:
-          description: 'Resource Group Name'
+          required: false
+          default: dev
+          type: environment  
+        Region:
+          description: 'Location where the resources need to be deployed'
+          required: false
+          default: "eastus2"
           type: string
-          required: false
-        ExistingACR:
-          description: 'Existing ACR Name'
-          type: string
-          required: false
-        ExistingAKS:
-          description: 'Existing AKS Name'
-          required: false
-  push:
-    
-
-env:
-  DefaultResourcePrefix: "gitopsapp1"
-  ResourceGroupName: ${{ github.event.inputs.ResourceGroup }}
-  # description: 'The Resource Group where your resources are deployed'
-  Region: "eastus2"
-  # description: Region to be used
-  AKSName: ${{ github.event.inputs.ExistingAKS }}
-  # description: 'The Name of the AKS resource'
-  ACRName: ${{ github.event.inputs.ExistingACR }}
-  # description: 'The Name of the ACR resource'
-  # note: ensure this is lowercase.
-  AppName: azure-vote
-  # description: 'The Name of the Application to deploy'
-  # note: ensure this is lowercase.
-  Namespace: "default"
-  # description: 'The Kubernetes Namespace to deploy the Application to'
-  # default: "default"
-  # note: ensure this is lowercase.
-  AppRepo: azure-samples/azure-voting-app-redis
-  # description: 'The GitHub App code repo'
-  # default: "azure-samples/azure-voting-app-redis"
-  # note: you can host app code in your repo.
-  AppRepoREF: "129888"
-  # description: 'The GitHub REF to use when referencing the App code repo'
-  # default: "129888"
-  # optional
-  AppRepoPATH: ./azure-vote
-  # description: 'The directory in the repo containing the Dockerfile'
-  # default: "./azure-vote"
-  Environment: "dev"
-  # description: 'A GitHub Environment to pull action secrets from'
-  # optional. Use if app repo is different from repo that GitHub Actions workflow is running from.
-  ACRRgName: ""
-  # description: 'Resource Group of the Azure Container Registry'
 
 permissions:
       id-token: write
@@ -81,8 +63,8 @@ permissions:
 
 jobs:
   BuildPush:
-    environment: dev
     runs-on: ubuntu-latest
+    environment: ${{ inputs.Environment }}
     steps:
       - name: Get application code from repo
         uses: actions/checkout@v2
@@ -101,58 +83,57 @@ jobs:
         with:
           inlineScript: |
             cd IaC/scripts
-            ./createAppInfra.ps1 -ResourceGroupName ${{ env.ResourceGroupName }} -ACRName ${{ env.ACRName }} -AKSName ${{ env.AKSName }} -Location ${{ env.Region }} -DefaultPrefix ${{ env.DefaultResourcePrefix }}
+            ./createAppInfra.ps1 -ResourceGroupName ${{ inputs.ResourceGroupName }} -ACRName ${{ inputs.ACRName }} -AKSName ${{ inputs.AKSName }} -Location ${{ inputs.Region }}
           azPSVersion: "latest"
       
       - name: Get ACR Password
         id: acr-pwd
         run: |
-          ACR_PASSWORD=$(az acr credential show -g ${{ env.ResourceGroupName }} -n ${{ env.ACRName }} --query passwords[0].value -o tsv)
+          ACR_PASSWORD=$(az acr credential show -g ${{ inputs.ResourceGroupName }} -n ${{ inputs.ACRName }} --query passwords[0].value -o tsv)
           echo "::set-output name=password::$ACR_PASSWORD"
   
       # Retrieves your Azure Kubernetes Service cluster's kubeconfig file
       - name: Get K8s context
         uses: azure/aks-set-context@v2.0
         with:
-          resource-group: ${{ env.ResourceGroupName }}
-          cluster-name: ${{ env.AKSName }}
+          resource-group: ${{ inputs.ResourceGroupName }}
+          cluster-name: ${{ inputs.AKSName }}
 
       # Creates namespace in your Azure Kubernetes Service cluster's if it does not exist
       - name: Create namespace
         run: |
-          namespacePresent=`kubectl get namespace | grep ${{ env.Namespace }} | wc -l`
+          namespacePresent=`kubectl get namespace | grep ${{ inputs.Namespace }} | wc -l`
           if [ $namespacePresent -eq 0 ]
           then
-              echo `kubectl create namespace ${{ env.Namespace }}`
+              echo `kubectl create namespace ${{ inputs.Namespace }}`
           fi
 
       # Logs into the Azure Container Registry (ACR)
       - uses: azure/docker-login@v1
         with:
-          login-server: ${{ env.ACRName }}.azurecr.io
-          username: ${{ env.ACRName }}
+          login-server: ${{ inputs.ACRName }}.azurecr.io
+          username: ${{ inputs.ACRName }}
           password: ${{ steps.acr-pwd.outputs.password }}
       
       - name: Get application code from repo
         uses: actions/checkout@main
         with:
-          repository: ${{ env.AppRepo}}
-          ref: ${{ env.AppRepoREF}}
+          repository: ${{ inputs.AppRepo}}
+          ref: ${{ inputs.AppRepoRef}}
 
       # Builds and Pushes the container image to the Azure Container Registry (ACR)
       - name: Container build and push to a Azure Container Registry (ACR)
         env:
-          AppRepoPATH: "${{ env.AppRepoPATH}}"
-          AppName: "${{ env.AppName }}"
+          AppRepoPath: "${{ inputs.AppRepoPath}}"
+          AppName: "${{ inputs.AppName }}"
         run: |
-          cd $AppRepoPATH
-          docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t ${{ env.ACRName }}.azurecr.io/${{ env.AppName }}:${{ github.run_number }} --label dockerfile-path=Dockerfile
-          docker push ${{ env.ACRName }}.azurecr.io/${{ env.AppName }}:${{ github.run_number }}
+          cd $AppRepoPath
+          docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t ${{ inputs.ACRName }}.azurecr.io/${{ inputs.AppName }}:${{ github.run_number }} --label dockerfile-path=Dockerfile
+          docker push ${{ inputs.ACRName }}.azurecr.io/${{ inputs.AppName }}:${{ github.run_number }}
 
   Update-K8s-Manifests:
     name: Update K8s Deployment Manifest with Image Version
     needs: BuildPush
-    environment: dev
     runs-on: ubuntu-latest
     steps:
 
@@ -173,7 +154,7 @@ jobs:
         inlineScript: |
           $line = Get-Content workloads/azure-vote/front-deployment.yml | Select-String image: | Select-Object -ExpandProperty Line
           $content = Get-Content workloads/azure-vote/front-deployment.yml
-          $content | ForEach-Object {$_ -replace $line,"        image: ${{ env.ACRName }}.azurecr.io/${{ env.AppName }}:${{ github.run_number }}"} | Set-Content workloads/azure-vote/front-deployment.yml
+          $content | ForEach-Object {$_ -replace $line,"        image: ${{ inputs.ACRName }}.azurecr.io/${{ inputs.AppName }}:${{ github.run_number }}"} | Set-Content workloads/azure-vote/front-deployment.yml
         azPSVersion: "latest"
 
     # Commits the changes to the git repository
