@@ -69,7 +69,7 @@ env:
   AppRepoPATH: ./azure-vote
   # description: 'The directory in the repo containing the Dockerfile'
   # default: "./azure-vote"
-  Environment: ${{ github.event.inputs.Environment }}
+  Environment: "dev"
   # description: 'A GitHub Environment to pull action secrets from'
   # optional. Use if app repo is different from repo that GitHub Actions workflow is running from.
   ACRRgName: ""
