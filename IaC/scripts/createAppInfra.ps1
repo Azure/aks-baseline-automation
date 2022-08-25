@@ -16,11 +16,11 @@ param(
 ## Check if resource groups exists with name provided, if not create it
 ## ------------------------------------------------------------------------
 
-Write-Output "*** Check if Resource Group $ACRName exists"
-$checkRg = az group exists --name $ACRName | ConvertFrom-Json
+Write-Output "*** Check if Resource Group $ResourceGroupName exists"
+$checkRg = az group exists --name $ResourceGroupName | ConvertFrom-Json
 if (!$checkRg) {
-  Write-Warning "*** WARN! Resource Group $ACRName does not exist. Creating..."
-  az group create --name $ACRName --location $location
+  Write-Warning "*** WARN! Resource Group $ResourceGroupName does not exist. Creating..."
+  az group create --name $ResourceGroupName --location $Location
 
   if ($LastExitCode -ne 0) {
     throw "*** Error - could not create resource group"
@@ -40,7 +40,7 @@ Write-Output "*** Check if ACR $ACRName exists"
 $checkAcr = az acr show --name $ACRName | ConvertFrom-Json
 if (!$checkAcr) {
   Write-Warning "*** WARN! ACR $ACRName does not exist. Creating..."
-  az acr create -n $ACRName -g $ACRRGNAME --location $Location --sku Standard --admin-enabled
+  az acr create -n $ACRName -g $ResourceGroupName --location $Location --sku Standard --admin-enabled
 
   if ($LastExitCode -ne 0) {
     throw "*** Error - could not create ACR"
@@ -56,10 +56,10 @@ else
 ## Check if cluster exists with name provided, if not create it
 ## ------------------------------------------------------------------------
 
-Write-Output "*** Check if ACR $ACRName exists"
+Write-Output "*** Check if cluster $AKSName exists"
 $checkAKS = az aks show -n $AKSName -g $ResourceGroupName | ConvertFrom-Json
 if (!$checkAKS) {
-  Write-Warning "*** WARN! ACR $ACRName does not exist. Creating..."
+  Write-Warning "*** WARN! AKS $AKSName does not exist. Creating..."
   az aks create -n $AKSName -g $ResourceGroupName --location $Location --attach-acr $ACRName
 
   if ($LastExitCode -ne 0) {

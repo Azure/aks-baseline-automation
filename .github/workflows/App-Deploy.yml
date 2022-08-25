@@ -69,8 +69,8 @@ jobs:
         with:
           inlineScript: |
             ./createAppInfra.ps1 -ResourceGroupName ${{ env.ResourceGroupName }} -ACRName $ ${{ env.ACRNAME }} -AKSName $ ${{ env.AKSNAME }} -Location $Region
-            $ACR_USERNAME=$(az acr credential show -g ${{ env.ACRRGNAME }} -n ${{ env.ACRNAME }} --query username -o tsv)
-            $ACR_PASSWORD=$(az acr credential show -g ${{ env.ACRRGNAME }} -n ${{ env.ACRNAME }} --query passwords[0].value -o tsv)
+            $ACR_USERNAME=$(az acr credential show -g ${{ env.ResourceGroupName }} -n ${{ env.ACRNAME }} --query username -o tsv)
+            $ACR_PASSWORD=$(az acr credential show -g ${{ env.ResourceGroupName }} -n ${{ env.ACRNAME }} --query passwords[0].value -o tsv)
             echo "::set-output name=username::${$ACR_USERNAME}"
             echo "::add-mask::${$ACR_PASSWORD}"
             echo "::set-output name=password::${$ACR_PASSWORD}"
