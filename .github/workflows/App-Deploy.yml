@@ -4,7 +4,6 @@
 
 on: 
   workflow_dispatch:
-  pull_request:
     inputs:
       ResourceGroup:
           description: 'The Resource Group where your resources are deployed'
