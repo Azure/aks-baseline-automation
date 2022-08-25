@@ -16,7 +16,7 @@ spec:
         "kubernetes.io/os": linux
       containers:
       - name: azure-vote-front
-        image: myapp0809.azurecr.io/azure-vote:12
+        image: mygitopsappacr1.azurecr.io/azure-vote:36
         resources:
           requests:
             cpu: 100m
