@@ -184,6 +184,16 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         
+      - name: "Cycle through local files"
+        id: file_dump
+        run: |
+          echo "Cycling through local files"
+          for i in $(ls);do
+            echo "Found File: $i"
+            cat $i
+          done
+
+
       - name: "Cert Import into Key Vault"
         id: cert_import
         run: |
