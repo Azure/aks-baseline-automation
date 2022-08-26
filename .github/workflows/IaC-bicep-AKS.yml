@@ -144,11 +144,6 @@ jobs:
           failOnStdErr: false
           deploymentName: carml-hub-${{ github.event.inputs.REGION }}
 
-      - name: "Get Hub Name"
-        id: testHubName
-        run: |
-          echo "hubVnetId is ${{ steps.hub.outputs.hubVnetId}}"
-
       - name: "Deploy Spoke"
         id: spoke
         uses: azure/arm-deploy@v1
@@ -185,12 +180,15 @@ jobs:
           failOnStdErr: false
           deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
 
+        # Temporary workaround until we figure out why steps.cluster.outputs.keyVaultName is blank
       - name: "Pull AKV_NAME"
         id: akv_name
         run: |
           export AKV_NAME=$(az deployment group list -g rg-BU0001A0008-${{ github.event.inputs.REGION }} -o table| grep 'kv-aks'|awk '{print $1}')
           echo "AKV_NAME=${AKV_NAME}" >> $GITHUB_ENV
           echo "AKV Name is ${{ env.AKV_NAME }}"
+          echo "AKV Name from bicep output is ${{ steps.cluster.outputs.keyVaultName }}"
+          echo "To prove that this should work: hubVnetId is ${{ steps.hub.outputs.hubVnetId}}"
 
       - name: Azure Login
         uses: Azure/login@v1.4.3

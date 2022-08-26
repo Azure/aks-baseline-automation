@@ -162,5 +162,9 @@ jobs:
           echo "aksIngressControllerPodManagedIdentityResourceId from bicep output is ${{ steps.cluster.outputs.aksIngressControllerPodManagedIdentityResourceId }}"
           echo "AKV Name from bicep output is ${{ steps.cluster.outputs.keyVaultName }}"
 
-
+      - name: "Get KeyVault Name"
+        id: testName
+        run: |
+          echo "aksIngressControllerPodManagedIdentityResourceId from bicep output is ${{ steps.cluster.outputs.aksIngressControllerPodManagedIdentityResourceId }}"
+          echo "AKV Name from bicep output is ${{ steps.cluster.outputs.keyVaultName }}"
 
