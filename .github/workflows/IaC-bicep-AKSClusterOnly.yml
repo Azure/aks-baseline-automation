@@ -159,8 +159,7 @@ jobs:
           echo "AKV_NAME=${AKV_NAME}" >> $GITHUB_ENV
           echo "AKV Name extracted by querying is ${AKV_NAME}"
 
-          echo "Vnet ID is ${{ github.event.inputs.clusterVnetResourceId }}"
-          echo "Cluster Name from bicep output is ${{ steps.cluster.outputs.aksClusterName }}"
+          echo "aksIngressControllerPodManagedIdentityResourceId from bicep output is ${{ steps.cluster.outputs.aksIngressControllerPodManagedIdentityResourceId }}"
           echo "AKV Name from bicep output is ${{ steps.cluster.outputs.keyVaultName }}"
 
 

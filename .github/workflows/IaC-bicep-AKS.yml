@@ -144,6 +144,11 @@ jobs:
           failOnStdErr: false
           deploymentName: carml-hub-${{ github.event.inputs.REGION }}
 
+      - name: "Get Hub Name"
+        id: testHubName
+        run: |
+          echo "hubVnetId is ${{ steps.hub.outputs.hubVnetId}}"
+
       - name: "Deploy Spoke"
         id: spoke
         uses: azure/arm-deploy@v1
