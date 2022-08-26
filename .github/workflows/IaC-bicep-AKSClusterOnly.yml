@@ -11,9 +11,6 @@ on:
         description: 'The Azure region to deploy to'
         required: true
         default: westus2
-      ResourceGroup:
-        description: 'The vnet resource group'
-        required: true
       clusterVnetResourceId:
         description: 'The vnet resource ID (not uuid)'
         required: true
@@ -154,7 +151,7 @@ jobs:
           region: ${{ github.event.inputs.REGION }}
           scope: subscription
           template: ./IaC/bicep/rg-spoke/cluster.bicep
-          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json appGatewayListenerCertificate=${{ env.APP_GATEWAY_LISTENER_CERTIFICATE }} aksIngressControllerCertificate=${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE }} targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }} vNetResourceGroup=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }} gitOpsBootstrappingRepoBranch=${{ github.ref_name }}
+          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json appGatewayListenerCertificate=${{ env.APP_GATEWAY_LISTENER_CERTIFICATE }} aksIngressControllerCertificate=${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE }} targetVnetResourceId=${{ github.event.inputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }} vNetResourceGroup=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }} gitOpsBootstrappingRepoBranch=${{ github.ref_name }}
           failOnStdErr: false
           deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
 
@@ -165,8 +162,8 @@ jobs:
           echo "AKV_NAME=${AKV_NAME}" >> $GITHUB_ENV
           echo "AKV Name is ${{ env.AKV_NAME }}"
 
-          echo "Vnet ID is ${{ steps.spoke.outputs.clusterVnetResourceId }}"
-          echo "Proper AKV Name is ${{ steps.spoke.outputs.keyVaultName }}"
+          echo "Vnet ID is ${{ github.event.inputs.clusterVnetResourceId }}"
+          echo "Proper AKV Name is ${{ steps.cluster.outputs.keyVaultName }}"
 
 
 
