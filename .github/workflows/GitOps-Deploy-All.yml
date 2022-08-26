@@ -7,12 +7,12 @@ on:
     inputs:
       ResourceGroupName:
         description: 'The Resource Group where your resources are deployed'
-        required: false
+        required: true
         default: "gitops-example"
         type: string
       AKSName:
         description: 'The Name of the AKS resource'
-        required: false
+        required: true
         default: "mygitopsappaks1"
         type: string
       ACRName:
