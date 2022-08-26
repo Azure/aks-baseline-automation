@@ -2,7 +2,7 @@ kind: ServiceAccount
 apiVersion: v1
 metadata:
   name: traefik-ingress-controller
-  namespace: a0008
+  namespace: traefik
   labels:
     app.kubernetes.io/name: traefik-ingress-ilb
     app.kubernetes.io/instance: traefik-ingress-ilb
@@ -11,7 +11,7 @@ kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: traefik-ingress-controller
-  namespace: a0008
+  namespace: traefik
   labels:
     app.kubernetes.io/name: traefik-ingress-ilb
     app.kubernetes.io/instance: traefik-ingress-ilb
@@ -64,7 +64,7 @@ kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: traefik-watch-workloads
-  namespace: a0008
+  namespace: traefik
   labels:
     app.kubernetes.io/name: traefik-ingress-ilb
     app.kubernetes.io/instance: traefik-ingress-ilb
@@ -75,13 +75,13 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: traefik-ingress-controller
-  namespace: a0008
+  namespace: traefik
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: traefik-ingress-config
-  namespace: a0008
+  namespace: traefik
   labels:
     app.kubernetes.io/name: traefik-ingress-ilb
     app.kubernetes.io/instance: traefik-ingress-ilb
@@ -117,9 +117,9 @@ data:
       # and derives the corresponding dynamic configuration from it. https://kubernetes.io/docs/concepts/services-networking/ingress/
       [providers.kubernetesingress]
         ingressClass = "traefik-internal"
-        namespaces = ["a0008"]
+        namespaces = ["traefik"]
         [providers.kubernetesIngress.ingressEndpoint]
-          publishedService = "a0008/traefik-ingress-service"
+          publishedService = "traefik/traefik-ingress-service"
     # Enable gzip compression
     [http.middlewares]
       [http.middlewares.gzip-compress.compress]
@@ -160,7 +160,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: traefik-ingress-service
-  namespace: a0008
+  namespace: traefik
   labels:
     app.kubernetes.io/name: traefik-ingress-ilb
     app.kubernetes.io/instance: traefik-ingress-ilb
@@ -184,7 +184,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: traefik-ingress-controller
-  namespace: a0008
+  namespace: traefik
   labels:
     app.kubernetes.io/name: traefik-ingress-ilb
     app.kubernetes.io/instance: traefik-ingress-ilb
@@ -232,7 +232,7 @@ spec:
         # image: <your-acr-instance-name>.azurecr.io/library/traefik:v2.5.3
         # in order to use the public image, replace the image setting with the following line
         # - image: docker.io/library/traefik:v2.5.3
-      - image: acrakssxkpbxrw4egok.azurecr.io/library/traefik:v2.5.3
+      - image: ${ACR_NAME_AKS_BASELINE}.azurecr.io/library/traefik:v2.5.3
         name: traefik-ingress-controller
         resources:
           requests:
