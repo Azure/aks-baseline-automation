@@ -5,21 +5,35 @@ Example of shared services could be third-party services such as [Traefik](https
 
 
 This **shared-services** directory is the root of the GitOps configuration directory. The Kubernetes manifest files included in the subdirectories are expected to be deployed via our in-cluster Flux operator. They are our AKS cluster's baseline configurations. 
-The following namespaces contain the resources and services that are automatically setup as soon as the cluster is deployed:
+
+The **namespaces** directory contains the configuration for each namespace and the resources created under those namespaces:
 
 * Namespace **cluster-baseline-settings**: 
   * [Kured](#kured)
   * Azure AD Pod Identity
   * Kubernetes RBAC Role Assignments (cluster and namespace) through Azure AD Groups (_optional_)
-* Namespace: **kube-system**
+* Namespace: **kube-system**:
   * Azure Monitor Prometheus Scraping
-* Namespace: **traefik**
-  * Ingress Controller Traefik
-* Namespace: **a0008**
+* Namespace: **traefik**:
+  * Ingress Controller [Traefik](#Traefik)
+* Namespace: **a0008**:
   * Ingress Network Policy
   * RBAC settings specific to this namespace
 
-The first three namespaces are workload agnostic and tend to all cluster-wide configuration concerns, while the forth one is workload specific. Typically workload specific configuration setting are controlled by the application teams through their own GitHub repos and GitOps solution, which may be different form the one used here to configure the cluster.
+The first three namespaces are workload agnostic and tend to all cluster-wide configuration concerns, while the forth one is workload specific. Typically workload specific configuration setting are controlled by the application teams through their own GitHub repos and GitOps solution, which may be different from flux used here to configure the cluster.
+
+The **cluster** directory contains the configuration that applies to entire cluster (such as ClusterRole, ClusterRoleBinding), rather than to individual namespaces.
+
+### Traefik
+The following files need to be renamed and customized after the cluster deployment in order for the Ingres Controller to be successfully deployed:
+* azureidentity.yaml.template needs to be renamed to azureidentity.yaml and the following parameters set in this file based on your specific environment:
+  *  ${TRAEFIK_USER_ASSIGNED_IDENTITY_RESOURCE_ID}
+  *  ${TRAEFIK_USER_ASSIGNED_IDENTITY_CLIENT_ID}
+* secretproviderclass.yaml.template needs to be renamed to secretproviderclass.yaml and the following parameters set:
+  * ${KEYVAULT_NAME_AKS_BASELINE}
+  * ${TENANTID_AZURERBAC_AKS_BASELINE}
+* traefik.yaml.template needs to be renamed to traefik.yaml the following parameters set:
+  * ${ACR_NAME_AKS_BASELINE}
 
 ### Kured
 
@@ -29,6 +43,6 @@ Kured is included as a solution to handle occasional required reboots from daily
 
 Typically, your bootstrapping repository wouldn't be a public facing repository like this one, but instead a private GitHub or Azure DevOps repo. The Flux operator deployed with the cluster supports private git repositories as your bootstrapping source. In addition to requiring network line of sight to the repository from your cluster's nodes, you'll also need to ensure that you've provided the necessary credentials. This can come, typically, in the form of certificate based SSH or personal access tokens (PAT), both ideally scoped as read-only to the repo with no additional permissions.
 
-If you are using terraform modify the [`flux.yaml`](../../IaC/terraform/configuration/workloads/flux.tfvars) file.
-
-If you are using bicep modify the [`cluster.parameters.json`](../../IaC/bicep/rg-spoke/cluster.parameters.json) file as follow:
+To configure the setting for the GitHub repo that you want flux to pull from, update the parameter file for your cluster:
+* If you are using terraform modify the [`flux.yaml`](../../IaC/terraform/configuration/workloads/flux.tfvars) file.
+* If you are using bicep modify the [`cluster.parameters.json`](../../IaC/bicep/rg-spoke/cluster.parameters.json) file as follow:
