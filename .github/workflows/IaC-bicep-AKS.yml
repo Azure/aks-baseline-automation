@@ -1,4 +1,3 @@
-cquinn@DESKTOP-72A3U61:/mnt/c/Users/carmodyquinn/repos/aks-baseline-automation$ cat .github/workflows/IaC-bicep-AKS.yml
 
 name: 'Deploy CARML based AKS Cluster'
 
