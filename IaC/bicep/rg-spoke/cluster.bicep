@@ -890,15 +890,6 @@ module kubernetesConfigurationFlux2 '../CARML/Microsoft.KubernetesConfiguration/
         prune: true
         force: false
       }
-      workloads: {
-        path: './workloads/apps'
-        dependsOn: []
-        timeoutInSeconds: 300
-        syncIntervalInSeconds: 300
-        retryIntervalInSeconds: null
-        prune: true
-        force: false
-      }
     }
   }
   scope: resourceGroup(resourceGroupName)
