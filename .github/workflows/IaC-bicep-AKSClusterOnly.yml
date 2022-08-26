@@ -58,7 +58,6 @@ jobs:
       - name: "Parameter Check"
         run: |
           echo "Environment : ${{ github.event.inputs.ENVIRONMENT }}"
-          echo "vnet Resource Group : ${{ github.event.inputs.ResourceGroup }}"
           echo "vnet resource ID : ${{ github.event.inputs.clusterVnetResourceId }}"
           echo "ACR : ${{ github.event.inputs.ACRNAME }}"
           echo "K8S Admin Azure AAD Group ObjectID : ${{ github.event.inputs.clusterAdminAadGroupObjectId }}"
@@ -71,8 +70,6 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      #Helps with errors that can occur during deployment: OIDCIssuerFeatureFlagNotEnabled: Enabling OIDC issuer is not allowed since feature 'Microsoft.ContainerService/EnableOIDCIssuerPreview' is not enabled
-      #                                                    AzureDefenderFeatureFlagNotEnabled: AzureDefender installation is not allowed since feature 'Microsoft.ContainerService/AKS-AzureDefender' is not enabled.
       - name: "Check Preview Features"
         shell: pwsh
         run: |
@@ -160,10 +157,11 @@ jobs:
         run: |
           export AKV_NAME=$(az deployment group list -g rg-BU0001A0008-${{ github.event.inputs.REGION }} -o table| grep 'kv-aks'|awk '{print $1}')
           echo "AKV_NAME=${AKV_NAME}" >> $GITHUB_ENV
-          echo "AKV Name is ${{ env.AKV_NAME }}"
+          echo "AKV Name extracted by querying is ${AKV_NAME}"
 
           echo "Vnet ID is ${{ github.event.inputs.clusterVnetResourceId }}"
-          echo "Proper AKV Name is ${{ steps.cluster.outputs.keyVaultName }}"
+          echo "Cluster Name from bicep output is ${{ steps.cluster.outputs.aksClusterName }}"
+          echo "AKV Name from bicep output is ${{ steps.cluster.outputs.keyVaultName }}"
 
 
 

@@ -1680,4 +1680,5 @@ module EnforceImageSource '../CARML/Microsoft.Authorization/policyAssignments/re
 output aksClusterName string = clusterName
 output aksIngressControllerPodManagedIdentityResourceId string = podmi_ingress_controller.outputs.resourceId
 // output aksIngressControllerPodManagedIdentityClientId string = podmi_ingress_controller.outputs.msiClientId
-output keyVaultName string = keyVaultName
+//output keyVaultName string = keyVaultName
+output keyVaultName string = keyVault.outputs.name
