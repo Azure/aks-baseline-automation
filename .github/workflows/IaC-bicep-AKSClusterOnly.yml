@@ -165,26 +165,8 @@ jobs:
           echo "AKV_NAME=${AKV_NAME}" >> $GITHUB_ENV
           echo "AKV Name is ${{ env.AKV_NAME }}"
 
-      - name: "Cert Import into Key Vault"
-        id: cert_import
-        run: |
-          ASSIGNEE_OBJ_ID=$(az ad sp show --id ${{ secrets.AZURE_CLIENT_ID }} --query id -o tsv)
-          echo "ASSIGNEE_OBJ_ID=$ASSIGNEE_OBJ_ID" >> $GITHUB_ENV
-          AKV_RESOURCE_ID=$(az keyvault show -n ${{ env.AKV_NAME }} --query id -o tsv)
-          echo "AKV_RESOURCE_ID=$AKV_RESOURCE_ID" >> $GITHUB_ENV
-          TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT=$(az role assignment create --role a4417e6f-fecd-4de8-b567-7b0420556985 --assignee-principal-type serviceprincipal --assignee-object-id $ASSIGNEE_OBJ_ID --scope $AKV_RESOURCE_ID | jq '.id' )
-          echo "TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT=$TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT" >> $GITHUB_ENV
-
-          sleep 60
-
-          CURRENT_IP_ADDRESS=$(curl -s -4 https://ifconfig.io)
-          echo "CURRENT_IP_ADDRESS=$CURRENT_IP_ADDRESS" >> $GITHUB_ENV
-          az keyvault network-rule add -n ${{ env.AKV_NAME }} --ip-address ${CURRENT_IP_ADDRESS}
-
-          sleep 30
-
-          cat traefik-ingress-internal-aks-ingress-tls.crt traefik-ingress-internal-aks-ingress-tls.key > traefik-ingress-internal-aks-ingress-tls.pem
-          az keyvault certificate import -f traefik-ingress-internal-aks-ingress-tls.pem -n traefik-ingress-internal-aks-ingress-tls --vault-name ${{ env.AKV_NAME }}
+          echo "Vnet ID is ${{ steps.spoke.outputs.clusterVnetResourceId }}"
+          echo "Proper AKV Name is ${{ steps.spoke.outputs.keyVaultName }}"
 
 
 
