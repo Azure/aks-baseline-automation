@@ -154,11 +154,11 @@ jobs:
           deploymentName: carml-registry-${{ github.event.inputs.REGION }}
 
       # Import core images hosted in public container registries to be used during bootstrapping
-      - name: "Import Images into ACR for flux"
-        id: image_import
-        run: |
-          az acr import --source docker.io/weaveworks/kured:1.10.1 -n ${{ steps.registry.outputs.containerRegistryName }}
-          az acr import --source docker.io/library/traefik:v2.8.1 -n ${{ steps.registry.outputs.containerRegistryName }}
+      #- name: "Import Images into ACR for flux"
+      #  id: image_import
+      #  run: |
+      #    az acr import --source docker.io/weaveworks/kured:1.10.1 -n ${{ steps.registry.outputs.containerRegistryName }}
+      #    az acr import --source docker.io/library/traefik:v2.8.1 -n ${{ steps.registry.outputs.containerRegistryName }}
 
       - name: "Deploy Cluster"
         id: cluster
