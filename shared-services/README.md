@@ -25,7 +25,7 @@ The first three namespaces are workload agnostic and tend to all cluster-wide co
 The **cluster** directory contains the configuration that applies to entire cluster (such as ClusterRole, ClusterRoleBinding), rather than to individual namespaces.
 
 ### Traefik
-The following files need to be renamed and customized after the cluster deployment in order for the Ingres Controller to be successfully deployed:
+The following files need to be renamed and customized for flux to deploy the Traefik Ingress Controller:
 * azureidentity.yaml.template needs to be renamed to azureidentity.yaml and the following parameters set in this file based on your specific environment:
   *  ${TRAEFIK_USER_ASSIGNED_IDENTITY_RESOURCE_ID}
   *  ${TRAEFIK_USER_ASSIGNED_IDENTITY_CLIENT_ID}
@@ -35,6 +35,7 @@ The following files need to be renamed and customized after the cluster deployme
 * traefik.yaml.template needs to be renamed to traefik.yaml the following parameters set:
   * ${ACR_NAME_AKS_BASELINE}
 
+Note that most of the parameters requested above will only be available to you after the deployment of your cluster.
 ### Kured
 
 Kured is included as a solution to handle occasional required reboots from daily OS patching. This open-source software component is only needed if you require a managed rebooting solution between weekly [node image upgrades](https://docs.microsoft.com/azure/aks/node-image-upgrade). Building a process around deploying node image upgrades [every week](https://github.com/Azure/AKS/releases) satisfies most organizational weekly patching cadence requirements. Combined with most security patches on Linux not requiring reboots often, this leaves your cluster in a well supported state. If weekly node image upgrades satisfies your business requirements, then remove Kured from this solution by deleting [`kured.yaml`](./cluster-baseline-settings/kured.yaml). If however weekly patching using node image upgrades is not sufficient and you need to respond to daily security updates that mandate a reboot ASAP, then using a solution like Kured will help you achieve that objective. **Kured is not supported by Microsoft Support.**
@@ -45,4 +46,4 @@ Typically, your bootstrapping repository wouldn't be a public facing repository 
 
 To configure the setting for the GitHub repo that you want flux to pull from, update the parameter file for your cluster:
 * If you are using terraform modify the [`flux.yaml`](../../IaC/terraform/configuration/workloads/flux.tfvars) file.
-* If you are using bicep modify the [`cluster.parameters.json`](../../IaC/bicep/rg-spoke/cluster.parameters.json) file as follow:
+* If you are using bicep modify the [`cluster.parameters.json`](../../IaC/bicep/rg-spoke/cluster.parameters.json) file.

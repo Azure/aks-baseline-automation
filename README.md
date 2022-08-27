@@ -3,6 +3,7 @@
     - [Deploy AKS using GitHub Actions and Bicep](#deploy-aks-using-github-actions-and-bicep)
     - [Deploy AKS using GitHub Actions and Terraform](#deploy-aks-using-github-actions-and-terraform)
   - [Shared-Services](#shared-services)
+    - [Deploy the Shared Services within the cluster](#deploy-the-shared-services-within-the-cluster)
   - [Application Deployment](#application-deployment)
     - [Deploy the sample application using GitHub Actions](#deploy-the-sample-application-using-github-actions)
   - [Lifecycle-Management](#lifecycle-management)
@@ -56,6 +57,9 @@ The GitOps solution features:
 Note: as this reference implementation and reference architecture launch, content from the [AKS Baseline (RA/RI)](https://github.com/mspnp/aks-baseline) around GitOps will be updated to point to this RA/RI to give the user a chance to do a deep dive. The AKS Baseline will keep using flux to bootstrap the cluster, but it won’t get into lifecycle management or opinionated kustomization folder structures, etc like this one will.
 
 ![Shared-Services Deployment](./docs/.attachments/shared-services.jpg)
+
+### Deploy the Shared Services within the cluster
+Under the **shared-services** folder you will find the instructions and the code to deploy the same shared services included in the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline). The steps to deploy them through GitOps using flux can be found [here](https://github.com/Azure/aks-baseline-automation/tree/main/IaC/terraform).
 
 ## Application Deployment
 This section demonstrates the deployment of an application composed of multiple services by leveraging two options:
