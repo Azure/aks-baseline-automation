@@ -153,7 +153,7 @@ jobs:
           failOnStdErr: false
           deploymentName: carml-registry-${{ github.event.inputs.REGION }}
 
-      # Import core image(s) hosted in public container registries to be used during bootstrapping
+      # Import core images hosted in public container registries to be used during bootstrapping
       - name: "Import Images into ACR for flux"
         id: image_import
         run: |
@@ -182,14 +182,15 @@ jobs:
           echo "AKV Name from bicep output is ${{ steps.cluster.outputs.keyVaultName }}"
           echo "To prove that this should work: hubVnetId is ${{ steps.hub.outputs.hubVnetId }}"
 
-      - name: Azure Login
-        uses: Azure/login@v1.4.3
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+#- name: Azure Login
+#        uses: Azure/login@v1.4.3
+#        with:
+#          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+#          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+#          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       # This step is just used for convenience as the certificate used in your environment will likely be generated and imported into KeyVault by your security team 
+      # This step imports into KeyVault the same backend cert that was generated above for the App Gateway. This cert will be used by the Ingress Controller Traefik.
       - name: "Cert Import into Key Vault for Traefik"
         id: cert_import
         run: |
@@ -208,5 +209,6 @@ jobs:
           az keyvault certificate import -f traefik-ingress-internal-aks-ingress-tls.pem -n traefik-ingress-internal-aks-ingress-tls --vault-name ${{ env.AKV_NAME }}
 
           az keyvault network-rule remove -n ${{ env.AKV_NAME }} --ip-address ${CURRENT_IP_ADDRESS}
+          echo "TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT: ${TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT}"
           az role assignment delete --ids ${TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT}
 
