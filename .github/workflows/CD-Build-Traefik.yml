@@ -119,24 +119,24 @@ jobs:
           sed -i "s/\${TENANTID_AZURERBAC_AKS_BASELINE}/${{ secrets.AZURE_TENANT_ID }}/g" ${{ env.TMPWORKDIR }}/secretproviderclass.yaml
           sed -i "s/\${ACR_NAME_AKS_BASELINE}/${{ inputs.ACRNAME }}/g" ${{ env.TMPWORKDIR }}/traefik.yaml
 
-      - name: Move yaml files to cluster mainifest directory and remove temp working dir
+      - name: Move yaml files to cluster manifest directory and remove temp working dir
         run: |
           cp ${{ env.TMPWORKDIR }}/*.yaml shared-services/cluster-manifests/a0008/
           rm -rf ${{ env.TMPWORKDIR }}
 
       - name: Check AzureIdentity yaml
         run: |
-          echo "Traefiks AzureIdentity yaml file:"
+          echo "Traefik AzureIdentity yaml file:"
           cat shared-services/cluster-manifests/a0008/azureidentity.yaml
 
       - name: Check SecretProviderClass yaml
         run: |
-          echo "Traefiks secretproviderclass yaml file:"
+          echo "Traefik secretproviderclass yaml file:"
           cat shared-services/cluster-manifests/a0008/secretproviderclass.yaml
 
       - name: Check Traefiks deployment yaml
         run: |
-          echo "Traefiks deployment yaml file:"
+          echo "Traefik deployment yaml file:"
           cat shared-services/cluster-manifests/a0008/traefik.yaml
 
       - name: Commit files

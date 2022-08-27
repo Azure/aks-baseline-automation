@@ -14,16 +14,6 @@ on:
       clusterVnetResourceId:
         description: 'The vnet resource ID (not uuid)'
         required: true
-      DOMAIN:
-        description: 'The domain name to use for the certs (ie: contoso.com)'
-        required: true
-        default: 'contoso.com'
-        type: string
-      CN:
-        description: 'The CN to be used along with the Domain (ie: bicycle will result in fqdn of bycicle.contoso.com)'
-        required: true
-        default: 'bicycle'
-        type: string
       ACRNAME:
         description: 'The Name of the ACR resource'
         required: true
@@ -124,8 +114,8 @@ jobs:
       - name: "Cert Generation"
         id: cert
         run: |
-          export DOMAIN_NAME_AKS_BASELINE=${{ inputs.DOMAIN }}
-          export CN=${{ inputs.CN }}
+          export DOMAIN_NAME_AKS_BASELINE="contoso.com"
+          export CN="bicycle"
           openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out appgw.crt -keyout appgw.key -subj "/CN=${CN}.${DOMAIN_NAME_AKS_BASELINE}/O=Contoso Bicycle" -addext "subjectAltName = DNS:${CN}.${DOMAIN_NAME_AKS_BASELINE}" -addext "keyUsage = digitalSignature" -addext "extendedKeyUsage = serverAuth"
           openssl pkcs12 -export -out appgw.pfx -in appgw.crt -inkey appgw.key -passout pass:
           export APP_GATEWAY_LISTENER_CERTIFICATE_AKS_BASELINE=$(cat appgw.pfx | base64 | tr -d '\n')
