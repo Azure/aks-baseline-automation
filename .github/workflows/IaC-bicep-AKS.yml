@@ -153,7 +153,12 @@ jobs:
           failOnStdErr: false
           deploymentName: carml-registry-${{ github.event.inputs.REGION }}
 
-      # TODO: Add a step to import the kured image into the ACR for flux
+      # Import core image(s) hosted in public container registries to be used during bootstrapping
+      - name: "Import Images into ACR for flux"
+        id: ACR Image Import
+        run: |
+          az acr import --source docker.io/weaveworks/kured:1.10.1 -n ${{ steps.cluster.outputs.containerRegistryName }}
+          az acr import --source docker.io/library/traefik:v2.8.1 -n ${{ steps.cluster.outputs.containerRegistryName }}
 
       - name: "Deploy Cluster"
         id: cluster
@@ -168,14 +173,14 @@ jobs:
           deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
 
         # Temporary workaround until we figure out why steps.cluster.outputs.keyVaultName is blank
-      - name: "Pull AKV_NAME"
+      - name: "Get KeyVault Name"
         id: akv_name
         run: |
           export AKV_NAME=$(az deployment group list -g rg-BU0001A0008-${{ github.event.inputs.REGION }} -o table| grep 'kv-aks'|awk '{print $1}')
           echo "AKV_NAME=${AKV_NAME}" >> $GITHUB_ENV
           echo "AKV Name is ${{ env.AKV_NAME }}"
           echo "AKV Name from bicep output is ${{ steps.cluster.outputs.keyVaultName }}"
-          echo "To prove that this should work: hubVnetId is ${{ steps.hub.outputs.hubVnetId}}"
+          echo "To prove that this should work: hubVnetId is ${{ steps.hub.outputs.hubVnetId }}"
 
       - name: Azure Login
         uses: Azure/login@v1.4.3
