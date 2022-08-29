@@ -28,7 +28,7 @@ The **cluster** directory contains the configuration that applies to entire clus
 
 Typically, your bootstrapping repository wouldn't be a public facing repository like this one, but instead a private GitHub or Azure DevOps repo. The Flux operator deployed with the cluster supports private git repositories as your bootstrapping source. In addition to requiring network line of sight to the repository from your cluster's nodes, you'll also need to ensure that you've provided the necessary credentials. This can come, typically, in the form of certificate based SSH or personal access tokens (PAT), both ideally scoped as read-only to the repo with no additional permissions.
 
-To configure the setting for the GitHub repo that you want flux to pull from, update the parameter file for your cluster rior :
+To configure the settings for the GitHub repo that you want flux to pull from, update the parameter file for your cluster prior to deploying it:
 * If you are using terraform modify the [`flux.yaml`](../../IaC/terraform/configuration/workloads/flux.tfvars) file.
 * If you are using bicep modify the [`cluster.parameters.json`](../../IaC/bicep/rg-spoke/cluster.parameters.json) file.
   
