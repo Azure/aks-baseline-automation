@@ -23,7 +23,7 @@
                 "timeoutInSeconds": 180,
                 "syncIntervalInSeconds": 300,
                 "repositoryRef": {
-                    "branch": "main"
+                    "branch": "CarmodyMatt"
                 },
                 "sshKnownHosts": ""
             }
@@ -31,7 +31,7 @@
         "kustomizations": {
             "value": {
                 "unified": {
-                    "path": "./shared-services/cluster-manifests",
+                    "path": "./shared-services",
                     "dependsOn": [],
                     "timeoutInSeconds": 300,
                     "syncIntervalInSeconds": 300,
