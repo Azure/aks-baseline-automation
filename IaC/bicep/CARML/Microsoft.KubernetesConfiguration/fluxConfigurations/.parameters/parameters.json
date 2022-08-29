@@ -31,7 +31,11 @@
         "kustomizations": {
             "value": {
                 "unified": {
+<<<<<<< CarmodyMatt
                     "path": "./shared-services",
+=======
+                    "path": "./shared-services/cluster-manifests",
+>>>>>>> main
                     "dependsOn": [],
                     "timeoutInSeconds": 300,
                     "syncIntervalInSeconds": 300,

@@ -798,6 +798,21 @@ module managedIdentityOperatorRole '../CARML/Microsoft.ContainerService/managedC
     rg
   ]
 }
+module managedIdentityOperatorRole2 '../CARML/Microsoft.Resources/resourceGroups/.bicep/nested_rbac.bicep' = {
+  name: 'managedIdentityOperatorRole2'
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    cluster
+    rg
+  ]
+  params: {
+    resourceId: resourceGroupName
+    principalIds: [
+      cluster.outputs.kubeletidentityObjectId
+    ]
+    roleDefinitionIdOrName: 'Managed Identity Operator'
+  }
+}
 
 module managedIdentityOperatorRole2 '../CARML/Microsoft.Resources/resourceGroups/.bicep/nested_rbac.bicep' = {
   name: 'managedIdentityOperatorRole2'

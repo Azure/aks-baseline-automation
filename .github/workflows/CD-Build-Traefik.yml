@@ -72,6 +72,7 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+<<<<<<< CarmodyMatt
       - name: list ACR images
         run: |
           az acr list -g $RG
@@ -79,6 +80,11 @@ jobs:
       - name: Push to a Azure Container Registry (ACR)
         run: |
           az acr import --source docker.io/library/traefik:v2.5.3 -n ${{ inputs.ACRNAME }} -g $RG --force
+=======
+      - name: Push to a Azure Container Registry (ACR)
+        run: |
+          az acr import --source docker.io/library/traefik:v2.5.3 -n ${{ inputs.ACRNAME }} --force
+>>>>>>> main
 
       - name: Pull identity information
         run: |
@@ -119,24 +125,40 @@ jobs:
           sed -i "s/\${TENANTID_AZURERBAC_AKS_BASELINE}/${{ secrets.AZURE_TENANT_ID }}/g" ${{ env.TMPWORKDIR }}/secretproviderclass.yaml
           sed -i "s/\${ACR_NAME_AKS_BASELINE}/${{ inputs.ACRNAME }}/g" ${{ env.TMPWORKDIR }}/traefik.yaml
 
+<<<<<<< CarmodyMatt
       - name: Move yaml files to cluster manifest directory and remove temp working dir
+=======
+      - name: Move yaml files to cluster mainifest directory and remove temp working dir
+>>>>>>> main
         run: |
           cp ${{ env.TMPWORKDIR }}/*.yaml shared-services/cluster-manifests/a0008/
           rm -rf ${{ env.TMPWORKDIR }}
 
       - name: Check AzureIdentity yaml
         run: |
+<<<<<<< CarmodyMatt
           echo "Traefik AzureIdentity yaml file:"
+=======
+          echo "Traefiks AzureIdentity yaml file:"
+>>>>>>> main
           cat shared-services/cluster-manifests/a0008/azureidentity.yaml
 
       - name: Check SecretProviderClass yaml
         run: |
+<<<<<<< CarmodyMatt
           echo "Traefik secretproviderclass yaml file:"
+=======
+          echo "Traefiks secretproviderclass yaml file:"
+>>>>>>> main
           cat shared-services/cluster-manifests/a0008/secretproviderclass.yaml
 
       - name: Check Traefiks deployment yaml
         run: |
+<<<<<<< CarmodyMatt
           echo "Traefik deployment yaml file:"
+=======
+          echo "Traefiks deployment yaml file:"
+>>>>>>> main
           cat shared-services/cluster-manifests/a0008/traefik.yaml
 
       - name: Commit files
