@@ -19,11 +19,11 @@
         },
         "gitRepository": {
             "value": {
-                "url": "https://github.com/mspnp/aks-baseline",
+                "url": "https://github.com/Azure/aks-baseline-automation"
                 "timeoutInSeconds": 180,
                 "syncIntervalInSeconds": 300,
                 "repositoryRef": {
-                    "branch": "main"
+                    "branch": "CarmodyMatt"
                 },
                 "sshKnownHosts": ""
             }
@@ -31,7 +31,11 @@
         "kustomizations": {
             "value": {
                 "unified": {
+<<<<<<< CarmodyMatt
+                    "path": "./shared-services",
+=======
                     "path": "./shared-services/cluster-manifests",
+>>>>>>> main
                     "dependsOn": [],
                     "timeoutInSeconds": 300,
                     "syncIntervalInSeconds": 300,

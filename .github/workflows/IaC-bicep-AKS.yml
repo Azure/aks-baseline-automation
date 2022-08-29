@@ -21,11 +21,6 @@ on:
         required: true
         type: text
 
-#  pull_request:
-#    branches: main
-#    paths:
-#      - "IaC/bicep/*"
-
 env:
   event_sha: +refs/pull/${{ github.event.issue.number }}/merge
 
@@ -56,8 +51,6 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      #Helps with errors that can occur during deployment: OIDCIssuerFeatureFlagNotEnabled: Enabling OIDC issuer is not allowed since feature 'Microsoft.ContainerService/EnableOIDCIssuerPreview' is not enabled
-      #                                                    AzureDefenderFeatureFlagNotEnabled: AzureDefender installation is not allowed since feature 'Microsoft.ContainerService/AKS-AzureDefender' is not enabled.
       - name: "Check Preview Features"
         shell: pwsh
         run: |
@@ -102,6 +95,21 @@ jobs:
         with:
           fetch-depth: 0
 
+      # This step is just used for convenience as you won't be using self-signed certificate in your production environment.
+      # The certificate used in your environment will likely be generated and imported into KeyVault by your security team 
+      - name: "Cert Generation"
+        id: cert
+        run: |
+          export DOMAIN_NAME_AKS_BASELINE="contoso.com"
+          export CN="bicycle"
+          openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out appgw.crt -keyout appgw.key -subj "/CN=${CN}.${DOMAIN_NAME_AKS_BASELINE}/O=Contoso Bicycle" -addext "subjectAltName = DNS:${CN}.${DOMAIN_NAME_AKS_BASELINE}" -addext "keyUsage = digitalSignature" -addext "extendedKeyUsage = serverAuth"
+          openssl pkcs12 -export -out appgw.pfx -in appgw.crt -inkey appgw.key -passout pass:
+          export APP_GATEWAY_LISTENER_CERTIFICATE_AKS_BASELINE=$(cat appgw.pfx | base64 | tr -d '\n')
+          echo "APP_GATEWAY_LISTENER_CERTIFICATE=$APP_GATEWAY_LISTENER_CERTIFICATE_AKS_BASELINE" >> $GITHUB_ENV
+          openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out traefik-ingress-internal-aks-ingress-tls.crt -keyout traefik-ingress-internal-aks-ingress-tls.key -subj "/CN=*.aks-ingress.${DOMAIN_NAME_AKS_BASELINE}/O=Contoso AKS Ingress"
+          export AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE=$(cat traefik-ingress-internal-aks-ingress-tls.crt | base64 | tr -d '\n')
+          echo "AKS_INGRESS_CONTROLLER_CERTIFICATE=$AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE" >> $GITHUB_ENV
+
       - name: Azure Login
         uses: Azure/login@v1.4.3
         with:
@@ -145,6 +153,13 @@ jobs:
           failOnStdErr: false
           deploymentName: carml-registry-${{ github.event.inputs.REGION }}
 
+      # Import core images hosted in public container registries to be used during bootstrapping
+      - name: "Import Images into ACR for flux"
+        id: image_import
+        run: |
+          az acr import --source docker.io/weaveworks/kured:1.10.1 -n ${{ steps.registry.outputs.containerRegistryName }} --force
+          az acr import --source docker.io/library/traefik:v2.8.1 -n ${{ steps.registry.outputs.containerRegistryName }} --force
+
       - name: "Deploy Cluster"
         id: cluster
         uses: azure/arm-deploy@v1
@@ -153,6 +168,52 @@ jobs:
           region: ${{ github.event.inputs.REGION }}
           scope: subscription
           template: ./IaC/bicep/rg-spoke/cluster.bicep
+<<<<<<< CarmodyMatt
+          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json appGatewayListenerCertificate=${{ env.APP_GATEWAY_LISTENER_CERTIFICATE }} aksIngressControllerCertificate=${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE }} targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }} vNetResourceGroup=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }} gitOpsBootstrappingRepoBranch=${{ github.ref_name }}
+=======
           parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }} vNetResourceGroup=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }} gitOpsBootstrappingRepoBranch=${{ github.ref_name }}
+>>>>>>> main
           failOnStdErr: false
           deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
+
+        # Temporary workaround until we figure out why steps.cluster.outputs.keyVaultName is blank
+      - name: "Get KeyVault Name"
+        id: akv_name
+        run: |
+          export AKV_NAME=$(az deployment group list -g rg-BU0001A0008-${{ github.event.inputs.REGION }} -o table| grep 'kv-aks'|awk '{print $1}')
+          echo "AKV_NAME=${AKV_NAME}" >> $GITHUB_ENV
+          echo "AKV Name is ${{ env.AKV_NAME }}"
+          echo "AKV Name from bicep output is ${{ steps.cluster.outputs.keyVaultName }}"
+          echo "To prove that this should work: hubVnetId is ${{ steps.hub.outputs.hubVnetId }}"
+
+        # Re-authentication is required for the commands that follow
+      - name: Azure Login
+        uses: Azure/login@v1.4.3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # This step is just used for convenience as the certificate used in your environment will likely be generated and imported into KeyVault by your security team 
+      # This step imports into KeyVault the same backend cert that was generated above for the App Gateway. This cert will be used by the Ingress Controller Traefik.
+      - name: "Cert Import into Key Vault for Traefik"
+        id: cert_import
+        run: |
+          ASSIGNEE_OBJ_ID=$(az ad sp show --id ${{ secrets.AZURE_CLIENT_ID }} --query id -o tsv)
+          AKV_RESOURCE_ID=$(az keyvault show -n ${{ env.AKV_NAME }} --query id -o tsv)
+          TEMP_ROLEASSIGNMENT_TO_UPLOAD_CERT=$(az role assignment create --role a4417e6f-fecd-4de8-b567-7b0420556985 --assignee-principal-type serviceprincipal --assignee-object-id $ASSIGNEE_OBJ_ID --scope $AKV_RESOURCE_ID | jq '.id' )
+
+          sleep 60
+
+          CURRENT_IP_ADDRESS=$(curl -s -4 https://ifconfig.io)
+          az keyvault network-rule add -n ${{ env.AKV_NAME }} --ip-address ${CURRENT_IP_ADDRESS}
+
+          sleep 30
+
+          cat traefik-ingress-internal-aks-ingress-tls.crt traefik-ingress-internal-aks-ingress-tls.key > traefik-ingress-internal-aks-ingress-tls.pem
+          az keyvault certificate import -f traefik-ingress-internal-aks-ingress-tls.pem -n traefik-ingress-internal-aks-ingress-tls --vault-name ${{ env.AKV_NAME }}
+
+          az keyvault network-rule remove -n ${{ env.AKV_NAME }} --ip-address ${CURRENT_IP_ADDRESS}
+          az role assignment delete --role a4417e6f-fecd-4de8-b567-7b0420556985 --assignee $ASSIGNEE_OBJ_ID --scope $AKV_RESOURCE_ID
+          
+

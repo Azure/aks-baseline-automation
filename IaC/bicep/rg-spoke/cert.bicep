@@ -23,10 +23,16 @@ param existingManagedIdentitySubId string = subscription().subscriptionId
 param existingManagedIdentityResourceGroupName string = resourceGroup().name
 
 @description('The name of the certificate to create')
-param certificateName string
+param certificateNameFE string
 
 @description('The common name of the certificate to create')
-param certificateCommonName string = certificateName
+param certificateCommonNameFE string = certificateNameFE
+
+@description('The name of the certificate to create')
+param certificateNameBE string
+
+@description('The common name of the certificate to create')
+param certificateCommonNameBE string = certificateNameBE
 
 @description('A delay before the script import operation starts. Primarily to allow Azure AAD Role Assignments to propagate')
 param initialScriptDelay string = '0'
@@ -76,7 +82,7 @@ resource rbacKv2 'Microsoft.Authorization/roleAssignments@2020-08-01-preview' = 
 }
 
 resource createImportCert 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: 'AKV-Cert-${akv.name}-${replace(replace(certificateName,':',''),'/','-')}'
+  name: 'AKV-Cert-${akv.name}-${replace(replace(certificateNameFE,':',''),'/','-')}'
   location: location
   identity: {
     type: 'UserAssigned'
@@ -100,12 +106,20 @@ resource createImportCert 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
         value: akvName
       }
       {
-        name: 'certName'
-        value: certificateName
+        name: 'certNameFE'
+        value: certificateNameFE
       }
       {
-        name: 'certCommonName'
-        value: certificateCommonName
+        name: 'certCommonNameFE'
+        value: certificateCommonNameFE
+      }
+      {
+        name: 'certNameBE'
+        value: certificateNameBE
+      }
+      {
+        name: 'certCommonNameBE'
+        value: certificateCommonNameBE
       }
       {
         name: 'initialDelay'
@@ -135,44 +149,25 @@ resource createImportCert 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
       retryLoopCount=0
       until [ $retryLoopCount -ge $retryMax ]
       do
-        echo "Creating AKV Cert $certName with CN $certCommonName (attempt $retryLoopCount)..."
-        az keyvault certificate create --vault-name $akvName -n $certName -p "$(az keyvault certificate get-default-policy | sed -e s/CN=CLIGetDefaultPolicy/CN=${certCommonName}/g )" \
+        echo "Creating AKV Cert $certNameFE with CN $certCommonNameFE (attempt $retryLoopCount)..."
+        az keyvault certificate create --vault-name $akvName -n $certNameFE -p "$(az keyvault certificate get-default-policy | sed -e s/CN=CLIGetDefaultPolicy/CN=${certCommonNameFE}/g )" \
           && break
 
         sleep $retrySleep
         retryLoopCount=$((retryLoopCount+1))
-      done
-
-      echo "Getting Certificate $certName";
+    done
+      #Retry loop to catch errors (usually RBAC delays)
       retryLoopCount=0
-      createdCert=$(az keyvault certificate show -n $certName --vault-name $akvName -o json)
-      while [ -z "$(echo $createdCert | jq -r '.x509ThumbprintHex')" ] && [ $retryLoopCount -lt $retryMax ]
+      until [ $retryLoopCount -ge $retryMax ]
       do
-        echo "Waiting for cert creation (attempt $retryLoopCount)..."
+        echo "Creating AKV Cert $certNameBE with CN $certCommonNameBE (attempt $retryLoopCount)..."
+        az keyvault certificate create --vault-name $akvName -n $certNameBE -p "$(az keyvault certificate get-default-policy | sed -e s/CN=CLIGetDefaultPolicy/CN=${certCommonNameBE}/g )" \
+          && break
+  
         sleep $retrySleep
-        createdCert=$(az keyvault certificate show -n $certName --vault-name $akvName -o json)
         retryLoopCount=$((retryLoopCount+1))
-      done
-
-      unversionedSecretId=$(echo $createdCert | jq -r ".sid" | cut -d'/' -f-5) # remove the version from the url;
-      jsonOutputString=$(echo $createdCert | jq --arg usid $unversionedSecretId '{name: .name ,certSecretId: {versioned: .sid, unversioned: $usid }, thumbprint: .x509Thumbprint, thumbprintHex: .x509ThumbprintHex}')
-      echo $jsonOutputString > $AZ_SCRIPTS_OUTPUT_PATH
+    done
     '''
     cleanupPreference: cleanupPreference
   }
 }
-
-@description('Certificate name')
-output certificateName string = createImportCert.properties.outputs.name
-
-@description('KeyVault secret id to the created version')
-output certificateSecretId string = createImportCert.properties.outputs.certSecretId.versioned
-
-@description('KeyVault secret id which uses the unversioned uri')
-output certificateSecretIdUnversioned string = createImportCert.properties.outputs.certSecretId.unversioned
-
-@description('Certificate Thumbprint')
-output certificateThumbprint string = createImportCert.properties.outputs.thumbprint
-
-@description('Certificate Thumbprint (in hex)')
-output certificateThumbprintHex string = createImportCert.properties.outputs.thumbprintHex

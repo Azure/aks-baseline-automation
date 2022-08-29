@@ -85,6 +85,8 @@ var keyVaultName = 'kv-${clusterName}'
 var aksIngressDomainName = 'aks-ingress.${domainName}'
 var aksBackendDomainName = 'bu0001a0008-00.${aksIngressDomainName}'
 var isUsingAzureRBACasKubernetesRBAC = (subscription().tenantId == k8sControlPlaneAuthorizationTenantId)
+param appGatewayListenerCertificate string
+param aksIngressControllerCertificate string
 
 module rg '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
   name: resourceGroupName
@@ -99,16 +101,18 @@ resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
   name: defaultAcrName
 }
 
-module akvCertFrontend './cert.bicep' = {
-  name: 'CreateFeKvCert'
-  params: {
-    location: location
-    akvName: keyVault.name
-    certificateName: 'frontendCertificate'
-    certificateCommonName:  'frontendCertificate'
-  }
-  scope: resourceGroup(resourceGroupName)
-}
+// module akvCertFrontend './cert.bicep' = {
+//   name: 'CreateFeKvCert'
+//   params: {
+//     location: location
+//     akvName: keyVault.name
+//     certificateNameFE: 'frontendCertificate'
+//     certificateCommonNameFE: 'bicycle.${domainName}'
+//     certificateNameBE: 'backendCertificate'
+//     certificateCommonNameBE: '*.aks-ingress.${domainName}'
+//   }
+//   scope: resourceGroup(resourceGroupName)
+// }
 
 module nodeRgRbac '../CARML/Microsoft.Resources/resourceGroups/.bicep/nested_rbac.bicep' = {
   name: '${nodeResourceGroupName}-rbac'
@@ -146,11 +150,11 @@ module clusterLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep
     //   }
     // ]
     gallerySolutions: [
-      {
-        name: 'ContainerInsights'
-        product: 'OMSGallery'
-        publisher: 'Microsoft'
-      }
+      // {
+      //   name: 'ContainerInsights'
+      //   product: 'OMSGallery'
+      //   publisher: 'Microsoft'
+      // }
       {
         name: 'KeyVaultAnalytics'
         product: 'OMSGallery'
@@ -221,6 +225,13 @@ module keyVault '../CARML/Microsoft.KeyVault/vaults/deploy.bicep' = {
     diagnosticWorkspaceId: clusterLa.outputs.resourceId
     secrets: {}
     roleAssignments: [
+      {
+        roleDefinitionIdOrName: 'Key Vault Certificates Officer'
+        principalIds: [
+          mi_appgateway_frontend.outputs.principalId
+          podmi_ingress_controller.outputs.principalId
+        ]
+      }
       {
         roleDefinitionIdOrName: 'Key Vault Secrets User'
         principalIds: [
@@ -304,6 +315,34 @@ module aksIngressDomain '../CARML/Microsoft.Network/privateDnsZones/deploy.bicep
   ]
 }
 
+module frontendCert '../CARML/Microsoft.KeyVault/vaults/secrets/deploy.bicep' = {
+  name: 'frontendCert'
+  params: {
+    value: appGatewayListenerCertificate
+    keyVaultName: keyVaultName
+    name: 'frontendCert'
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+    keyVault
+  ]
+}
+
+module backendCert '../CARML/Microsoft.KeyVault/vaults/secrets/deploy.bicep' = {
+  name: 'backendCert'
+  params: {
+    value: aksIngressControllerCertificate
+    keyVaultName: keyVaultName
+    name: 'backendCert'
+  }
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+    keyVault
+  ]
+}
+
 module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
   name: agwName
   params: {
@@ -313,20 +352,14 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       '${mi_appgateway_frontend.outputs.resourceId}': {}
     }
     sku: 'WAF_v2'
-    // sslPolicyType: 'Custom'
-    // sslPolicyCipherSuites: [
-    //   'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
-    //   'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
-    // ]
-    // sslPolicyMinProtocolVersion: 'TLSv1_2'
-    // trustedRootCertificates: [
-    //   {
-    //     name: 'root-cert-wildcard-aks-ingress'
-    //     properties: {
-    //       keyVaultSecretId: '${keyVault.outputs.uri}secrets/appgw-ingress-internal-aks-ingress-tls'
-    //     }
-    //   }
-    // ]
+    trustedRootCertificates: [
+      {
+        name: 'root-cert-wildcard-aks-ingress'
+        properties: {
+          keyVaultSecretId: '${keyVault.outputs.uri}secrets/${backendCert.outputs.name}'
+        }
+      }
+    ]
     gatewayIPConfigurations: [
       {
         name: 'apw-ip-configuration'
@@ -371,7 +404,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       {
         name: '${agwName}-ssl-certificate'
         properties: {
-          keyVaultSecretId: '${keyVault.outputs.uri}secrets/frontendCertificate'
+          keyVaultSecretId: '${keyVault.outputs.uri}secrets/${frontendCert.outputs.name}'
         }
       }
     ]
@@ -379,7 +412,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
       {
         name: 'probe-${aksBackendDomainName}'
         properties: {
-          protocol: 'Http'
+          protocol: 'Https'
           path: '/favicon.ico'
           interval: 30
           timeout: 30
@@ -404,16 +437,21 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
     ]
     backendHttpSettingsCollection: [
       {
-        name: 'aks-ingress-backendpool-httpsettings'
+        name: 'aks-ingress-backendpool-httpssettings'
         properties: {
-          port: 80
-          protocol: 'Http'
+          port: 443
+          protocol: 'Https'
           cookieBasedAffinity: 'Disabled'
           pickHostNameFromBackendAddress: true
           requestTimeout: 20
           probe: {
             id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/probes/probe-${aksBackendDomainName}'
           }
+          trustedRootCertificates: [
+            {
+              id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/trustedRootCertificates/root-cert-wildcard-aks-ingress'
+            }
+          ]
         }
       }
     ]
@@ -449,7 +487,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
             id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/backendAddressPools/${aksBackendDomainName}'
           }
           backendHttpSettings: {
-            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/backendHttpSettingsCollection/aks-ingress-backendpool-httpsettings'
+            id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/backendHttpSettingsCollection/aks-ingress-backendpool-httpssettings'
           }
         }
       }
@@ -460,7 +498,9 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
     rg
-    akvCertFrontend
+    frontendCert
+    backendCert
+    keyVault
   ]
 }
 
@@ -774,6 +814,22 @@ module managedIdentityOperatorRole2 '../CARML/Microsoft.Resources/resourceGroups
   }
 }
 
+module managedIdentityOperatorRole2 '../CARML/Microsoft.Resources/resourceGroups/.bicep/nested_rbac.bicep' = {
+  name: 'managedIdentityOperatorRole2'
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    cluster
+    rg
+  ]
+  params: {
+    resourceId: resourceGroupName
+    principalIds: [
+      cluster.outputs.kubeletidentityObjectId
+    ]
+    roleDefinitionIdOrName: 'Managed Identity Operator'
+  }
+}
+
 module monitoringMetricsPublisherRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/nested_rbac.bicep' = {
   name: 'monitoringMetricsPublisherRole'
   params: {
@@ -841,7 +897,7 @@ module kubernetesConfigurationFlux2 '../CARML/Microsoft.KubernetesConfiguration/
     }
     kustomizations: {
       unified: {
-        path: './shared-services/cluster-manifests'
+        path: './shared-services'
         dependsOn: []
         timeoutInSeconds: 300
         syncIntervalInSeconds: 300
@@ -1629,5 +1685,4 @@ module EnforceImageSource '../CARML/Microsoft.Authorization/policyAssignments/re
 
 output aksClusterName string = clusterName
 output aksIngressControllerPodManagedIdentityResourceId string = podmi_ingress_controller.outputs.resourceId
-// output aksIngressControllerPodManagedIdentityClientId string = podmi_ingress_controller.outputs.msiClientId
 output keyVaultName string = keyVaultName
