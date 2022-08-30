@@ -480,6 +480,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
         name: 'apw-routing-rules'
         properties: {
           ruleType: 'Basic'
+          priority: 100
           httpListener: {
             id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/httpListeners/listener-https'
           }
@@ -766,7 +767,6 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
   dependsOn: [
     rg
     clusterControlPlaneIdentity
-    agw
   ]
 }
 
