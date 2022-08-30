@@ -6,7 +6,7 @@
             "value": "rg-enterprise-networking-hubs"
         },
         "location": {
-            "value": "westus2"
+            "value": "westeurope"
         },
         "subnetIpAddressSpace": {
             "value": [

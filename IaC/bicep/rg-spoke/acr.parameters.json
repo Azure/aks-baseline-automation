@@ -3,10 +3,10 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "location": {
-            "value": "westus2"
+            "value": "westeurope"
         },
         "geoRedundancyLocation":{
-            "value": "southcentralus"
+            "value": "northeurope"
         }
     }
 }
