@@ -766,6 +766,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
   dependsOn: [
     rg
     clusterControlPlaneIdentity
+    agw
   ]
 }
 
