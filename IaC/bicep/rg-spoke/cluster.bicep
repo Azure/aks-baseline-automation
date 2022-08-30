@@ -114,7 +114,7 @@ resource acr 'Microsoft.ContainerRegistry/registries@2021-09-01' existing = {
 //   scope: resourceGroup(resourceGroupName)
 // }
 
-module nodeRgRbac '../CARML/Microsoft.Resources/resourceGroups/.bicep/nested_rbac.bicep' = {
+module nodeRgRbac '../CARML/Microsoft.Resources/resourceGroups/.bicep/nested_roleAssignments.bicep' = {
   name: '${nodeResourceGroupName}-rbac'
   scope: resourceGroup(nodeResourceGroupName)
   dependsOn: [
@@ -504,7 +504,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
   ]
 }
 
-module clusterIdentityRbac1 '../CARML/Microsoft.Network/virtualNetworks/subnets/.bicep/nested_rbac.bicep' = {
+module clusterIdentityRbac1 '../CARML/Microsoft.Network/virtualNetworks/subnets/.bicep/nested_roleAssignments.bicep' = {
   name: 'clusterIdentityRbac1'
   params: {
     principalIds: [
@@ -521,7 +521,7 @@ module clusterIdentityRbac1 '../CARML/Microsoft.Network/virtualNetworks/subnets/
   ]
 }
 
-module clusterIdentityRbac2 '../CARML/Microsoft.Network/virtualNetworks/subnets/.bicep/nested_rbac.bicep' = {
+module clusterIdentityRbac2 '../CARML/Microsoft.Network/virtualNetworks/subnets/.bicep/nested_roleAssignments.bicep' = {
   name: 'clusterIdentityRbac2'
   params: {
     principalIds: [
@@ -769,7 +769,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
   ]
 }
 
-module acrPullRole '../CARML/Microsoft.ContainerRegistry/registries/.bicep/nested_rbac.bicep' = {
+module acrPullRole '../CARML/Microsoft.ContainerRegistry/registries/.bicep/nested_roleAssignments.bicep' = {
   name: 'acrPullRole'
   params: {
     principalIds: [
@@ -784,7 +784,7 @@ module acrPullRole '../CARML/Microsoft.ContainerRegistry/registries/.bicep/neste
   ]
 }
 
-module managedIdentityOperatorRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/nested_rbac.bicep' = {
+module managedIdentityOperatorRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/nested_roleAssignments.bicep' = {
   name: 'managedIdentityOperatorRole'
   params: {
     principalIds: [
@@ -798,7 +798,7 @@ module managedIdentityOperatorRole '../CARML/Microsoft.ContainerService/managedC
     rg
   ]
 }
-module managedIdentityOperatorRole2 '../CARML/Microsoft.Resources/resourceGroups/.bicep/nested_rbac.bicep' = {
+module managedIdentityOperatorRole2 '../CARML/Microsoft.Resources/resourceGroups/.bicep/nested_roleAssignments.bicep' = {
   name: 'managedIdentityOperatorRole2'
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
@@ -814,23 +814,7 @@ module managedIdentityOperatorRole2 '../CARML/Microsoft.Resources/resourceGroups
   }
 }
 
-module managedIdentityOperatorRole2 '../CARML/Microsoft.Resources/resourceGroups/.bicep/nested_rbac.bicep' = {
-  name: 'managedIdentityOperatorRole2'
-  scope: resourceGroup(resourceGroupName)
-  dependsOn: [
-    cluster
-    rg
-  ]
-  params: {
-    resourceId: resourceGroupName
-    principalIds: [
-      cluster.outputs.kubeletidentityObjectId
-    ]
-    roleDefinitionIdOrName: 'Managed Identity Operator'
-  }
-}
-
-module monitoringMetricsPublisherRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/nested_rbac.bicep' = {
+module monitoringMetricsPublisherRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/nested_roleAssignments.bicep' = {
   name: 'monitoringMetricsPublisherRole'
   params: {
     principalIds: [
