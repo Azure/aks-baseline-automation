@@ -91,22 +91,6 @@ jobs:
           ACR_PASSWORD=$(az acr credential show -g ${{ inputs.ResourceGroupName }} -n ${{ inputs.ACRName }} --query passwords[0].value -o tsv)
           echo "::set-output name=password::$ACR_PASSWORD"
           echo "::add-mask::$ACR_PASSWORD"
-  
-      # Retrieves your Azure Kubernetes Service cluster's kubeconfig file
-      - name: Get K8s context
-        uses: azure/aks-set-context@v2.0
-        with:
-          resource-group: ${{ inputs.ResourceGroupName }}
-          cluster-name: ${{ inputs.AKSName }}
-
-      # Creates namespace in your Azure Kubernetes Service cluster's if it does not exist
-      - name: Create namespace
-        run: |
-          namespacePresent=`kubectl get namespace | grep ${{ inputs.Namespace }} | wc -l`
-          if [ $namespacePresent -eq 0 ]
-          then
-              echo `kubectl create namespace ${{ inputs.Namespace }}`
-          fi
 
       # Logs into the Azure Container Registry (ACR)
       - uses: azure/docker-login@v1

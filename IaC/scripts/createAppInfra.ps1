@@ -51,11 +51,30 @@ else
   Write-Output "*** Ok"
 }
 
+
 ## ------------------------------------------------------------------------
-## AKS
-## Update cluster with ACR
+## Azure Kubernetes Service (AKS)
+## Check if AKS exists with name provided, if not create it
 ## ------------------------------------------------------------------------
 
-az aks update -n $AKSName -g $ResourceGroupName --attach-acr $ACRName
+Write-Output"*** Check if AKS $AKSName exists"
+
+$checkAKS= az aks show --name $AKSName| ConvertFrom-Json
+
+if (!$checkAKS) {
+
+    Write-Warning"*** WARN! AKS Cluster $AKSName does not exist. Creating..."
+
+    az aks create -g $ResourceGroupName -n $AKSName --enable-managed-identity --node-count 1 --enable-addons monitoring --enable-msi-auth-for-monitoring  --generate-ssh-keys --enable-aad
+
+    if ($LastExitCode -ne 0) {
+
+        throw"*** Error - could not create AKS"
+    }
+}
+else
+{
+  Write-Output"*** Ok"
+}
 
 
