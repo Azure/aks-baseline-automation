@@ -7,14 +7,15 @@ This module deploys Firewall Policies.
 - [Resource Types](#Resource-Types)
 - [Parameters](#Parameters)
 - [Outputs](#Outputs)
-- [Template references](#Template-references)
+- [Cross-referenced modules](#Cross-referenced-modules)
+- [Deployment examples](#Deployment-examples)
 
 ## Resource Types
 
 | Resource Type | API Version |
 | :-- | :-- |
-| `Microsoft.Network/firewallPolicies` | 2021-05-01 |
-| `Microsoft.Network/firewallPolicies/ruleCollectionGroups` | 2021-05-01 |
+| `Microsoft.Network/firewallPolicies` | [2021-08-01](https://docs.microsoft.com/en-us/azure/templates/Microsoft.Network/2021-08-01/firewallPolicies) |
+| `Microsoft.Network/firewallPolicies/ruleCollectionGroups` | [2021-08-01](https://docs.microsoft.com/en-us/azure/templates/Microsoft.Network/2021-08-01/firewallPolicies/ruleCollectionGroups) |
 
 ## Parameters
 
@@ -35,7 +36,7 @@ This module deploys Firewall Policies.
 | `fqdns` | array | `[]` |  | List of FQDNs for the ThreatIntel Allowlist. |
 | `insightsIsEnabled` | bool | `False` |  | A flag to indicate if the insights are enabled on the policy. |
 | `ipAddresses` | array | `[]` |  | List of IP addresses for the ThreatIntel Allowlist. |
-| `keyVaultSecretId` | string | `''` |  | Secret ID of (base-64 encoded unencrypted pfx) Secret or Certificate object stored in KeyVault.	 |
+| `keyVaultSecretId` | string | `''` |  | Secret ID of (base-64 encoded unencrypted PFX) Secret or Certificate object stored in KeyVault. |
 | `location` | string | `[resourceGroup().location]` |  | Location for all resources. |
 | `mode` | string | `'Off'` | `[Alert, Deny, Off]` | The configuring of intrusion detection. |
 | `privateRanges` | array | `[]` |  | List of private IP addresses/IP address ranges to not be SNAT. |
@@ -55,6 +56,10 @@ This module deploys Firewall Policies.
 
 Tag names and tag values can be provided as needed. A tag can be left without a value.
 
+<details>
+
+<summary>Parameter JSON format</summary>
+
 ```json
 "tags": {
     "value": {
@@ -68,9 +73,33 @@ Tag names and tag values can be provided as needed. A tag can be left without a 
 }
 ```
 
+</details>
+
+<details>
+
+<summary>Bicep format</summary>
+
+```bicep
+tags: {
+    Environment: 'Non-Prod'
+    Contact: 'test.user@testcompany.com'
+    PurchaseOrder: '1234'
+    CostCenter: '7890'
+    ServiceName: 'DeploymentValidation'
+    Role: 'DeploymentValidation'
+}
+```
+
+</details>
+<p>
+
 ### Parameter Usage: `userAssignedIdentities`
 
 You can specify multiple user assigned identities to a resource by providing additional resource IDs using the following format:
+
+<details>
+
+<summary>Parameter JSON format</summary>
 
 ```json
 "userAssignedIdentities": {
@@ -78,18 +107,196 @@ You can specify multiple user assigned identities to a resource by providing add
         "/subscriptions/12345678-1234-1234-1234-123456789012/resourcegroups/validation-rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/adp-sxx-az-msi-x-001": {},
         "/subscriptions/12345678-1234-1234-1234-123456789012/resourcegroups/validation-rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/adp-sxx-az-msi-x-002": {}
     }
-},
+}
 ```
+
+</details>
+
+<details>
+
+<summary>Bicep format</summary>
+
+```bicep
+userAssignedIdentities: {
+    '/subscriptions/12345678-1234-1234-1234-123456789012/resourcegroups/validation-rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/adp-sxx-az-msi-x-001': {}
+    '/subscriptions/12345678-1234-1234-1234-123456789012/resourcegroups/validation-rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/adp-sxx-az-msi-x-002': {}
+}
+```
+
+</details>
+<p>
 
 ## Outputs
 
 | Output Name | Type | Description |
 | :-- | :-- | :-- |
-| `name` | string | The name of the deployed firewall policy |
-| `resourceGroupName` | string | The resource group of the deployed firewall policy |
-| `resourceId` | string | The resource ID of the deployed firewall policy |
+| `location` | string | The location the resource was deployed into. |
+| `name` | string | The name of the deployed firewall policy. |
+| `resourceGroupName` | string | The resource group of the deployed firewall policy. |
+| `resourceId` | string | The resource ID of the deployed firewall policy. |
 
-## Template references
+## Cross-referenced modules
 
-- [Firewallpolicies](https://docs.microsoft.com/en-us/azure/templates/Microsoft.Network/2021-05-01/firewallPolicies)
-- [Firewallpolicies/Rulecollectiongroups](https://docs.microsoft.com/en-us/azure/templates/Microsoft.Network/2021-05-01/firewallPolicies/ruleCollectionGroups)
+_None_
+
+## Deployment examples
+
+The following module usage examples are retrieved from the content of the files hosted in the module's `.test` folder.
+   >**Note**: The name of each example is based on the name of the file from which it is taken.
+   >**Note**: Each example lists all the required parameters first, followed by the rest - each in alphabetical order.
+
+<h3>Example 1: Min</h3>
+
+<details>
+
+<summary>via Bicep module</summary>
+
+```bicep
+module firewallPolicies './Microsoft.Network/firewallPolicies/deploy.bicep' = {
+  name: '${uniqueString(deployment().name)}-firewallPolicies'
+  params: {
+    name: '<<namePrefix>>-az-fwpol-min-001'
+  }
+}
+```
+
+</details>
+<p>
+
+<details>
+
+<summary>via JSON Parameter file</summary>
+
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "name": {
+      "value": "<<namePrefix>>-az-fwpol-min-001"
+    }
+  }
+}
+```
+
+</details>
+<p>
+
+<h3>Example 2: Parameters</h3>
+
+<details>
+
+<summary>via Bicep module</summary>
+
+```bicep
+module firewallPolicies './Microsoft.Network/firewallPolicies/deploy.bicep' = {
+  name: '${uniqueString(deployment().name)}-firewallPolicies'
+  params: {
+    // Required parameters
+    name: '<<namePrefix>>-az-fwpol-x-002'
+    // Non-required parameters
+    ruleCollectionGroups: [
+      {
+        name: '<<namePrefix>>-rule-001'
+        priority: 5000
+        ruleCollections: [
+          {
+            action: {
+              type: 'Allow'
+            }
+            name: 'collection002'
+            priority: 5555
+            ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+            rules: [
+              {
+                destinationAddresses: [
+                  '*'
+                ]
+                destinationFqdns: []
+                destinationIpGroups: []
+                destinationPorts: [
+                  '80'
+                ]
+                ipProtocols: [
+                  'TCP'
+                  'UDP'
+                ]
+                name: 'rule002'
+                ruleType: 'NetworkRule'
+                sourceAddresses: [
+                  '*'
+                ]
+                sourceIpGroups: []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+</details>
+<p>
+
+<details>
+
+<summary>via JSON Parameter file</summary>
+
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    // Required parameters
+    "name": {
+      "value": "<<namePrefix>>-az-fwpol-x-002"
+    },
+    // Non-required parameters
+    "ruleCollectionGroups": {
+      "value": [
+        {
+          "name": "<<namePrefix>>-rule-001",
+          "priority": 5000,
+          "ruleCollections": [
+            {
+              "action": {
+                "type": "Allow"
+              },
+              "name": "collection002",
+              "priority": 5555,
+              "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+              "rules": [
+                {
+                  "destinationAddresses": [
+                    "*"
+                  ],
+                  "destinationFqdns": [],
+                  "destinationIpGroups": [],
+                  "destinationPorts": [
+                    "80"
+                  ],
+                  "ipProtocols": [
+                    "TCP",
+                    "UDP"
+                  ],
+                  "name": "rule002",
+                  "ruleType": "NetworkRule",
+                  "sourceAddresses": [
+                    "*"
+                  ],
+                  "sourceIpGroups": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+```
+
+</details>
+<p>

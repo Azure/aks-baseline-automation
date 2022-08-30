@@ -9,33 +9,34 @@ This module deploys Role Assignments across the management group, subscription o
 - [Module Usage Guidance](#Module-Usage-Guidance)
 - [Outputs](#Outputs)
 - [Considerations](#Considerations)
-- [Template references](#Template-references)
+- [Cross-referenced modules](#Cross-referenced-modules)
+- [Deployment examples](#Deployment-examples)
 
 ## Resource types
 
 | Resource Type | API Version |
 | :-- | :-- |
-| `Microsoft.Authorization/roleAssignments` | 2021-04-01-preview |
+| `Microsoft.Authorization/roleAssignments` | [2022-04-01](https://docs.microsoft.com/en-us/azure/templates/Microsoft.Authorization/2022-04-01/roleAssignments) |
 
 ## Parameters
 
 **Required parameters**
 | Parameter Name | Type | Description |
 | :-- | :-- | :-- |
-| `principalId` | string | The Principal or Object ID of the Security Principal (User, Group, Service Principal, Managed Identity) |
-| `roleDefinitionIdOrName` | string | You can provide either the display name of the role definition, or its fully qualified ID in the following format: '/providers/Microsoft.Authorization/roleDefinitions/c2f4ef07-c644-48eb-af81-4b1b4947fb11' |
+| `principalId` | string | The Principal or Object ID of the Security Principal (User, Group, Service Principal, Managed Identity). |
+| `roleDefinitionIdOrName` | string | You can provide either the display name of the role definition, or its fully qualified ID in the following format: '/providers/Microsoft.Authorization/roleDefinitions/c2f4ef07-c644-48eb-af81-4b1b4947fb11'. |
 
 **Optional parameters**
 | Parameter Name | Type | Default Value | Allowed Values | Description |
 | :-- | :-- | :-- | :-- | :-- |
-| `condition` | string | `''` |  | The conditions on the role assignment. This limits the resources it can be assigned to |
-| `conditionVersion` | string | `'2.0'` | `[2.0]` | Version of the condition. Currently accepted value is "2.0" |
-| `delegatedManagedIdentityResourceId` | string | `''` |  | ID of the delegated managed identity resource |
-| `description` | string | `''` |  | Description of role assignment |
+| `condition` | string | `''` |  | The conditions on the role assignment. This limits the resources it can be assigned to. |
+| `conditionVersion` | string | `'2.0'` | `[2.0]` | Version of the condition. Currently accepted value is "2.0". |
+| `delegatedManagedIdentityResourceId` | string | `''` |  | ID of the delegated managed identity resource. |
+| `description` | string | `''` |  | The description of the role assignment. |
 | `enableDefaultTelemetry` | bool | `True` |  | Enable telemetry via the Customer Usage Attribution ID (GUID). |
 | `location` | string | `[deployment().location]` |  | Location deployment metadata. |
 | `managementGroupId` | string | `[managementGroup().name]` |  | Group ID of the Management Group to assign the RBAC role to. If not provided, will use the current scope for deployment. |
-| `principalType` | string | `''` | `[ServicePrincipal, Group, User, ForeignGroup, Device, ]` | The principal type of the assigned principal ID. |
+| `principalType` | string | `''` | `['', Device, ForeignGroup, Group, ServicePrincipal, User]` | The principal type of the assigned principal ID. |
 | `resourceGroupName` | string | `''` |  | Name of the Resource Group to assign the RBAC role to. If Resource Group name is provided, and Subscription ID is provided, the module deploys at resource group level, therefore assigns the provided RBAC role to the resource group. |
 | `subscriptionId` | string | `''` |  | Subscription ID of the subscription to assign the RBAC role to. If no Resource Group name is provided, the module deploys at subscription level, therefore assigns the provided RBAC role to the subscription. |
 
@@ -44,11 +45,30 @@ This module deploys Role Assignments across the management group, subscription o
 
 To deploy resource to a Management Group, provide the `managementGroupId` as an input parameter to the module.
 
+
+<details>
+
+<summary>Parameter JSON format</summary>
+
 ```json
 "managementGroupId": {
     "value": "contoso-group"
 }
 ```
+
+</details>
+
+
+<details>
+
+<summary>Bicep format</summary>
+
+```bicep
+managementGroupId: 'contoso-group'
+```
+
+</details>
+<p>
 
 > `managementGroupId` is an optional parameter. If not provided, the deployment will use the management group defined in the current deployment scope (i.e. `managementGroup().name`).
 
@@ -56,15 +76,36 @@ To deploy resource to a Management Group, provide the `managementGroupId` as an 
 
 To deploy resource to an Azure Subscription, provide the `subscriptionId` as an input parameter to the module. **Example**:
 
+<details>
+
+<summary>Parameter JSON format</summary>
+
 ```json
 "subscriptionId": {
     "value": "12345678-b049-471c-95af-123456789012"
 }
 ```
 
+</details>
+
+<details>
+
+<summary>Bicep format</summary>
+
+```bicep
+subscriptionId: '12345678-b049-471c-95af-123456789012'
+```
+
+</details>
+<p>
+
 ### Parameter Usage: `resourceGroupName`
 
 To deploy resource to a Resource Group, provide the `subscriptionId` and `resourceGroupName` as an input parameter to the module. **Example**:
+
+<details>
+
+<summary>Parameter JSON format</summary>
 
 ```json
 "subscriptionId": {
@@ -74,6 +115,21 @@ To deploy resource to a Resource Group, provide the `subscriptionId` and `resour
     "value": "target-resourceGroup"
 }
 ```
+
+</details>
+
+
+<details>
+
+<summary>Bicep format</summary>
+
+```bicep
+subscriptionId: '12345678-b049-471c-95af-123456789012'
+resourceGroupName: 'target-resourceGroup'
+```
+
+</details>
+<p>
 
 > The `subscriptionId` is used to enable deployment to a Resource Group Scope, allowing the use of the `resourceGroup()` function from a Management Group Scope. [Additional Details](https://github.com/Azure/bicep/pull/1420).
 
@@ -95,21 +151,347 @@ module roleassignment 'br:bicepregistry.azurecr.io/bicep/modules/microsoft.autho
 ```
 **Local Path Reference**
 ```bicep
-module roleassignment 'yourpath/arm/Microsoft.Authorization.roleAssignments/subscription/deploy.bicep' = {}
+module roleassignment 'yourpath/modules/Microsoft.Authorization.roleAssignments/subscription/deploy.bicep' = {}
 ```
 
 ## Outputs
 
 | Output Name | Type | Description |
 | :-- | :-- | :-- |
-| `name` | string | The GUID of the Role Assignment |
-| `resourceId` | string | The resource ID of the Role Assignment |
-| `scope` | string | The scope this Role Assignment applies to |
+| `name` | string | The GUID of the Role Assignment. |
+| `resourceId` | string | The resource ID of the Role Assignment. |
+| `scope` | string | The scope this Role Assignment applies to. |
 
 ## Considerations
 
 This module can be deployed at the management group, subscription or resource group level
 
-## Template references
+## Cross-referenced modules
 
-- [Roleassignments](https://docs.microsoft.com/en-us/azure/templates/Microsoft.Authorization/roleAssignments)
+_None_
+
+## Deployment examples
+
+The following module usage examples are retrieved from the content of the files hosted in the module's `.test` folder.
+   >**Note**: The name of each example is based on the name of the file from which it is taken.
+   >**Note**: Each example lists all the required parameters first, followed by the rest - each in alphabetical order.
+
+<h3>Example 1: Mg Min</h3>
+
+<details>
+
+<summary>via Bicep module</summary>
+
+```bicep
+module roleAssignments './Microsoft.Authorization/roleAssignments/deploy.bicep' = {
+  name: '${uniqueString(deployment().name)}-roleAssignments'
+  params: {
+    // Required parameters
+    principalId: '<<deploymentSpId>>'
+    roleDefinitionIdOrName: 'Storage Queue Data Reader'
+  }
+}
+```
+
+</details>
+<p>
+
+<details>
+
+<summary>via JSON Parameter file</summary>
+
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    // Required parameters
+    "principalId": {
+      "value": "<<deploymentSpId>>"
+    },
+    "roleDefinitionIdOrName": {
+      "value": "Storage Queue Data Reader"
+    }
+  }
+}
+```
+
+</details>
+<p>
+
+<h3>Example 2: Mg</h3>
+
+<details>
+
+<summary>via Bicep module</summary>
+
+```bicep
+module roleAssignments './Microsoft.Authorization/roleAssignments/deploy.bicep' = {
+  name: '${uniqueString(deployment().name)}-roleAssignments'
+  params: {
+    // Required parameters
+    principalId: '<<deploymentSpId>>'
+    roleDefinitionIdOrName: 'Backup Reader'
+    // Non-required parameters
+    description: 'Role Assignment (management group scope)'
+    managementGroupId: '<<managementGroupId>>'
+    principalType: 'ServicePrincipal'
+  }
+}
+```
+
+</details>
+<p>
+
+<details>
+
+<summary>via JSON Parameter file</summary>
+
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    // Required parameters
+    "principalId": {
+      "value": "<<deploymentSpId>>"
+    },
+    "roleDefinitionIdOrName": {
+      "value": "Backup Reader"
+    },
+    // Non-required parameters
+    "description": {
+      "value": "Role Assignment (management group scope)"
+    },
+    "managementGroupId": {
+      "value": "<<managementGroupId>>"
+    },
+    "principalType": {
+      "value": "ServicePrincipal"
+    }
+  }
+}
+```
+
+</details>
+<p>
+
+<h3>Example 3: Rg Min</h3>
+
+<details>
+
+<summary>via Bicep module</summary>
+
+```bicep
+module roleAssignments './Microsoft.Authorization/roleAssignments/deploy.bicep' = {
+  name: '${uniqueString(deployment().name)}-roleAssignments'
+  params: {
+    // Required parameters
+    principalId: '<<deploymentSpId>>'
+    roleDefinitionIdOrName: 'Storage Queue Data Reader'
+    // Non-required parameters
+    resourceGroupName: '<<resourceGroupName>>'
+    subscriptionId: '<<subscriptionId>>'
+  }
+}
+```
+
+</details>
+<p>
+
+<details>
+
+<summary>via JSON Parameter file</summary>
+
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    // Required parameters
+    "principalId": {
+      "value": "<<deploymentSpId>>"
+    },
+    "roleDefinitionIdOrName": {
+      "value": "Storage Queue Data Reader"
+    },
+    // Non-required parameters
+    "resourceGroupName": {
+      "value": "<<resourceGroupName>>"
+    },
+    "subscriptionId": {
+      "value": "<<subscriptionId>>"
+    }
+  }
+}
+```
+
+</details>
+<p>
+
+<h3>Example 4: Rg</h3>
+
+<details>
+
+<summary>via Bicep module</summary>
+
+```bicep
+module roleAssignments './Microsoft.Authorization/roleAssignments/deploy.bicep' = {
+  name: '${uniqueString(deployment().name)}-roleAssignments'
+  params: {
+    // Required parameters
+    principalId: '<<deploymentSpId>>'
+    roleDefinitionIdOrName: 'Backup Reader'
+    // Non-required parameters
+    description: 'Role Assignment (resource group scope)'
+    principalType: 'ServicePrincipal'
+    resourceGroupName: '<<resourceGroupName>>'
+    subscriptionId: '<<subscriptionId>>'
+  }
+}
+```
+
+</details>
+<p>
+
+<details>
+
+<summary>via JSON Parameter file</summary>
+
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    // Required parameters
+    "principalId": {
+      "value": "<<deploymentSpId>>"
+    },
+    "roleDefinitionIdOrName": {
+      "value": "Backup Reader"
+    },
+    // Non-required parameters
+    "description": {
+      "value": "Role Assignment (resource group scope)"
+    },
+    "principalType": {
+      "value": "ServicePrincipal"
+    },
+    "resourceGroupName": {
+      "value": "<<resourceGroupName>>"
+    },
+    "subscriptionId": {
+      "value": "<<subscriptionId>>"
+    }
+  }
+}
+```
+
+</details>
+<p>
+
+<h3>Example 5: Sub Min</h3>
+
+<details>
+
+<summary>via Bicep module</summary>
+
+```bicep
+module roleAssignments './Microsoft.Authorization/roleAssignments/deploy.bicep' = {
+  name: '${uniqueString(deployment().name)}-roleAssignments'
+  params: {
+    // Required parameters
+    principalId: '<<deploymentSpId>>'
+    roleDefinitionIdOrName: 'Storage Queue Data Reader'
+    // Non-required parameters
+    subscriptionId: '<<subscriptionId>>'
+  }
+}
+```
+
+</details>
+<p>
+
+<details>
+
+<summary>via JSON Parameter file</summary>
+
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    // Required parameters
+    "principalId": {
+      "value": "<<deploymentSpId>>"
+    },
+    "roleDefinitionIdOrName": {
+      "value": "Storage Queue Data Reader"
+    },
+    // Non-required parameters
+    "subscriptionId": {
+      "value": "<<subscriptionId>>"
+    }
+  }
+}
+```
+
+</details>
+<p>
+
+<h3>Example 6: Sub</h3>
+
+<details>
+
+<summary>via Bicep module</summary>
+
+```bicep
+module roleAssignments './Microsoft.Authorization/roleAssignments/deploy.bicep' = {
+  name: '${uniqueString(deployment().name)}-roleAssignments'
+  params: {
+    // Required parameters
+    principalId: '<<deploymentSpId>>'
+    roleDefinitionIdOrName: 'Backup Reader'
+    // Non-required parameters
+    description: 'Role Assignment (subscription scope)'
+    principalType: 'ServicePrincipal'
+    subscriptionId: '<<subscriptionId>>'
+  }
+}
+```
+
+</details>
+<p>
+
+<details>
+
+<summary>via JSON Parameter file</summary>
+
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    // Required parameters
+    "principalId": {
+      "value": "<<deploymentSpId>>"
+    },
+    "roleDefinitionIdOrName": {
+      "value": "Backup Reader"
+    },
+    // Non-required parameters
+    "description": {
+      "value": "Role Assignment (subscription scope)"
+    },
+    "principalType": {
+      "value": "ServicePrincipal"
+    },
+    "subscriptionId": {
+      "value": "<<subscriptionId>>"
+    }
+  }
+}
+```
+
+</details>
+<p>
