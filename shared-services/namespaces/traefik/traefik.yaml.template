@@ -117,7 +117,7 @@ data:
       # and derives the corresponding dynamic configuration from it. https://kubernetes.io/docs/concepts/services-networking/ingress/
       [providers.kubernetesingress]
         ingressClass = "traefik-internal"
-        namespaces = ["traefik"]
+        namespaces = ["a0008"]
         [providers.kubernetesIngress.ingressEndpoint]
           publishedService = "traefik/traefik-ingress-service"
     # Enable gzip compression
@@ -232,7 +232,7 @@ spec:
         # image: <your-acr-instance-name>.azurecr.io/library/traefik:v2.5.3
         # in order to use the public image, replace the image setting with the following line
         # - image: docker.io/library/traefik:v2.5.3
-      - image: ${ACR_NAME_AKS_BASELINE}.azurecr.io/library/traefik:v2.5.3
+      - image: ${ACR_NAME_AKS_BASELINE}.azurecr.io/library/traefik:v2.8.1
         name: traefik-ingress-controller
         resources:
           requests:
