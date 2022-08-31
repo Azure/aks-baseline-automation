@@ -74,8 +74,13 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.Environment }}
     steps:
-      - name: Get baseline code from repo
-        uses: actions/checkout@v2
+    
+      # Get application code from repo
+      - name: Get application code from repo
+        uses: actions/checkout@main
+        with:
+          repository: ${{ inputs.AppRepo}}
+          ref: ${{ inputs.AppRepoRef}}
       
       # Logs into your Azure subscription
       - uses: azure/login@v1
@@ -98,13 +103,6 @@ jobs:
           login-server: ${{ inputs.ACRName }}.azurecr.io
           username: ${{ inputs.ACRName }}
           password: ${{ steps.acr-pwd.outputs.password }}
-      
-      # Get application code from repo
-      - name: Get application code from repo
-        uses: actions/checkout@main
-        with:
-          repository: ${{ inputs.AppRepo}}
-          ref: ${{ inputs.AppRepoRef}}
 
       # Builds and Pushes the container image to the Azure Container Registry (ACR)
       - name: Container build and push to a Azure Container Registry (ACR)
