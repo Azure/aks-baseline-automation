@@ -1,3 +1,12 @@
+## ------------------------------------------------------------------------------------------------------------------------
+## Pull-Based GitOps Deployment
+## This workflow takes in an EXISTING ACR and AKS cluster and updates the AKS manifest files for GitOps to deploy the app. 
+## Assumptions:
+##     Existing ACR
+##     Existing AKS cluster
+##     ACR is attached to AKS cluster (no image pull secret required)
+## -------------------------------------------------------------------------------------------------------------------------
+
 # This workflow demonstrates building and pushing a container image to an Azure Container Registry.
 # The workflow then updates the necessary Kubernetes manifest deployment file so a GitOps operator can sync from the manifest file deploying the application to an Azure Kubernetes Service cluster.
 # It is split into separate jobs for readability but could be squashed into a single job if that best suits your scenario.
@@ -17,7 +26,7 @@ on:
         type: string
       ACRName:
         description: 'The Name of the ACR resource'
-        required: false
+        required: true
         default: "mygitopsappacr1"
         type: string
       AppName:
@@ -75,15 +84,6 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           enable-AzPSSession: true
-
-      - name: Run Azure PowerShell script to create necessary resources
-        id: create-resources
-        uses: azure/powershell@v1
-        with:
-          inlineScript: |
-            cd IaC/scripts
-            ./createAppInfra.ps1 -ResourceGroupName ${{ inputs.ResourceGroupName }} -ACRName ${{ inputs.ACRName }} -AKSName ${{ inputs.AKSName }} -Location ${{ inputs.Region }}
-          azPSVersion: "latest"
       
       - name: Get ACR Password
         id: acr-pwd
