@@ -571,6 +571,7 @@ module PodFailedScheduledQuery '../CARML/Microsoft.Insights/scheduledQueryRules/
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
     rg
+    clusterLa
   ]
 }
 
