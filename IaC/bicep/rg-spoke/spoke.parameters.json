@@ -6,7 +6,7 @@
             "value": "rg-enterprise-networking-spokes"
         },
         "location": {
-            "value": "westeurope"
+            "value": "westus2"
         },
         "clusterVnetAddressSpace": {
             "value": "10.240.0.0/16"

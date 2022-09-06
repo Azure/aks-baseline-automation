@@ -10,7 +10,7 @@ on:
       REGION:
         description: 'The Azure region to deploy to'
         required: true
-        default: westeurope
+        default: westus2
       clusterVnetResourceId:
         description: 'The vnet resource ID (not uuid)'
         required: true
