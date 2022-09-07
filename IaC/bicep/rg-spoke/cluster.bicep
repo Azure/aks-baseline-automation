@@ -343,11 +343,40 @@ module backendCert '../CARML/Microsoft.KeyVault/vaults/secrets/deploy.bicep' = {
   ]
 }
 
+module wafPolicy '../CARML/Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies/deploy.bicep' = {
+  name: 'waf-${clusterName}'
+  params: {
+    location: location
+    name:'waf-${clusterName}'
+    policySettings: {
+      fileUploadLimitInMb: 10
+      state: 'Enabled'
+      mode: 'Prevention'
+    }
+    managedRules: {
+      managedRuleSets: [
+        {
+            ruleSetType: 'OWASP'
+            ruleSetVersion: '3.2'
+            ruleGroupOverrides: []
+        }
+        {
+          ruleSetType: 'Microsoft_BotManagerRuleSet'
+          ruleSetVersion: '0.1'
+          ruleGroupOverrides: []
+        }
+      ]
+    }
+  }
+  scope: resourceGroup(resourceGroupName)
+}
+
 module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
   name: agwName
   params: {
     name: agwName
     location: location
+    firewallPolicyId: wafPolicy.outputs.resourceId
     userAssignedIdentities: {
       '${mi_appgateway_frontend.outputs.resourceId}': {}
     }
@@ -502,6 +531,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
     frontendCert
     backendCert
     keyVault
+    wafPolicy
   ]
 }
 
