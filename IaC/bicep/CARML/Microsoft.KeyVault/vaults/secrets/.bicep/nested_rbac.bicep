@@ -1,10 +1,10 @@
-@sys.description('Required. The IDs of the principals to assign the role to.')
+@sys.description('Required. The IDs of the prinicpals to assign to role to')
 param principalIds array
 
-@sys.description('Required. The name of the role to assign. If it cannot be found you can specify the role definition ID instead.')
+@sys.description('Required. The name of the role to assign. If it cannot be found you can specify the role definition ID instead')
 param roleDefinitionIdOrName string
 
-@sys.description('Required. The resource ID of the resource to apply the role assignment to.')
+@sys.description('Required. The resource ID of the resource to apply the role assignment to')
 param resourceId string
 
 @sys.description('Optional. The principal type of the assigned principal ID.')
@@ -18,20 +18,8 @@ param resourceId string
 ])
 param principalType string = ''
 
-@sys.description('Optional. The description of the role assignment.')
+@sys.description('Optional. Description of role assignment')
 param description string = ''
-
-@sys.description('Optional. The conditions on the role assignment. This limits the resources it can be assigned to. e.g.: @Resource[Microsoft.Storage/storageAccounts/blobServices/containers:ContainerName] StringEqualsIgnoreCase "foo_storage_container"')
-param condition string = ''
-
-@sys.description('Optional. Version of the condition.')
-@allowed([
-  '2.0'
-])
-param conditionVersion string = '2.0'
-
-@sys.description('Optional. Id of the delegated managed identity resource.')
-param delegatedManagedIdentityResourceId string = ''
 
 var builtInRoleNames = {
   'Owner': subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')
@@ -41,8 +29,6 @@ var builtInRoleNames = {
   'Key Vault Certificates Officer': subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'a4417e6f-fecd-4de8-b567-7b0420556985')
   'Key Vault Contributor': subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'f25e0fa2-a7c8-4377-a976-54943a77a395')
   'Key Vault Crypto Officer': subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '14b46e9e-c2b7-41b4-b07b-48a6ebf60603')
-  'Key Vault Crypto Service Encryption User': subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')
-  'Key Vault Crypto User': subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '12338af0-0e69-4776-bea7-57ae8d297424')
   'Key Vault Reader': subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '21090545-7ca7-4776-b22c-e363652d74d2')
   'Key Vault Secrets Officer': subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b86a8fe4-44ce-4948-aee5-eccb2c155cd7')
   'Key Vault Secrets User': subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')
@@ -58,20 +44,17 @@ var builtInRoleNames = {
   'User Access Administrator': subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9')
 }
 
-resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
-  name: last(split(resourceId, '/'))
+resource secret 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview' existing = {
+  name: '${split(resourceId, '/')[8]}/${split(resourceId, '/')[10]}'
 }
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for principalId in principalIds: {
-  name: guid(keyVault.id, principalId, roleDefinitionIdOrName)
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2021-04-01-preview' = [for principalId in principalIds: {
+  name: guid(secret.name, principalId, roleDefinitionIdOrName)
   properties: {
     description: description
     roleDefinitionId: contains(builtInRoleNames, roleDefinitionIdOrName) ? builtInRoleNames[roleDefinitionIdOrName] : roleDefinitionIdOrName
     principalId: principalId
-    principalType: !empty(principalType) ? any(principalType) : null
-    condition: !empty(condition) ? condition : null
-    conditionVersion: !empty(conditionVersion) && !empty(condition) ? conditionVersion : null
-    delegatedManagedIdentityResourceId: !empty(delegatedManagedIdentityResourceId) ? delegatedManagedIdentityResourceId : null
+    principalType: !empty(principalType) ? principalType : null
   }
-  scope: keyVault
+  scope: secret
 }]

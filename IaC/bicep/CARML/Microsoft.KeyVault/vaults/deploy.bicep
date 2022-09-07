@@ -1,31 +1,31 @@
 // ================ //
 // Parameters       //
 // ================ //
-@description('Required. Name of the Key Vault. Must be globally unique.')
+@description('Optional. Name of the Key Vault. If no name is provided, then unique name will be created.')
 @maxLength(24)
-param name string
+param name string = ''
 
 @description('Optional. Location for all resources.')
 param location string = resourceGroup().location
 
-@description('Optional. Array of access policies object.')
+@description('Optional. Array of access policies object')
 param accessPolicies array = []
 
-@description('Optional. All secrets to create.')
+@description('Optional. All secrets to create')
 @secure()
 param secrets object = {}
 
-@description('Optional. All keys to create.')
+@description('Optional. All keys to create')
 param keys array = []
 
-@description('Optional. Specifies if the vault is enabled for deployment by script or compute.')
+@description('Optional. Specifies if the vault is enabled for deployment by script or compute')
 @allowed([
   true
   false
 ])
 param enableVaultForDeployment bool = true
 
-@description('Optional. Specifies if the vault is enabled for a template deployment.')
+@description('Optional. Specifies if the vault is enabled for a template deployment')
 @allowed([
   true
   false
@@ -54,53 +54,55 @@ param createMode string = 'default'
 @description('Optional. Provide \'true\' to enable Key Vault\'s purge protection feature.')
 param enablePurgeProtection bool = false
 
-@description('Optional. Specifies the SKU for the vault.')
+@description('Optional. Specifies the SKU for the vault')
 @allowed([
   'premium'
   'standard'
 ])
 param vaultSku string = 'premium'
 
-@description('Optional. Service endpoint object information. For security reasons, it is recommended to set the DefaultAction Deny.')
+@description('Optional. Service endpoint object information. For security reasons, it is recommended to set the DefaultAction Deny')
 param networkAcls object = {}
 
-@description('Optional. Whether or not public network access is allowed for this resource. For security reasons it should be disabled. If not specified, it will be disabled by default if private endpoints are set.')
+@description('Optional. Property to specify whether the vault will accept traffic from public internet. If set to "disabled" all traffic except private endpoint traffic and that that originates from trusted services will be blocked. This will override the set firewall rules, meaning that even if the firewall rules are present we will not honor the rules.')
 @allowed([
-  ''
-  'Enabled'
-  'Disabled'
+  'enabled'
+  'disabled'
 ])
-param publicNetworkAccess string = ''
+param publicNetworkAccess string = 'enabled'
+
+@description('Optional. Virtual Network resource identifier, if networkAcls is passed, this value must be passed as well')
+param vNetId string = ''
 
 @description('Optional. Specifies the number of days that logs will be kept for; a value of 0 will retain data indefinitely.')
 @minValue(0)
 @maxValue(365)
 param diagnosticLogsRetentionInDays int = 365
 
-@description('Optional. Resource ID of the diagnostic storage account. For security reasons, it is recommended to set diagnostic settings to send data to either storage account, log analytics workspace or event hub.')
+@description('Optional. Resource ID of the diagnostic storage account. For security reasons, it is recommended to set diagnostic settings to send data to either storage account, log analytics workspace or event hub')
 param diagnosticStorageAccountId string = ''
 
-@description('Optional. Resource ID of the diagnostic log analytics workspace. For security reasons, it is recommended to set diagnostic settings to send data to either storage account, log analytics workspace or event hub.')
+@description('Optional. Resource ID of the diagnostic log analytics workspace. For security reasons, it is recommended to set diagnostic settings to send data to either storage account, log analytics workspace or event hub')
 param diagnosticWorkspaceId string = ''
 
-@description('Optional. Resource ID of the diagnostic event hub authorization rule for the Event Hubs namespace in which the event hub should be created or streamed to.')
+@description('Optional. Resource ID of the diagnostic event hub authorization rule for the Event Hubs namespace in which the event hub should be created or streamed to. ')
 param diagnosticEventHubAuthorizationRuleId string = ''
 
-@description('Optional. Name of the diagnostic event hub within the namespace to which logs are streamed. Without this, an event hub is created for each log category. For security reasons, it is recommended to set diagnostic settings to send data to either storage account, log analytics workspace or event hub.')
+@description('Optional. Name of the diagnostic event hub within the namespace to which logs are streamed. Without this, an event hub is created for each log category. For security reasons, it is recommended to set diagnostic settings to send data to either storage account, log analytics workspace or event hub')
 param diagnosticEventHubName string = ''
 
 @allowed([
-  ''
   'CanNotDelete'
+  'NotSpecified'
   'ReadOnly'
 ])
 @description('Optional. Specify the type of lock.')
-param lock string = ''
+param lock string = 'NotSpecified'
 
-@description('Optional. Array of role assignment objects that contain the \'roleDefinitionIdOrName\' and \'principalId\' to define RBAC role assignments on this resource. In the roleDefinitionIdOrName attribute, you can provide either the display name of the role definition, or its fully qualified ID in the following format: \'/providers/Microsoft.Authorization/roleDefinitions/c2f4ef07-c644-48eb-af81-4b1b4947fb11\'.')
+@description('Optional. Array of role assignment objects that contain the \'roleDefinitionIdOrName\' and \'principalId\' to define RBAC role assignments on this resource. In the roleDefinitionIdOrName attribute, you can provide either the display name of the role definition, or its fully qualified ID in the following format: \'/providers/Microsoft.Authorization/roleDefinitions/c2f4ef07-c644-48eb-af81-4b1b4947fb11\'')
 param roleAssignments array = []
 
-@description('Optional. Configuration details for private endpoints. For security reasons, it is recommended to use private endpoints whenever possible.')
+@description('Optional. Configuration Details for private endpoints. For security reasons, it is recommended to use private endpoints whenever possible')
 param privateEndpoints array = []
 
 @description('Optional. Resource tags.')
@@ -108,6 +110,9 @@ param tags object = {}
 
 @description('Optional. Enable telemetry via the Customer Usage Attribution ID (GUID).')
 param enableDefaultTelemetry bool = true
+
+@description('Generated. Do not provide a value! This date value is used to generate a SAS token to access the modules.')
+param baseTime string = utcNow('u')
 
 @description('Optional. The name of logs that will be streamed.')
 @allowed([
@@ -152,10 +157,17 @@ var diagnosticsMetrics = [for metric in diagnosticMetricsToEnable: {
   }
 }]
 
+var maxNameLength = 24
+var uniquenameUntrim = uniqueString('Key Vault${baseTime}')
+var uniquename = (length(uniquenameUntrim) > maxNameLength ? substring(uniquenameUntrim, 0, maxNameLength) : uniquenameUntrim)
+var name_var = !empty(name) ? name : uniquename
+var virtualNetworkRules = [for networkrule in ((contains(networkAcls, 'virtualNetworkRules')) ? networkAcls.virtualNetworkRules : []): {
+  id: '${vNetId}/subnets/${networkrule.subnet}'
+}]
 var networkAcls_var = {
   bypass: !empty(networkAcls) ? networkAcls.bypass : null
   defaultAction: !empty(networkAcls) ? networkAcls.defaultAction : null
-  virtualNetworkRules: (!empty(networkAcls) && contains(networkAcls, 'virtualNetworkRules')) ? networkAcls.virtualNetworkRules : []
+  virtualNetworkRules: !empty(networkAcls) ? virtualNetworkRules : null
   ipRules: (!empty(networkAcls) && contains(networkAcls, 'ipRules')) ? networkAcls.ipRules : []
 }
 
@@ -167,8 +179,6 @@ var formattedAccessPolicies = [for accessPolicy in accessPolicies: {
 }]
 
 var secretList = !empty(secrets) ? secrets.secureList : []
-
-var enableReferencedModulesTelemetry = false
 
 // =========== //
 // Deployments //
@@ -186,7 +196,7 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (ena
 }
 
 resource keyVault 'Microsoft.KeyVault/vaults@2021-11-01-preview' = {
-  name: name
+  name: name_var
   location: location
   tags: tags
   properties: {
@@ -205,14 +215,14 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-11-01-preview' = {
       family: 'A'
     }
     networkAcls: !empty(networkAcls) ? networkAcls_var : null
-    publicNetworkAccess: 'Enabled' //!empty(publicNetworkAccess) ? any(publicNetworkAccess) : (!empty(privateEndpoints) ? 'Disabled' : null)
+    publicNetworkAccess: publicNetworkAccess
   }
 }
 
-resource keyVault_lock 'Microsoft.Authorization/locks@2017-04-01' = if (!empty(lock)) {
+resource keyVault_lock 'Microsoft.Authorization/locks@2017-04-01' = if (lock != 'NotSpecified') {
   name: '${keyVault.name}-${lock}-lock'
   properties: {
-    level: any(lock)
+    level: lock
     notes: lock == 'CanNotDelete' ? 'Cannot delete resource or child resources.' : 'Cannot modify the resource or child resources.'
   }
   scope: keyVault
@@ -236,7 +246,6 @@ module keyVault_accessPolicies 'accessPolicies/deploy.bicep' = if (!empty(access
   params: {
     keyVaultName: keyVault.name
     accessPolicies: formattedAccessPolicies
-    enableDefaultTelemetry: enableReferencedModulesTelemetry
   }
 }
 
@@ -252,7 +261,6 @@ module keyVault_secrets 'secrets/deploy.bicep' = [for (secret, index) in secretL
     contentType: contains(secret, 'contentType') ? secret.contentType : ''
     tags: contains(secret, 'tags') ? secret.tags : {}
     roleAssignments: contains(secret, 'roleAssignments') ? secret.roleAssignments : []
-    enableDefaultTelemetry: enableReferencedModulesTelemetry
   }
 }]
 
@@ -270,39 +278,26 @@ module keyVault_keys 'keys/deploy.bicep' = [for (key, index) in keys: {
     kty: contains(key, 'kty') ? key.kty : 'EC'
     tags: contains(key, 'tags') ? key.tags : {}
     roleAssignments: contains(key, 'roleAssignments') ? key.roleAssignments : []
-    enableDefaultTelemetry: enableReferencedModulesTelemetry
   }
 }]
 
-module keyVault_privateEndpoints '../../Microsoft.Network/privateEndpoints/deploy.bicep' = [for (privateEndpoint, index) in privateEndpoints: {
+module keyVault_privateEndpoints '.bicep/nested_privateEndpoint.bicep' = [for (privateEndpoint, index) in privateEndpoints: {
   name: '${uniqueString(deployment().name, location)}-KeyVault-PrivateEndpoint-${index}'
   params: {
-    groupIds: [
-      privateEndpoint.service
-    ]
-    name: contains(privateEndpoint, 'name') ? privateEndpoint.name : 'pe-${last(split(keyVault.id, '/'))}-${privateEndpoint.service}-${index}'
-    serviceResourceId: keyVault.id
-    subnetResourceId: privateEndpoint.subnetResourceId
-    enableDefaultTelemetry: enableReferencedModulesTelemetry
-    location: reference(split(privateEndpoint.subnetResourceId, '/subnets/')[0], '2020-06-01', 'Full').location
-    lock: contains(privateEndpoint, 'lock') ? privateEndpoint.lock : lock
-    privateDnsZoneGroup: contains(privateEndpoint, 'privateDnsZoneGroup') ? privateEndpoint.privateDnsZoneGroup : {}
-    roleAssignments: contains(privateEndpoint, 'roleAssignments') ? privateEndpoint.roleAssignments : []
-    tags: contains(privateEndpoint, 'tags') ? privateEndpoint.tags : {}
-    manualPrivateLinkServiceConnections: contains(privateEndpoint, 'manualPrivateLinkServiceConnections') ? privateEndpoint.manualPrivateLinkServiceConnections : []
-    customDnsConfigs: contains(privateEndpoint, 'customDnsConfigs') ? privateEndpoint.customDnsConfigs : []
+    privateEndpointResourceId: keyVault.id
+    privateEndpointVnetLocation: empty(privateEndpoints) ? 'dummy' : reference(split(privateEndpoint.subnetResourceId, '/subnets/')[0], '2020-06-01', 'Full').location
+    privateEndpointObj: privateEndpoint
+    tags: tags
   }
 }]
 
-module keyVault_roleAssignments '.bicep/nested_roleAssignments.bicep' = [for (roleAssignment, index) in roleAssignments: {
+module keyVault_rbac '.bicep/nested_rbac.bicep' = [for (roleAssignment, index) in roleAssignments: {
   name: '${uniqueString(deployment().name, location)}-KeyVault-Rbac-${index}'
   params: {
     description: contains(roleAssignment, 'description') ? roleAssignment.description : ''
     principalIds: roleAssignment.principalIds
     principalType: contains(roleAssignment, 'principalType') ? roleAssignment.principalType : ''
     roleDefinitionIdOrName: roleAssignment.roleDefinitionIdOrName
-    condition: contains(roleAssignment, 'condition') ? roleAssignment.condition : ''
-    delegatedManagedIdentityResourceId: contains(roleAssignment, 'delegatedManagedIdentityResourceId') ? roleAssignment.delegatedManagedIdentityResourceId : ''
     resourceId: keyVault.id
   }
 }]
@@ -321,6 +316,3 @@ output name string = keyVault.name
 
 @description('The URI of the key vault.')
 output uri string = keyVault.properties.vaultUri
-
-@description('The location the resource was deployed into.')
-output location string = keyVault.location
