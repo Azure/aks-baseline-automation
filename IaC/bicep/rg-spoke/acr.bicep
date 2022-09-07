@@ -76,13 +76,13 @@ var subRgUniqueString = uniqueString('aks', subscription().subscriptionId, resou
 
 resource spokeResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
   scope: subscription()
-  name: '${split(targetVnetResourceId,'/')[4]}'
+  name: '${split(targetVnetResourceId, '/')[4]}'
 }
 
 resource spokeVirtualNetwork 'Microsoft.Network/virtualNetworks@2021-05-01' existing = {
   scope: spokeResourceGroup
-  name: '${last(split(targetVnetResourceId,'/'))}'
-  
+  name: '${last(split(targetVnetResourceId, '/'))}'
+
   resource snetClusterNodes 'subnets@2021-05-01' existing = {
     name: 'snet-clusternodes'
   }
@@ -148,7 +148,6 @@ module acrAks '../CARML/Microsoft.ContainerRegistry/registries/deploy.bicep' = {
     retentionPolicyDays: 15
     retentionPolicyStatus: 'enabled'
     publicNetworkAccess: 'Disabled'
-    encryptionStatus: 'disabled'
     dataEndpointEnabled: true
     networkRuleBypassOptions: 'AzureServices'
     zoneRedundancy: 'Disabled' // This Preview feature only supports three regions at this time, and eastus2's paired region (centralus), does not support this. So disabling for now.
@@ -183,18 +182,16 @@ module acrPrivateEndpoint '../CARML/Microsoft.Network/privateEndpoints/deploy.bi
   params: {
     name: 'nodepools'
     location: location
-    targetSubnetResourceId: spokeVirtualNetwork::snetClusterNodes.id
-    groupId: [
+    subnetResourceId: spokeVirtualNetwork::snetClusterNodes.id
+    groupIds: [
       'registry'
     ]
     serviceResourceId: acrAks.outputs.resourceId
-    privateDnsZoneGroups: [
-      {
-        privateDNSResourceIds: [
-          dnsPrivateZoneAcr.outputs.resourceId
-        ]
-      }
-    ]
+    privateDnsZoneGroup: {
+      privateDNSResourceIds: [
+        dnsPrivateZoneAcr.outputs.resourceId
+      ]
+    }
   }
   scope: resourceGroup(resourceGroupName)
   dependsOn: [
