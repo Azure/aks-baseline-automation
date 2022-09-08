@@ -74,7 +74,7 @@ jobs:
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       
   GitOpsAppDeploy:
-    #This job deploys all of the infrastucture using AKS Construction
+    #This job runs the specific GitOps specific scripts
     needs: [ReusableWF, Deploy, DockerBuildPushACR]
     uses: ./.github/workflows/App-GitOps.yml
     #Because this workflow commits and pushes against the repo it's running against, we can't let it run against this repo
