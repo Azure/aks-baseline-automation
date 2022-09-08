@@ -147,7 +147,7 @@ jobs:
           AGIC-Private-Ingress)
             serviceType="ClusterIP"; privateIp=true; ingress="appGw" ;;
           Traefik)
-            serviceType="ClusterIP"; privateIp=true; ingress="traefik" ;;
+            serviceType="ClusterIP"; privateIp=false; ingress="traefik" ;;
           esac
 
           #Create a list of helm parameters to override

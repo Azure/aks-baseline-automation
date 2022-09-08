@@ -70,7 +70,7 @@ jobs:
       ENVIRONMENT: ${{ needs.ReusableWF.outputs.ENVIRONMENT }}
       RG: ${{ needs.ReusableWF.outputs.RG }}
       AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
-      APPNAME: azure-vote-public
+      APPNAME: azure-vote
       INGRESSTYPE: Traefik
       DEBUG: true
       HELMPACKAGEURI: "https://github.com/Azure/aks-baseline-automation/raw/bahramr/workload/workloads/azure-vote/AzureVote.tgz"
