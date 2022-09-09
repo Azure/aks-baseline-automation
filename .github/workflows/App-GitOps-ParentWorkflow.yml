@@ -41,7 +41,7 @@ jobs:
       
   DockerBuildPushACR:
     needs: [ReusableWF, Deploy]
-    uses: ./.github/workflows/App-AzureVote-DockerBuild-Actions.yml
+    uses: ./.github/workflows/App-AzureVote-DockerBuild.yml
     with:
       ENVIRONMENT: ${{ needs.ReusableWF.outputs.ENVIRONMENT }}
       RG: ${{ needs.ReusableWF.outputs.RG }}
