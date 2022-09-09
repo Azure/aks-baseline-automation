@@ -73,7 +73,7 @@ Multiple GitHub action workflows are used to demonstrate the deployment of sampl
 
 Sample App | Scenario | Description | Tags
 ---------- | -------- | ----------- | ----
-azure-vote | [AKS Run Command](/docs/app-azurevote-helmruncmd.md) |Deploys the app using a helm chart through the _AKS Command Invoke_. The focus here is to demonstrate how workloads in private clusters can still be managed through cloud hosted GitHub runners. It aslo shows how to test your application using Playwright.
+azure-vote | [AKS Run Command](/docs/app-azurevote-helmruncmd.md) |Deploys the app using a helm chart through the _AKS Command Invoke_. The focus here is to demonstrate how workloads in private clusters can still be managed through cloud hosted GitHub runners. It also shows how to test your application using Playwright.
 azure-vote  | [ACR Build](/docs/app-azurevote-acrbuild.md) | Builds a container image from code directly in Azure Container Registry (ACR). Deployment is done using the Azure Kubernetes GitHub actions. Requires the use of self-hosted runners if you deployed a private ACR per the instructions in the [IaC](./IaC/README.md) section of this repo. To setup self-hosted runners, refer to the [Self-hosted GitHub Runners] section.(#Self-hosted-GitHub-Runners).
 azure-vote  | [Docker Build](/docs/app-azurevote-dockerbuildpush.md) | Builds a container image from code on the runner then pushes to ACR. Deployment is done using Azure Kubernetes GitHub actions. Requires enabling the [Admin account](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-authentication?tabs=azure-cli#admin-account) in ACR. Also requires the use of self-hosted runners if you deployed a private ACR per the instructions in the [IaC](./IaC/README.md) section of this repo. To setup self-hosted runners, refer to the [Self-hosted GitHub Runners](#Self-hosted-GitHub-Runners) section.
 
@@ -81,7 +81,7 @@ azure-vote  | [Docker Build](/docs/app-azurevote-dockerbuildpush.md) | Builds a 
 ### Deploy sample applications using GitOps
 You can use GitOps with flux or ArgoCD (pull method) as an alternative to GitHub action workflows to deploy your applications. 
 
-Refer to [these instructions](docs/app-azurevote-gitops.mdapp-azurevote-gitops.md) for how to setup your GitOps environment to deploy sample applications. 
+Refer to [these instructions](docs/app-azurevote-gitops.md) for how to setup your GitOps environment to deploy a sample applications. 
 ## Lifecycle-Management
 Different components of an AKS solution are often owned by different teams and typically follow their own lifecycle management schedule and process, sometimes using different tools. In this section we will cover the following lifecycle management processes:
 

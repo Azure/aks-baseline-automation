@@ -6,4 +6,4 @@ To deploy sample applications through a CI/CD pipeline using GitHub action workf
 *  [ACR Build](/docs/app-azurevote-acrbuild.md)
 *  [Docker Build](/docs/app-azurevote-dockerbuildpush.md)
 
-To deploy sample applications through a CI/CD pipeline using GitHub action workflows, refer to the following article [App Deployment througfh GitOps](/docs/app-azurevote-gitops.md).
+To deploy sample applications through a CI/CD pipeline using GitHub action workflows, refer to the following article [App Deployment through GitOps](/docs/app-azurevote-gitops.md).
