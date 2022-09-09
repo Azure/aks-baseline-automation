@@ -37,13 +37,13 @@ Make sure these [prerequisites](../../docs/IaC-prerequisites.md) are in place be
 
 To customize the sample terraform templates provided based on your specific needs, follow the steps below:
 
-1. Fork this repo so that you can customize it and run GitHub Action workflows.
+1. Fork this repo so that you can customize it and run GitHub action workflows.
 2. Review the terraform templates provided under the IaC/terraform folder and customize these files based on your specific deployment requirements for each resource.
 3. Test the deployment of each Azure resource individually using these [manual](../../docs/terraform-manual-steps.md) commands.
 4. Customize the GitHub repo settings for flux so that it picks up your customized yaml files when deploying the shared services for your cluster. You need to change these settings in the file [`flux.yaml`](../../IaC/terraform/configuration/workloads/flux.tfvars) to point to your forked GitHub repo.
 
 
-## Customize the GitHub Action Workflows
+## Customize the GitHub action workflows
 To customize the sample GitHub pipeline provided based on your specific needs, follow the instructions below:
 
 1. Create your workflow [GitHub Environment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment?msclkid=62181fb1ab7511ec9be085113913a757) to store the following secrets:
@@ -64,7 +64,7 @@ To customize the sample GitHub pipeline provided based on your specific needs, f
     Note that this sample workflow file deploys Azure resources respectively in the hub and spoke resource groups as specified in the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline).
 
 
-## Kick-iff the GitHub Action Workflow
+## Kick-iff the GitHub action workflow
 As the workflow trigger is set to "workflow_dispatch", you can manually start it by clicking on [Actions](https://github.com/Azure/aks-baseline-automation/actions) in this repo, find the workflow [IaC-terraform-AKS.yml](../../.github/workflows/IaC-terraform-AKS.yml), and run it by clicking on the "Run Workflow" drop down.
 
 As the workflow runs, monitor its logs for any error.
