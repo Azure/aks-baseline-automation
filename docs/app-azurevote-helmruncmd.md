@@ -85,21 +85,21 @@ The reusable workflow file is located [here](/.github/workflows/App-AzureVote-He
 
 ## Scenario Components
 
-## Helm
+### Helm
 
 [Helm](https://helm.sh/) is a package manager for Kubernetes, used to package and deploy applications with ease.
 The Helm chart is written using [subcharts](https://helm.sh/docs/topics/charts/) for the deployments, whilst the parent Helm chart creates the Ingress and NetworkPolicy resources.
 
-## AKS Run Command
+### AKS Run Command
 
 The [AKS Run Command](https://docs.microsoft.com/azure/aks/command-invoke) allows you to remotely invoke commands in an AKS cluster through the AKS API. This can greatly assist with access to a private cluster when the client is not on the cluster private network while still retaining and enforcing full RBAC controls.
 
-## Key Steps in the Action Workflow
+### Key Steps in the Action Workflow
 
-### Verifying
+#### Verifying
 
 After creating the application, it can be useful to check that the application is serving content. Steps in this workflow wait for an IP address to be allocated, which is then tested to ensure content is returned.
 
-### Playwright
+#### Playwright
 
 [Playwright](https://playwright.dev) is a web testing framework which is used to interact with a web application to mimic user input. Its use in this workflow is a [single test]((deploymentassets/misc/playwrighttests/azure-vote-catswin.spec.js)) to verify that communication between pods is successful by voting (calling redis) and asserting the vote balance is correct.

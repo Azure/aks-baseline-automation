@@ -32,13 +32,13 @@ The reusable workflow file is located [here](/.github/workflows/app-azurevote-ac
 
 ## Scenario Components
 
-## ACR Build
+### ACR Build
 
 The primary responsibility of the Azure Container Registry is to store a container image. ACR can also take a DockerFile and associated files to [build a container image](https://docs.microsoft.com/azure/container-registry/container-registry-quickstart-task-cli).
 
 Using ACR to build the container image offloads build agent responsibility and allows the build to happen in isolation (if using a [dedicated agent pool](https://docs.microsoft.com/azure/container-registry/tasks-agent-pools)). It eliminates the need for storing extra credentials which are normally leveraged to do a Docker Push.
 
-## Azure GitHub Actions
+### Azure GitHub Actions
 
 Using GitHub actions as part of your workflow abstracts the Kubernetes binaries and commands from the deployment process. The Azure GitHub actions provide a simple but powerful method of deploying.
 
