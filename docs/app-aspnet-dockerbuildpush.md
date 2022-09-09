@@ -10,7 +10,7 @@ The application is the [ASP.Net Hello World](https://github.com/mspnp/aks-baseli
 
 The Azure Credentials required are that of OpenID Connect (OIDC) based Federated Identity Credentials, please see [here](/docs/oidc-federated-credentials.md) for more information.
 
-The workflow file is located [here](/.github/workflows/App-aspnet-DockerBuild-Actions.yml).
+The workflow file is located [here](/.github/workflows/App-AspNet-DockerBuild-Actions.yml).
 
 ## Scenario Components
 

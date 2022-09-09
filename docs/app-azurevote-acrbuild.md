@@ -17,7 +17,7 @@ The reusable workflow file is located [here](/.github/workflows/app-azurevote-ac
 ```yaml
   #Here's how to call the reusable workflow from your workflow file
   deploy-azure-vote-app:
-    uses: Azure/aks-baseline-automation/.github/workflows/App-AzureVote-BuildOnACR-Actions.yml@main
+    uses: Azure/aks-baseline-automation/.github/workflows/App-AzureVote-BuildOnACRs.yml@main
     with:
       ENVIRONMENT: MyGitHubEnvironmentName
       RG: ResourceGroupToDeployTo
