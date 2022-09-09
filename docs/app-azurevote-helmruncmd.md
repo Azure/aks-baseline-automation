@@ -90,7 +90,7 @@ The reusable workflow file is located [here](/.github/workflows/App-AzureVote-He
 [Helm](https://helm.sh/) is a package manager for Kubernetes, used to package and deploy applications with ease.
 The Helm chart is written using [subcharts](https://helm.sh/docs/topics/charts/) for the deployments, whilst the parent Helm chart creates the Ingress and NetworkPolicy resources.
 
-For more information about how to create the helm chart for this application, refer to [this article](https://docs.microsoft.com/en-us/azure/aks/quickstart-helm?tabs=azure-cli#create-your-helm-chart).
+The helm charts are packaged as **AzureVote.tgz** and placed under the .\workloads\azure-vote folder of this repo. For information about how to create the helm charts for this application, refer to [this article](https://docs.microsoft.com/en-us/azure/aks/quickstart-helm?tabs=azure-cli#create-your-helm-chart).
 
 ### AKS Run Command
 
