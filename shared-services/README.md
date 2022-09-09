@@ -24,6 +24,8 @@ The first three namespaces are workload agnostic and tend to all cluster-wide co
 
 The **cluster** directory contains the configuration that applies to entire cluster (such as ClusterRole, ClusterRoleBinding), rather than to individual namespaces.
 
+Note: to deploy shared services through a GitHub action workflow instead of using GitOps, refer to [this article](./doc/../docs/shared-services-workflow.md)
+
 ## Private bootstrapping repository
 
 Typically, your bootstrapping repository wouldn't be a public facing repository like this one, but instead a private GitHub or an Azure DevOps repo. The Flux operator deployed with the cluster supports private git repositories as your bootstrapping source. In addition to requiring network line of sight to the repository from your cluster's nodes, you'll also need to ensure that you've provided the necessary credentials. This can come, typically, in the form of certificate based SSH or personal access tokens (PAT), both ideally scoped as read-only to the repo with no additional permissions.

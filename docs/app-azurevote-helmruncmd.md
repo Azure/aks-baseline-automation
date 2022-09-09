@@ -2,7 +2,7 @@
 
 ## Overview
 
-This sample leverages the AKS Run Command and performs comprehensive validation steps to ensure the application has been deployed properly.
+This sample leverages the AKS Run Command ([aks command invoke](https://docs.microsoft.com/en-us/azure/aks/command-invoke)) and performs comprehensive validation steps to ensure the application has been deployed properly.
 
 The application is the [AKS Voting App](https://github.com/Azure-Samples/azure-voting-app-redis), which is used in the [AKS Getting Started Guide](https://docs.microsoft.com/en-us/azure/aks/learn/quick-kubernetes-deploy-cli). It is a 2 container application that allows the user to use a Web UI to vote between Cats/Dogs, the votes are recorded in a Redis cache.
 
@@ -63,7 +63,7 @@ This sample is a GitHub Reusable Workflow, as an asset in a public repository it
 
 The Azure Credentials required are that of OpenID Connect (OIDC) based Federated Identity Credentials, please see [here](/docs/oidc-federated-credentials.md) for more information.
 
-The reusable workflow file is located [here](/.github/workflows/App-AzureVote-HelmRunCmd.yml). To call it from your own workflow, use the code snippet below or just run the workflow [App-Test.yml](/.github/workflows/App-Test.yml): 
+The reusable workflow file is located [here](/.github/workflows/App-AzureVote-HelmRunCmd.yml). To call it from your own workflow, use the code snippet below or just run the workflow [App-Test-All.yml](/.github/workflows/App-Test-All.yml): 
 
 ```yaml
   #Here's how to call the reusable workflow from your workflow file
@@ -85,21 +85,21 @@ The reusable workflow file is located [here](/.github/workflows/App-AzureVote-He
 
 ## Scenario Components
 
-## Helm
+### Helm
 
 [Helm](https://helm.sh/) is a package manager for Kubernetes, used to package and deploy applications with ease.
 The Helm chart is written using [subcharts](https://helm.sh/docs/topics/charts/) for the deployments, whilst the parent Helm chart creates the Ingress and NetworkPolicy resources.
 
-## AKS Run Command
+### AKS Run Command
 
 The [AKS Run Command](https://docs.microsoft.com/azure/aks/command-invoke) allows you to remotely invoke commands in an AKS cluster through the AKS API. This can greatly assist with access to a private cluster when the client is not on the cluster private network while still retaining and enforcing full RBAC controls.
 
-## Key Steps in the Action Workflow
+### Key Steps in the Action Workflow
 
-### Verifying
+#### Verifying
 
 After creating the application, it can be useful to check that the application is serving content. Steps in this workflow wait for an IP address to be allocated, which is then tested to ensure content is returned.
 
-### Playwright
+#### Playwright
 
-[Playwright](https://playwright.dev) is a web testing framework which is used to interact with a web application to mimic user input. It's use in this action workflow is a [single test]((deploymentassets/misc/playwrighttests/azure-vote-catswin.spec.js)) to verify that communication between pods is successful by voting (calling redis) and asserting the vote balance is correct.
+[Playwright](https://playwright.dev) is a web testing framework which is used to interact with a web application to mimic user input. Its use in this workflow is a [single test]((deploymentassets/misc/playwrighttests/azure-vote-catswin.spec.js)) to verify that communication between pods is successful by voting (calling redis) and asserting the vote balance is correct.
