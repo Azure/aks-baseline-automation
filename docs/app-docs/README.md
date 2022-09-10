@@ -1,4 +1,4 @@
-**Overview**
+# Overview
 
 In the [**Automated build & deployment of container applications using DevOps & GitOps**](http://TBDlink.com/) document we explored the options of push and pull based CI/CD options along with the pros and cons of each. In this section we are going deploy a scenario that explains these two options further. To explore the architecture in more detail, please check out the [reference architecture in Microsoft Docs](http://TBDlink.com/)
 
@@ -46,3 +46,12 @@ Before deploying the push or pull based end to end scenario you need to ensure y
 -   Argo CD installed on your AKS cluster ([Get Started with Argo CD](https://argo-cd.readthedocs.io/en/stable/getting_started/))
 -   A GitHub account ([Getting started with your GitHub account](https://docs.github.com/en/get-started/onboarding/getting-started-with-your-github-account))
 -   Fork the [AKS Baseline Automation repository](https://github.com/azure/aks-baseline-automation)
+
+## Next
+Pick one of the following options to deploy a workload using automation
+
+:arrow_forward: [Push option](./pull-push-steps/app-azurevote-push-dockerbuild.md)
+
+:arrow_forward: [Pull Option](./pull-push-steps/app-azurevote-pull-gitops.md)
+
+:arrow_forward: [Other Scanarios](./other-app-deploy-scenarios)
