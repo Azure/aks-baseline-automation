@@ -4,11 +4,9 @@ In the [**Automated build & deployment of container applications using DevOps & 
 
 **Option \#1 Push-based CI/CD Architecture and Dataflow**
 
-![](./pull-push-steps/media/5ef464b58b9ce8ab4499ed1c2aec882f.png)
+![Figure 1 - Option 1 Push based Architecture with GitHub Actions for CI and CD](./pull-push-steps/media/5ef464b58b9ce8ab4499ed1c2aec882f.png)
 
-Figure 1 - Option \#1 Push based Architecture with GitHub Actions for CI and CD
-
-This scenario covers a push-based DevOps pipeline for a 2-tier web application with a front-end web component and a back-end Redis. This pipeline uses GitHub Actions for build push and deployment. The data flows through the scenario as follows:
+This scenario covers a push-based DevOps pipeline for a web application with a front-end component. This pipeline uses GitHub Actions for build push and deployment. The data flows through the scenario as follows:
 
 1.  The Voting App code is developed.
 2.  The Voting App code is committed to the GitHub git repository.
@@ -18,11 +16,9 @@ This scenario covers a push-based DevOps pipeline for a 2-tier web application w
 
 **Option \#2 Pull-based CI/CD Architecture and Dataflow**
 
-![](./pull-push-steps/media/72be57feef5bb9b47658cfc16f3d779f.png)
+![Figure 2 - Option 2 Pull based Architecture with GitHub Actions for CI and Argo CD for CD](./pull-push-steps/media/72be57feef5bb9b47658cfc16f3d779f.png)
 
-Figure 2 - Option \#2 Pull based Architecture with GitHub Actions for CI and Argo CD for CD
-
-This scenario covers a pull-based DevOps pipeline for a 2-tier web application with a front-end web component and a back-end Redis. This pipeline uses GitHub Actions for build and push it uses Argo CD a GitOps operator pull/sync for deployment. The data flows through the scenario as follows:
+This scenario covers a pull-based DevOps pipeline for a web application with a front-end component. This pipeline uses GitHub Actions for build and push it uses Argo CD a GitOps operator pull/sync for deployment. The data flows through the scenario as follows:
 
 1.  The Voting App code is developed.
 2.  The Voting App code is committed to the GitHub git repository.
@@ -41,8 +37,9 @@ Before deploying the push or pull based end to end scenario you need to ensure y
 
 -   You must have an existing Azure account. If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
 -   An ACR instance deployed
--   An AKS cluster
-    -   It is highly recommended to utilize the [AKS Construction helper](https://azure.github.io/AKS-Construction/) to deploy your Azure Container Registry (ACR) and Azure Kubernetes Service (AKS) cluster. You can use this pre-configured link: [AKS Construction helper (pre-configured)](https://azure.github.io/AKS-Construction/?ops=managed&cluster.apisecurity=none&addons.ingress=none&addons.monitor=aci&addons.azurepolicy=none&addons.networkPolicy=none&addons.csisecret=none&deploy.location=EastUS2) to create a basic AKS cluster (not recommended for production) to use with this CI/CD scenario. This will create an ACR, and an AKS cluster that is AAD integrated and attached to the ACR
+-   An AKS cluster. It is highly recommended that you utilize of of the two options below:
+    - Quick option: The [AKS Construction helper](https://azure.github.io/AKS-Construction/) to deploy your Azure Container Registry (ACR) and Azure Kubernetes Service (AKS) cluster. You can use this pre-configured link: [AKS Construction helper (pre-configured)](https://azure.github.io/AKS-Construction/?ops=managed&cluster.apisecurity=none&addons.ingress=none&addons.monitor=aci&addons.azurepolicy=none&addons.networkPolicy=none&addons.csisecret=none&deploy.location=EastUS2) to create a basic AKS cluster (not recommended for production) to use with this CI/CD scenario. This will create an ACR, and an AKS cluster that is AAD integrated and attached to the ACR
+    - Learn CI/CD for IaC first option: Deploy the cluster using the [infrastructure scenario](../../IaC) in this repo that walks you through the process of managing your infrastructure using automation
 -   Argo CD installed on your AKS cluster ([Get Started with Argo CD](https://argo-cd.readthedocs.io/en/stable/getting_started/))
 -   A GitHub account ([Getting started with your GitHub account](https://docs.github.com/en/get-started/onboarding/getting-started-with-your-github-account))
 -   Fork the [AKS Baseline Automation repository](https://github.com/azure/aks-baseline-automation)
@@ -52,6 +49,6 @@ Pick one of the following options to deploy a workload using automation
 
 :arrow_forward: [Push option](./pull-push-steps/app-azurevote-push-dockerbuild.md)
 
-:arrow_forward: [Pull Option](./pull-push-steps/app-azurevote-pull-gitops.md)
+:arrow_forward: [Pull option](./pull-push-steps/app-azurevote-pull-gitops.md)
 
-:arrow_forward: [Other Scanarios](./other-app-deploy-scenarios)
+:arrow_forward: [Other app scenarios](./other-app-deploy-scenarios)
