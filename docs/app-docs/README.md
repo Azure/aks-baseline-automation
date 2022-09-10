@@ -2,7 +2,7 @@
 
 In the [**Automated build & deployment of container applications using DevOps & GitOps**](http://TBDlink.com/) document we explored the options of push and pull based CI/CD options along with the pros and cons of each. In this section we are going deploy a scenario that explains these two options further. To explore the architecture in more detail, please check out the [reference architecture in Microsoft Docs](http://TBDlink.com/)
 
-**Option \#1 Push-based CI/CD Architecture and Dataflow**
+### Option \#1 Push-based CI/CD Architecture and Dataflow
 
 ![Figure 1 - Option 1 Push based Architecture with GitHub Actions for CI and CD](./pull-push-steps/media/5ef464b58b9ce8ab4499ed1c2aec882f.png)
 
@@ -14,7 +14,7 @@ This scenario covers a push-based DevOps pipeline for a web application with a f
 4.  GitHub Actions Builds a container image from the Voting App code and pushes the container image to Azure Container Registry.
 5.  A GitHub Actions job deploys (pushes) the voting app to the AKS cluster via kubectl deployment of the voting app Kubernetes manifest files.
 
-**Option \#2 Pull-based CI/CD Architecture and Dataflow**
+### Option \#2 Pull-based CI/CD Architecture and Dataflow
 
 ![Figure 2 - Option 2 Pull based Architecture with GitHub Actions for CI and Argo CD for CD](./pull-push-steps/media/72be57feef5bb9b47658cfc16f3d779f.png)
 
@@ -29,11 +29,11 @@ This scenario covers a pull-based DevOps pipeline for a web application with a f
 7.  The GitOps Operator Argo CD syncs / pulls with the Git repository.
 8.  The GitOps Operator Argo CD deploys the voting app to the AKS cluster.
 
-**Deploy this scenario**
+## Deploy this scenario
 
 Before deploying the push or pull based end to end scenario you need to ensure you have met the prerequisites for this scenario. These prerequisites are listed in this section:
 
-**Prerequisites for these scenarios**
+### Prerequisites for these scenarios
 
 -   You must have an existing Azure account. If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
 -   An ACR instance deployed
@@ -44,7 +44,7 @@ Before deploying the push or pull based end to end scenario you need to ensure y
 -   A GitHub account ([Getting started with your GitHub account](https://docs.github.com/en/get-started/onboarding/getting-started-with-your-github-account))
 -   Fork the [AKS Baseline Automation repository](https://github.com/azure/aks-baseline-automation)
 
-## Next
+### Next
 Pick one of the following options to deploy a workload using automation
 
 :arrow_forward: [Push option](./pull-push-steps/app-azurevote-push-dockerbuild.md)
