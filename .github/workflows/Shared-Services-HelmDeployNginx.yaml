@@ -14,19 +14,54 @@ on:
         description: 'The Resource Group where your resources are deployed'
         required: true
         type: string
-      ACRNAME:
-        description: 'The Name of the ACR resource'
+      AKSNAME:
+        description: 'The Name of the AKS resource'
         required: true
         type: string
-      AKVNAME:
-        description: 'The Name of the AKV resource'
+      AGNAME:
+        description: 'For AGIC deployments this sets concurrency'
+        default: ""
+        required: false
+        type: string
+      APPNAME:
+        description: 'The Name of the Application to deploy'
         required: true
         type: string
-      MINAME:
-        description: 'The Name of the Managed Identity for nginx to access secrets in the AKV'
-        required: true
+      NAMESPACE:
+        description: 'The Kubernetes Namespace to deploy the Application to'
+        default: "ingress-nginx"
+        required: false
         type: string
-
+      INGRESSTYPE:
+        description: 'How your Application will be exposed'
+        default: "InternalLoadBalancer" #'PublicLoadBalancer'/InternalLoadBalancer/AGIC-Public-Ingress/AGIC-Private-Ingress/Traefik
+        required: false
+        type: string
+      UNINSTALLAFTERVERIFY:
+        description: 'Uninstall Application after verifying it works'
+        type: boolean
+        default: false
+        required: false
+      FORCEHELMCLEANINSTALL:
+        description: 'If App is already installed, force uninstall before starting install'
+        type: boolean
+        default: false
+        required: false
+      DEBUG:
+        description: "Generate optional workflow Debug Artifacts"
+        type: boolean
+        default: false
+        required: false
+      HELMPACKAGEURI:
+        description: "The location of the Application Helm package"
+        default: "https://github.com/Azure/aks-baseline-automation/raw/main/workloads/azure-vote/AzureVote.tgz"
+        required: false
+        type: string
+      CURLRETRIES:
+        description: 'How many retry attempts on verifying deployed App URL'
+        type: number
+        default: 10
+        required: false
 
     secrets:
       AZURE_CLIENT_ID:
