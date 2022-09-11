@@ -36,10 +36,7 @@ jobs:
   App_Init:
     runs-on: ubuntu-latest
     environment: ${{ inputs.ENVIRONMENT }}
-    concurrency: "Ag-${{ inputs.AGNAME}}" #AppGateway doesn't like concurrent updates
     env:
-      APPNAME: "${{ inputs.APPNAME }}"
-      NAMESP: "${{ inputs.NAMESPACE }}"
       AKSNAME: "${{ inputs.AKSNAME}}"
       RG: "${{ inputs.RG }}"
     steps:
@@ -77,5 +74,4 @@ jobs:
           echo "Sending command $command to AKS"
           cmdOut=$(az aks command invoke -g $RG -n $AKSNAME -o json --command "${command}")
           echo $cmdOut
-
 
