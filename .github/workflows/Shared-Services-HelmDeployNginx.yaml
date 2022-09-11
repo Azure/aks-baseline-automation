@@ -18,50 +18,7 @@ on:
         description: 'The Name of the AKS resource'
         required: true
         type: string
-      AGNAME:
-        description: 'For AGIC deployments this sets concurrency'
-        default: ""
-        required: false
-        type: string
-      APPNAME:
-        description: 'The Name of the Application to deploy'
-        required: true
-        type: string
-      NAMESPACE:
-        description: 'The Kubernetes Namespace to deploy the Application to'
-        default: "ingress-nginx"
-        required: false
-        type: string
-      INGRESSTYPE:
-        description: 'How your Application will be exposed'
-        default: "InternalLoadBalancer" #'PublicLoadBalancer'/InternalLoadBalancer/AGIC-Public-Ingress/AGIC-Private-Ingress/Traefik
-        required: false
-        type: string
-      UNINSTALLAFTERVERIFY:
-        description: 'Uninstall Application after verifying it works'
-        type: boolean
-        default: false
-        required: false
-      FORCEHELMCLEANINSTALL:
-        description: 'If App is already installed, force uninstall before starting install'
-        type: boolean
-        default: false
-        required: false
-      DEBUG:
-        description: "Generate optional workflow Debug Artifacts"
-        type: boolean
-        default: false
-        required: false
-      HELMPACKAGEURI:
-        description: "The location of the Application Helm package"
-        default: "https://github.com/Azure/aks-baseline-automation/raw/main/workloads/azure-vote/AzureVote.tgz"
-        required: false
-        type: string
-      CURLRETRIES:
-        description: 'How many retry attempts on verifying deployed App URL'
-        type: number
-        default: 10
-        required: false
+
 
     secrets:
       AZURE_CLIENT_ID:
@@ -71,34 +28,28 @@ on:
       AZURE_SUBSCRIPTION_ID:
         required: true
 
-env:
-  event_sha: +refs/pull/${{ github.event.issue.number }}/merge
-
 permissions:
       id-token: write
-      contents: write
+      contents: read
 
 jobs:
   App_Init:
     runs-on: ubuntu-latest
     environment: ${{ inputs.ENVIRONMENT }}
+    concurrency: "Ag-${{ inputs.AGNAME}}" #AppGateway doesn't like concurrent updates
     env:
+      APPNAME: "${{ inputs.APPNAME }}"
+      NAMESP: "${{ inputs.NAMESPACE }}"
+      AKSNAME: "${{ inputs.AKSNAME}}"
       RG: "${{ inputs.RG }}"
-      ACRNAME: "${{ inputs.ACRNAME}}"
-      AKVNAME: "${{ inputs.AKVNAME}}"
-      MINAME: "${{ inputs.MINAME}}"
-
     steps:
       - uses: actions/checkout@v2
-        with:
-          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
-          fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
+
       - name: Job parameter inspection
         run: |
           echo "RG is ${{ inputs.RG }}"
-          echo "ACR name is ${{ inputs.ACRNAME }}"
-          echo "AKV name is ${{ inputs.AKVNAME }}"
-          echo "MI name is ${{ inputs.MINAME }}"
+          echo "AKS name is ${{ inputs.AKSNAME }}"
+
       - name: Azure Login
         uses: Azure/login@v1
         with:
@@ -106,6 +57,25 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: list ACR images
+      - name: Install nginx
         run: |
-          az acr list -g $RG
+          # add repo
+          command="helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx"
+          echo "Sending command $command to AKS"
+          cmdOut=$(az aks command invoke -g $RG -n $AKSNAME -o json --command "${command}")
+          echo $cmdOut
+
+          # update repo
+          command="helm repo update"
+          echo "Sending command $command to AKS"
+          cmdOut=$(az aks command invoke -g $RG -n $AKSNAME -o json --command "${command}")
+          echo $cmdOut
+
+
+          # helm install
+          command="helm install ingress-nginx ingress-nginx/ingress-nginx --create-namespace --namespace ingress-nginx  --set controller.service.annotations.\"service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path\"=/healthz\""
+          echo "Sending command $command to AKS"
+          cmdOut=$(az aks command invoke -g $RG -n $AKSNAME -o json --command "${command}")
+          echo $cmdOut
+
+
