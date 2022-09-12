@@ -9,10 +9,9 @@ In the [**Automated build & deployment of container applications using DevOps & 
 This scenario covers a push-based DevOps pipeline for a web application with a front-end component. This pipeline uses GitHub Actions for build push and deployment. The data flows through the scenario as follows:
 
 1.  The App code is developed.
-2.  The App code is committed to the GitHub git repository.
-3.  GitHub Actions creates a new Azure Container Registry if it does not exist.
-4.  GitHub Actions Builds a container image from the App code and pushes the container image to Azure Container Registry.
-5.  A GitHub Actions job deploys (pushes) the app to the AKS cluster via kubectl deployment of the app Kubernetes manifest files.
+1.  The App code is committed to the GitHub git repository.
+1.  GitHub Actions Builds a container image from the App code and pushes the container image to Azure Container Registry.
+1.  A GitHub Actions job deploys (pushes) the App to the AKS cluster via kubectl deployment of the Smart Brain App Kubernetes manifest files.
 
 ### Option \#2 Pull-based CI/CD Architecture and Dataflow
 
@@ -21,13 +20,12 @@ This scenario covers a push-based DevOps pipeline for a web application with a f
 This scenario covers a pull-based DevOps pipeline for a web application with a front-end component. This pipeline uses GitHub Actions for build and push it uses Argo CD a GitOps operator pull/sync for deployment. The data flows through the scenario as follows:
 
 1.  The App code is developed.
-2.  The App code is committed to the GitHub git repository.
-3.  GitHub Actions creates a new Azure Container Registry if it does not exist.
-4.  GitHub Actions Builds a container image from the App code and pushes the container image to Azure Container Registry.
-5.  GitHub Actions logs into the AKS cluster and creates a secret for connecting to ACR used by the image deployment.
-6.  GitHub Actions Updates a Kubernetes Manifest Deployment file with the current image version based on the version number of the container image in the Azure Container Registry and updates the manifest with the Kubernetes Secret name used to pull the container image from the Azure Container Registry.
-7.  The GitOps Operator Argo CD syncs / pulls with the Git repository.
-8.  The GitOps Operator Argo CD deploys the app to the AKS cluster.
+1.  The App code is committed to the GitHub git repository.
+1.  GitHub Actions Builds a container image from the App code and pushes the container image to Azure Container Registry.
+1.  GitHub Actions logs into the AKS cluster and creates a secret for connecting to ACR used by the image deployment.
+1.  GitHub Actions Updates a Kubernetes Manifest Deployment file with the current image version based on the version number of the container image in the Azure Container Registry and updates the manifest with the Kubernetes Secret name used to pull the container image from the Azure Container Registry.
+1.  The GitOps Operator Argo CD syncs / pulls with the Git repository.
+1.  The GitOps Operator Argo CD deploys the app to the AKS cluster.
 
 ## Deploy this scenario
 

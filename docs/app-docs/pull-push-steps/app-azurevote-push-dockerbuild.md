@@ -5,8 +5,8 @@ This article outlines deploying with the push option as describled in the [autom
 1. Fork this repo to your GitHub: https://github.com/Azure/aks-baseline-automation. Note: Be sure to uncheck "Copy the main branch only".
 1. Go to Actions on the forked repo and enable Workflows as shown: <https://github.com/YOURUSERNAME/aks-baseline-automation/actions>
    ![](media/c2a38551af1c5f6f86944cedc5fd660a.png)
-1. Go to Settings on the forked repo and create a new environment 
-    1. adding a new environment here: https://github.com/YOUR-REPO/settings/environments/new
+1. Go to Settings on the forked repo and create a new environment
+    1. Adding a new environment here: https://github.com/YOUR-REPO/settings/environments/new
     1. Click New Environment button: Environments / Add
     1. Name it prod
 1. Set Azure subscription
@@ -44,54 +44,25 @@ This article outlines deploying with the push option as describled in the [autom
     1. Navigate to environments in your browser: From your repo select *Settings* > on the left plane select *Environments* > select *New environment* at the top right corner of the resulting screen
     1. Enter a name for your environment then click *Configure environment*
     1. At the bottom of the resulting screen under Environment secrets click on *Add secret*
-    1. 
+       ```bash
+       # The values should be in the following format shown in these examples:
+        AZURE_CLIENT_ID = hgce4f22-5ca0-873c-54ac-b451d7f73e622
+        AZURE_TENANT_ID: 43f977bf-83f1-41zs-91cg-2d3cd022ty43
+        AZURE_SUBSCRIPTION_ID: C25c2f54-gg5a-567e-be90-11f5ca072277
 
-Click Add secret
-
-Environment Secrets:
-
-<https://github.com/YOURREPONAME/YOURAPPNAME/settings/environments>
-
-*\#The values should be in the following format shown in these examples:*
-
-AZURE_CLIENT_ID
-
-hgce4f22-5ca0-873c-54ac-b451d7f73e622
-
-AZURE_TENANT_ID
-
-43f977bf-83f1-41zs-91cg-2d3cd022ty43
-
-AZURE_SUBSCRIPTION_ID
-
-C25c2f54-gg5a-567e-be90-11f5ca072277
-
-![](media/8d8f1c7aa2aadd4720e777e15ecff20c.png)
-
-When *done* you should see the following secrets *in* your GitHub Settings:
-
-![](media/16c05d730bb2da88d408dbcbd083ff4c.png)
-
-\#Step 4 - Run the GitHub Actions workflow
-
-Go to [https://github.com/YOUR REPO/aks-baseline-automation/actions](https://github.com/YOUR%20REPO/aks-baseline-automation/actions)
-
-Run the .github/workflows/App-AzureVote-DockerBuild-Actions.yml workflow
-
-Enter the needed inputs:
-
-![](media/dfd1175c0b334580801b256767d6219f.png)
-
-You will see the workflows start.
-
-![](media/4e7482d9ef0a688cd8102829b99d6e98.png)
-
-When it completes both jobs will green showing the workflow was successful.
-
-![](media/d8ac3926152f7621c2bf05374ff861af.png)
-
-You will be able to see the Azure Voting app was successfully deployed to the default namespace in your AKS cluster as shown in the following screenshots:
-
-![](media/cc3c3a48c75e3c6824849ae511fcbe86.png)
-
-![](media/0ba23d333d40a6487ab7fdb656cbffb1.png)
+       ```
+       ![](media/a1026d5ff5825e899f2633c2b10177df.png)
+    1. When *done* you should see the following secrets *in* your GitHub Settings:
+       ![](media/049073d69afee0baddf4396830c99f17.png)
+1. Run the GitHub Actions workflow:
+    1. Go to [https://github.com/YOUR REPO/aks-baseline-automation/actions](https://github.com/YOUR%20REPO/aks-baseline-automation/actions)
+    1. Run the .github/workflows/App-Smartbrain-DockerBuild-Actions.yml workflow
+    1. Enter the needed inputs:
+       ![](media/305b724858e713c324483ab24ad3c7cf.png)
+    1. You will see the workflows start.
+       ![](media/b36378c2d7d40c5d667486b058ea561a.png)
+    1. When it completes both jobs will green showing the workflow was successful.
+       ![](media/60de94d5bde946129fbc11446f956ff3.png)
+    1. You will be able to see the Azure Smart Brain App was successfully deployed to the default namespace in your AKS cluster as shown in the following screenshots:
+       ![](media/c540af41853da0467e6d5363ec756c7b.png)
+       ![](media/1a51da1f757ff7e33d9d72ed85bc32f9.png)
