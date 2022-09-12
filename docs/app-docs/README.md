@@ -8,11 +8,11 @@ In the [**Automated build & deployment of container applications using DevOps & 
 
 This scenario covers a push-based DevOps pipeline for a web application with a front-end component. This pipeline uses GitHub Actions for build push and deployment. The data flows through the scenario as follows:
 
-1.  The Voting App code is developed.
-2.  The Voting App code is committed to the GitHub git repository.
+1.  The App code is developed.
+2.  The App code is committed to the GitHub git repository.
 3.  GitHub Actions creates a new Azure Container Registry if it does not exist.
-4.  GitHub Actions Builds a container image from the Voting App code and pushes the container image to Azure Container Registry.
-5.  A GitHub Actions job deploys (pushes) the voting app to the AKS cluster via kubectl deployment of the voting app Kubernetes manifest files.
+4.  GitHub Actions Builds a container image from the App code and pushes the container image to Azure Container Registry.
+5.  A GitHub Actions job deploys (pushes) the app to the AKS cluster via kubectl deployment of the app Kubernetes manifest files.
 
 ### Option \#2 Pull-based CI/CD Architecture and Dataflow
 
@@ -20,14 +20,14 @@ This scenario covers a push-based DevOps pipeline for a web application with a f
 
 This scenario covers a pull-based DevOps pipeline for a web application with a front-end component. This pipeline uses GitHub Actions for build and push it uses Argo CD a GitOps operator pull/sync for deployment. The data flows through the scenario as follows:
 
-1.  The Voting App code is developed.
-2.  The Voting App code is committed to the GitHub git repository.
+1.  The App code is developed.
+2.  The App code is committed to the GitHub git repository.
 3.  GitHub Actions creates a new Azure Container Registry if it does not exist.
-4.  GitHub Actions Builds a container image from the Voting App code and pushes the container image to Azure Container Registry.
+4.  GitHub Actions Builds a container image from the App code and pushes the container image to Azure Container Registry.
 5.  GitHub Actions logs into the AKS cluster and creates a secret for connecting to ACR used by the image deployment.
 6.  GitHub Actions Updates a Kubernetes Manifest Deployment file with the current image version based on the version number of the container image in the Azure Container Registry and updates the manifest with the Kubernetes Secret name used to pull the container image from the Azure Container Registry.
 7.  The GitOps Operator Argo CD syncs / pulls with the Git repository.
-8.  The GitOps Operator Argo CD deploys the voting app to the AKS cluster.
+8.  The GitOps Operator Argo CD deploys the app to the AKS cluster.
 
 ## Deploy this scenario
 
@@ -37,10 +37,10 @@ Before deploying the push or pull based end to end scenario you need to ensure y
 
 -   You must have an existing Azure account. If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
 -   An ACR instance deployed
--   An AKS cluster. It is highly recommended that you utilize of of the two options below:
+-   An AKS cluster. It is highly recommended that you utilize one of the two options below:
     - Quick option: The [AKS Construction helper](https://azure.github.io/AKS-Construction/) to deploy your Azure Container Registry (ACR) and Azure Kubernetes Service (AKS) cluster. You can use this pre-configured link: [AKS Construction helper (pre-configured)](https://azure.github.io/AKS-Construction/?ops=managed&cluster.apisecurity=none&addons.ingress=none&addons.monitor=aci&addons.azurepolicy=none&addons.networkPolicy=none&addons.csisecret=none&deploy.location=EastUS2) to create a basic AKS cluster (not recommended for production) to use with this CI/CD scenario. This will create an ACR, and an AKS cluster that is AAD integrated and attached to the ACR
     - Learn CI/CD for IaC first option: Deploy the cluster using the [infrastructure scenario](../../IaC) in this repo that walks you through the process of managing your infrastructure using automation
--   Argo CD installed on your AKS cluster ([Get Started with Argo CD](https://argo-cd.readthedocs.io/en/stable/getting_started/))
+-   Argo CD installed on your AKS cluster (only required for pull option) ([Get Started with Argo CD](https://argo-cd.readthedocs.io/en/stable/getting_started/))
 -   A GitHub account ([Getting started with your GitHub account](https://docs.github.com/en/get-started/onboarding/getting-started-with-your-github-account))
 -   Fork the [AKS Baseline Automation repository](https://github.com/azure/aks-baseline-automation)
 

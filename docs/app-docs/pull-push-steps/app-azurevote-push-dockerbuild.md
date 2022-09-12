@@ -2,83 +2,49 @@
 
 This article outlines deploying with the push option as describled in the [automated build and deploy for container applications article](../app-automated-build-devops-gitops.md). To deploy the **Option \#1 Push-based CI/CD Architecture** scenario, follow the steps outlined there (if you haven't already), then perform the following steps:
 
-*\#Step 1 - Fork this repo to your GitHub:*
-
-https://github.com/Azure/aks-baseline-automation
-
-Note: Be sure to uncheck "Copy the main branch only"
-
-*\#Step 2 - Go to Actions on the forked repo and enable Workflows as shown*
-
-<https://github.com/YOURUSERNAME/aks-baseline-automation/actions>
-
-![](media/c2a38551af1c5f6f86944cedc5fd660a.png)
-
-*\#Step 3 - Go to Settings on the forked repo and create a new environment*
-
-add a new environment here
-
-https://github.com/YOUR REPO/settings/environments/new
-
-Click New Environment button
-
-Environments / Add
-
-Name it prod
-
-*\#Step 4 - Set Azure subscription*
-
-In Azure cloud shell run
-
-az account show *\#Shows current subscription*
-
-az account set --subscription "YOURAZURESUBSCRIPTION" *\#Set a subscription to be the current active subscription*
-
-\#Step 2 - *Run Authentication from GitHub to Azure Script*
-
-https://github.com/Azure/aks-baseline-automation/blob/application-gitops/docs/oidc-federated-credentials.md
-
-You will need to update the following variable values:
-
-*\#Set up user specific variables*
-
-APPNAME=myApp
-
-RG=myAksClusterResourceGroup
-
-GHORG=YOURGITHUBORGNAME
-
-GHREPO=aks-baseline-automation
-
-GHBRANCH=main
-
-GHENV=prod
-
-Upload the script to your Cloud shell and run:
-
-bash ghtoAzAuth.sh
-
-It will create the federated credentials *in* Azure *for* you. Navigate to Azure Portal \> Microsoft \| Overview
-
-Azure Active Directory \> App registrations \> YOURREGISTEREDAPPNAME \| Certificates & secrets
-
-You should have the following 3 Federated credentials similar to what is shown *in* the following screenshot:
-
-![](media/0664a3dd619ba6e98b475b29856e6c57.png)
-
-Next you need to create the Environment and GitHub Actions Repository secrets *in* your repo.
-
-*\#Step 3 - Create Actions secrets for your Azure subscription in your GitHub Repository*
-
-*\#Reference: https://docs.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux\#use-the-azure-login-action-with-a-service-principal-secret*
-
-Github Actions Secrets:
-
-https://github.com/YOURREPONAME/YOURAPPNAME/settings/secrets/actions
-
-Select Secrets and *then* New Secret named AZURE_CREDENTIALS.
-
-Paste *in* your JSON object *for* your service principal with the name AZURE_CREDENTIALS
+1. Fork this repo to your GitHub: https://github.com/Azure/aks-baseline-automation. Note: Be sure to uncheck "Copy the main branch only".
+1. Go to Actions on the forked repo and enable Workflows as shown: <https://github.com/YOURUSERNAME/aks-baseline-automation/actions>
+   ![](media/c2a38551af1c5f6f86944cedc5fd660a.png)
+1. Go to Settings on the forked repo and create a new environment 
+    1. adding a new environment here: https://github.com/YOUR-REPO/settings/environments/new
+    1. Click New Environment button: Environments / Add
+    1. Name it prod
+1. Set Azure subscription
+    1. In Azure cloud shell run
+       ```bash
+       az account show *\#Shows current subscription*
+       ```
+       ```bash
+       az account set --subscription "YOURAZURESUBSCRIPTION" *\#Set a subscription to be the current active subscription*
+       ```
+    1. Create a file called `ghtoAzAuth.sh` in your bash working directory and copy the code block in this .md file into it: https://github.com/Azure/aks-baseline-automation/blob/main/docs/oidc-federated-credentials.md. You will need to update the following variable values:
+       ```bash
+       APPNAME=myApp
+       RG=<AKS resource group name>
+       GHORG=<your github org or user name>
+       GHREPO=aks-baseline-automation
+       GHBRANCH=main
+       GHENV=prod
+       ```
+    1. Save the shell script after you have made the updates to those variables and run the script in your cloud shell
+       ```bash
+       bash ghtoAzAuth.sh
+       ```
+       It will create the federated credentials *in* Azure *for* you. Navigate to Azure Portal \> Microsoft \| Overview \> Azure Active Directory \> App registrations \> YOURREGISTEREDAPPNAME \| Certificates & secrets
+       You should have the following 3 Federated credentials similar to what is shown *in* the following screenshot:
+       ![](media/0664a3dd619ba6e98b475b29856e6c57.png)
+       Next you need to create the Environment and GitHub Actions Repository secrets *in* your repo.
+1. Create Actions secrets for your Azure subscription in your GitHub Repository *\#Reference: https://docs.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux\#use-the-azure-login-action-with-a-service-principal-secret*
+    1. Navigate to Github Actions Secrets in your browser: From your repo select *Settings* > on the left plane select *Secrets* > select *Actions* in the dropdown
+    1. Select *New repository secret* 
+    1. Name the secret AZURE_CREDENTIALS in the *Name* field
+    1. Paste *in* your JSON object *for* your service principal in the *Secret* field
+    1. Click *Add secret*
+1. Review Environment secrets
+    1. Navigate to environments in your browser: From your repo select *Settings* > on the left plane select *Environments* > select *New environment* at the top right corner of the resulting screen
+    1. Enter a name for your environment then click *Configure environment*
+    1. At the bottom of the resulting screen under Environment secrets click on *Add secret*
+    1. 
 
 Click Add secret
 
