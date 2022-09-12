@@ -18,6 +18,15 @@ on:
         description: 'The Name of the AKS resource'
         required: true
         type: string
+      ACRNAME:
+        description: 'The Name of the ACR resource to host the images and helm chart'
+        required: true
+        type: string
+      LB_IP:
+        description: 'Load Balancer IP'
+        required: true
+        default: '10.240.4.4'
+        type: string
 
 
     secrets:
@@ -37,8 +46,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.ENVIRONMENT }}
     env:
-      AKSNAME: "${{ inputs.AKSNAME}}"
       RG: "${{ inputs.RG }}"
+      AKSNAME: "${{ inputs.AKSNAME}}"
+      ACRNAME: "${{ inputs.ACRNAME}}"
     steps:
       - uses: actions/checkout@v2
 
@@ -46,6 +56,7 @@ jobs:
         run: |
           echo "RG is ${{ inputs.RG }}"
           echo "AKS name is ${{ inputs.AKSNAME }}"
+          echo "ACR name is ${{ inputs.ACRNAME }}"
 
       - name: Azure Login
         uses: Azure/login@v1
@@ -54,8 +65,28 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Install nginx
+      - name: Create controller file
         run: |
+          echo -e "controller:\n  service:\n    loadBalancerIP: ${{ inputs.LB_IP }}\n    annotations:\n      service.beta.kubernetes.io/azure-load-balancer-internal: \"true\"" > internal-ingress.yaml
+
+      - name: Import images and chart
+        run: |
+          export REGISTRY_NAME=${{ inputs.ACRNAME }}
+          export ACR_URL="${REGISTRY_NAME}.azurecr.io"
+          export SOURCE_REGISTRY=k8s.gcr.io
+          export CONTROLLER_IMAGE=ingress-nginx/controller
+          export CONTROLLER_TAG=v1.2.1
+          export PATCH_IMAGE=ingress-nginx/kube-webhook-certgen
+          export PATCH_TAG=v1.1.1
+          export DEFAULTBACKEND_IMAGE=defaultbackend-amd64
+          export DEFAULTBACKEND_TAG=1.5
+
+          # import images
+          az acr import --name $REGISTRY_NAME --source $SOURCE_REGISTRY/$CONTROLLER_IMAGE:$CONTROLLER_TAG --image $CONTROLLER_IMAGE:$CONTROLLER_TAG
+          az acr import --name $REGISTRY_NAME --source $SOURCE_REGISTRY/$PATCH_IMAGE:$PATCH_TAG --image $PATCH_IMAGE:$PATCH_TAG
+          az acr import --name $REGISTRY_NAME --source $SOURCE_REGISTRY/$DEFAULTBACKEND_IMAGE:$DEFAULTBACKEND_TAG --image $DEFAULTBACKEND_IMAGE:$DEFAULTBACKEND_TAG
+
+
           # add repo
           command="helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx"
           echo "Sending command $command to AKS"
@@ -70,7 +101,28 @@ jobs:
 
 
           # helm install
-          command="helm install ingress-nginx ingress-nginx/ingress-nginx --create-namespace --namespace ingress-nginx  --set controller.service.annotations.\"service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path\"=/healthz\""
+          command="helm install ingress-nginx ingress-nginx/ingress-nginx \
+              --version 4.1.3 \
+              --namespace ingress-nginx \
+              --create-namespace \
+              --set controller.replicaCount=2 \
+              --set controller.nodeSelector.\"kubernetes\.io/os\"=linux \
+              --set controller.image.registry=$ACR_URL \
+              --set controller.image.image=$CONTROLLER_IMAGE \
+              --set controller.image.tag=$CONTROLLER_TAG \
+              --set controller.image.digest=\"\" \
+              --set controller.admissionWebhooks.patch.nodeSelector.\"kubernetes\.io/os\"=linux \
+              --set controller.service.annotations.\"service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path\"=/healthz \
+              --set controller.admissionWebhooks.patch.image.registry=$ACR_URL \
+              --set controller.admissionWebhooks.patch.image.image=$PATCH_IMAGE \
+              --set controller.admissionWebhooks.patch.image.tag=$PATCH_TAG \
+              --set controller.admissionWebhooks.patch.image.digest=\"\" \
+              --set defaultBackend.nodeSelector.\"kubernetes\.io/os\"=linux \
+              --set defaultBackend.image.registry=$ACR_URL \
+              --set defaultBackend.image.image=$DEFAULTBACKEND_IMAGE \
+              --set defaultBackend.image.tag=$DEFAULTBACKEND_TAG \
+              --set defaultBackend.image.digest=\"\" \
+              -f internal-ingress.yaml"
           echo "Sending command $command to AKS"
           cmdOut=$(az aks command invoke -g $RG -n $AKSNAME -o json --command "${command}")
           echo $cmdOut
