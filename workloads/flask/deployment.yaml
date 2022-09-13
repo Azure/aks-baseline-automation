@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: azure-app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sampleflask
+  template:
+    metadata:
+      labels:
+        app: sampleflask
+    spec:
+      containers:
+      - name: azure-app-deployment
+        image: crazk8sehiebdpdv2i7fmty6.azurecr.io/smartbrainapp:3
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 2000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: azure-app-service
+spec:
+  type: ClusterIP
+  selector:
+    app: sampleflask
+  ports:
+  - port: 2000
+    targetPort: 2000

@@ -4,7 +4,7 @@ This folder contains the code to build the [AKS Baseline reference implementatio
 
 The following components will be deployed as part of this automation:
 
-![aks_enterprise_scale_lz](../../docs/.attachments/aks_enterprise_scale_lz2.png)
+![aks_enterprise_scale_lz](../../media/aks_enterprise_scale_lz2.png)
 
 | Components                                                                                              | Config files                                                 | Description|
 |-----------------------------------------------------------|------------------------------------------------------------|------------------------------------------------------------|
@@ -31,7 +31,7 @@ The following components will be deployed as part of this automation:
 
 ## Prerequisites
 
-Make sure these [prerequisites](../../docs/IaC-prerequisites.md) are in place before proceeding.
+Make sure these [prerequisites](../IaC-prerequisites.md) are in place before proceeding.
 
 ## Customize the Terraform templates
 
@@ -39,7 +39,7 @@ To customize the sample terraform templates provided based on your specific need
 
 1. Fork this repo so that you can customize it and run GitHub action workflows.
 2. Review the terraform templates provided under the IaC/terraform folder and customize these files based on your specific deployment requirements for each resource.
-3. Test the deployment of each Azure resource individually using these [manual](../../docs/terraform-manual-steps.md) commands.
+3. Test the deployment of each Azure resource individually using these [manual](./terraform-manual-steps.md) commands.
 4. Customize the GitHub repo settings for flux so that it picks up your customized yaml files when deploying the shared services for your cluster. You need to change these settings in the file [`flux.yaml`](../../IaC/terraform/configuration/workloads/flux.tfvars) to point to your forked GitHub repo.
 
 

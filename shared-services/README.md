@@ -3,6 +3,7 @@ This folder contains manifest files and other artifacts to deploy common service
 
 Example of shared services could be third-party services such as [Traefik](https://doc.traefik.io/traefik/v1.7/user-guide/kubernetes/?msclkid=2309fcb3b1bc11ec92c03b099f5d4e1c), [Prisma defender](https://docs.paloaltonetworks.com/prisma/prisma-cloud) and [Splunk](https://github.com/splunk/splunk-connect-for-kubernetes) or open source services such as [NGINX](https://www.nginx.com/resources/glossary/kubernetes-ingress-controller), [KEDA](https://keda.sh), [External-dns](https://github.com/kubernetes-sigs/external-dns#:~:text=ExternalDNS%20supports%20multiple%20DNS%20providers%20which%20have%20been,and%20we%20have%20limited%20resources%20to%20test%20changes.), [Cert-manager](https://cert-manager.io/docs/) or [Istio](https://istio.io/).
 
+For a sample workflow that deploys Shared services through a CI/CD pipeline, check out [these instructions](./shared-services-workflow.md).
 
 This **shared-services** directory is the root of the GitOps configuration directory. The Kubernetes manifest files included in the subdirectories are expected to be deployed via our in-cluster Flux operator. They are our AKS cluster's baseline configurations. The Flux operator is bootstrapped as part of the cluster deployment through the bicep or terraform IaC workflows.
 
@@ -24,7 +25,7 @@ The first three namespaces are workload agnostic and tend to all cluster-wide co
 
 The **cluster** directory contains the configuration that applies to entire cluster (such as ClusterRole, ClusterRoleBinding), rather than to individual namespaces.
 
-Note: to deploy shared services through a GitHub action workflow instead of using GitOps, refer to [this article](./doc/../docs/shared-services-workflow.md)
+Note: to deploy shared services through a GitHub action workflow instead of using GitOps, refer to [this article](./shared-services-workflow.md)
 
 ## Private bootstrapping repository
 
