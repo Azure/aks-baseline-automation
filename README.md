@@ -5,7 +5,6 @@
   - [Shared-Services](#shared-services)
   - [Application Deployment](#application-deployment)
     - [Deploy sample applications using GitHub Actions](#deploy-sample-applications-using-github-actions)
-    - [Deploy sample applications using GitOps](#deploy-sample-applications-using-gitops)
   - [Lifecycle-Management](#lifecycle-management)
   - [Secure DevOps](#secure-devops)
   - [GitHub Repo structure](#github-repo-structure)
