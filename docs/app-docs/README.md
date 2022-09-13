@@ -11,7 +11,7 @@ This scenario covers a push-based DevOps pipeline for a web application with a f
 1.  The App code is developed.
 1.  The App code is committed to the GitHub git repository.
 1.  GitHub Actions Builds a container image from the App code and pushes the container image to Azure Container Registry.
-1.  A GitHub Actions job deploys (pushes) the App to the AKS cluster via kubectl deployment of the Smart Brain App Kubernetes manifest files.
+1.  A GitHub Actions job deploys (pushes) the App to the AKS cluster via kubectl deployment of the App Kubernetes manifest files.
 
 ### Option \#2 Pull-based CI/CD Architecture and Dataflow
 

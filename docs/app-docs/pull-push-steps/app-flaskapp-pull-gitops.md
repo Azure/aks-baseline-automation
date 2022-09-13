@@ -1,6 +1,6 @@
-## Option \#1 Push-based CI/CD
+## Option \#2 Pull-based CI/CD(GitOps)
 
-This article outlines deploying with the push option as describled in the [automated build and deploy for container applications article](../app-automated-build-devops-gitops.md). To deploy the **Option \#1 Push-based CI/CD Architecture** scenario, follow the steps outlined there (if you haven't already), then perform the following steps:
+This article outlines deploying with the pull option as describled in the [automated build and deploy for container applications article](../app-automated-build-devops-gitops.md). To deploy the **Option \#2 Pull-based CI/CD Architecture** scenario, follow the steps outlined [here](../README.md) (if you haven't already), then perform the following steps:
 
 1. Fork this repo to your GitHub: https://github.com/Azure/aks-baseline-automation. Note: Be sure to uncheck "Copy the main branch only".
 1. Go to Actions on the forked repo and enable Workflows as shown: <https://github.com/YOURUSERNAME/aks-baseline-automation/actions>
@@ -56,13 +56,9 @@ This article outlines deploying with the push option as describled in the [autom
        ![](media/049073d69afee0baddf4396830c99f17.png)
 1. Run the GitHub Actions workflow:
     1. Go to [https://github.com/YOUR REPO/aks-baseline-automation/actions](https://github.com/YOUR%20REPO/aks-baseline-automation/actions)
-    1. Run the .github/workflows/App-Flaskapp-DockerBuild-Actions.yml workflow
+    1. Run the following workflow: .github/workflows/App-Flaskapp-GitOps.yml
     1. Enter the needed inputs:
-       ![](media/305b724858e713c324483ab24ad3c7cf.png)
-    1. You will see the workflows start.
-       ![](media/b36378c2d7d40c5d667486b058ea561a.png)
-    1. When it completes both jobs will green showing the workflow was successful.
-       ![](media/60de94d5bde946129fbc11446f956ff3.png)
-    1. You will be able to see the App was successfully deployed to the default namespace in your AKS cluster as shown in the following screenshots:
-       ![](media/c540af41853da0467e6d5363ec756c7b.png)
-       ![](media/1a51da1f757ff7e33d9d72ed85bc32f9.png)
+       ![](media/b4bf25dc9497c669d54a205648cb864c.png)
+1. Create a new app for the App in Argo CD. See this link on how to create a new app in Argo CD: https://argo-cd.readthedocs.io/en/stable/getting_started/\\\#creating-apps-via-ui. This is an example of the successful App in Argo CD:
+![](media/58af037d65b2303dbb1c2d4196ac300f.png)
+![](media/66908c97c321303ba2bcd58ba6431bdd.png)

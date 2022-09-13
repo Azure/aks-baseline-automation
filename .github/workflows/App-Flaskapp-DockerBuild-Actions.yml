@@ -158,8 +158,8 @@ jobs:
           ACRNAME: "${{ inputs.ACRNAME}}"
         with:
           manifests: |
-            workloads/smartbrainapp/app-deployment.yaml
-            workloads/smartbrainapp/ingress-svc-http.yaml
+            workloads/flaskapp/app-deployment.yaml
+            workloads/flaskapp/ingress-svc-http.yaml
           images: |
             ${{ env.ACRNAME }}.azurecr.io/${{ inputs.APPNAME }}:${{ github.sha }}
             #${{ env.ACRNAME }}.azurecr.io/azure-vote-front:${{ github.sha }}
