@@ -14,7 +14,7 @@
   - [Trademarks](#trademarks)
 # AKS Baseline Automation
 
-This reference implementation demonstrates recommended ways to automate the deployment of the components composing a typical AKS solution.
+This repository demonstrates recommended ways to automate the deployment of the components composing a typical AKS solution.
 
 In order to manage the complexity of a Kubernetes based solution deployment, it is best to look at it in term of a separation of concerns. Which team in an enterprise environment should be concerned with what aspect of the deployment and what tools and processes should that team employ to best achieve their objectives. This implementation and associated documentation are intended to inform the interdisciplinary teams involved in AKS deployment and lifecycle management automation. These teams may include:
 
@@ -64,24 +64,19 @@ This section demonstrates the deployment of an application composed of multiple 
 
  * A GitOps solution using [Flux](https://fluxcd.io/). Note that a future version of this solution will showcase an alternate GitOps products, such as [ArgoCD](https://argoproj.github.io/cd/) (see issue https://github.com/Azure/aks-baseline-automation/issues/72). This intent is to demonstrate how an app team may chose to use a separate tool for their specific workload lifecycle concerns as opposed to using the same tool as what the cluster operators use for cluster management.
 
-The application [Azure Voting App](https://github.com/Azure/aks-baseline-automation/tree/main/workloads/azure-vote) is used for this deployment as this application is quite simple, but yet demonstrates how to deploy an application composed of multiple containers. In this case the application is composed of a web-front-end written in Python and a data backend running Redis.
+The application [Flask App](./docs/app-docs/README.md) is used for this deployment as this application is quite simple, but yet demonstrates how to deploy an application composed of multiple containers. In this case the application is composed of a web-front-end written in Python.
 
 Blue/Green and Canary release strategies for this application will also be demonstrated. Note however that this feature has not been implemented yet, see issue https://github.com/Azure/aks-baseline-automation/issues/27.
 
-### Deploy sample applications using GitHub Actions
-Multiple GitHub action workflows are used to demonstrate the deployment of sample applications through a CI/CD pipeline (push method). Please click on the links below for instructions on how to use these workflows.
+### Deploy sample applications using GitHub Actions and GitOps
+Multiple GitHub action workflows are used to demonstrate the deployment of sample applications through a CI/CD pipeline (push and pull methods). Please click on the links below for instructions on how to use these workflows.
 
 Sample App | Scenario | Description | Tags
 ---------- | -------- | ----------- | ----
-ASP.Net Hello World| [Docker Build](/docs/app-aspnet-dockerbuildpush.md) | Builds a container image from code on the runner then pushes to ACR. Deployment is done using Azure Kubernetes GitHub actions. Requires enabling the [Admin account](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-authentication?tabs=azure-cli#admin-account) in ACR. Also requires the use of self-hosted runners if you deployed a private ACR per the instructions in the [IaC](./IaC/README.md) section of this repo. To setup self-hosted runners, refer to the [Self-hosted GitHub Runners](#Self-hosted-GitHub-Runners) section.
-Azure Vote | [AKS Run Command](/docs/app-azurevote-helmruncmd.md) |Sample of re-usable workflow called from the workflow [App-Test-All.yml](./.github/workflows/App-Test-All.yml). Deploys the app using a helm chart through the _AKS Command Invoke_. The focus here is to demonstrate how workloads in private clusters can still be managed through cloud hosted GitHub runners (no need to install self-hosted runners as in the other samples). It also shows how to test your application using Playwright.
-Azure Vote  | [ACR Build](/docs/app-azurevote-acrbuild.md) |Another Sample of re-usable workflow called from the workflow [App-Test-All.yml](./.github/workflows/App-Test-All.yml). Builds a container image from code directly in Azure Container Registry (ACR). Deployment is done using the Azure Kubernetes GitHub actions. Requires the use of self-hosted runners if you deployed a private ACR per the instructions in the [IaC](./IaC/README.md) section of this repo. To setup self-hosted runners, refer to the [Self-hosted GitHub Runners](#Self-hosted-GitHub-Runners) section.
-
-
-### Deploy sample applications using GitOps
-You can use GitOps with flux or ArgoCD (pull method) as an alternative to GitHub action workflows to deploy your applications. 
-
-Refer to [these instructions](docs/app-azurevote-gitops.md) for how to setup your GitOps environment to deploy sample applications. 
+Flask Hello World| [Docker Build](./docs/app-docs/README.md) | Builds a container image from code on the runner then pushes to ACR. Deployment is done via a push model and a pull model(GitOps) as described in Microsoft docs. Requires the use of self-hosted runners if you deployed a private ACR per the instructions in the [IaC](./IaC/README.md) section of this repo. To setup self-hosted runners, refer to the [Self-hosted GitHub Runners](#Self-hosted-GitHub-Runners) section.
+Azure Vote | [AKS Run Command](./docs/app-docs/other-app-deploy-scenarios/app-azurevote-helmruncmd.md) |Sample of re-usable workflow called from the workflow [App-Test-All.yml](./.github/workflows/App-Test-All.yml). Deploys the app using a helm chart through the _AKS Command Invoke_. The focus here is to demonstrate how workloads in private clusters can still be managed through cloud hosted GitHub runners (no need to install self-hosted runners as in the other samples). It also shows how to test your application using Playwright.
+Azure Vote  | [ACR Build](./docs/app-docs/other-app-deploy-scenarios/app-azurevote-helmruncmd.md) |Another Sample of re-usable workflow called from the workflow [App-Test-All.yml](./.github/workflows/App-Test-All.yml). Builds a container image from code directly in Azure Container Registry (ACR). Deployment is done using the Azure Kubernetes GitHub actions. Requires the use of self-hosted runners if you deployed a private ACR per the instructions in the [IaC](./IaC/README.md) section of this repo. To setup self-hosted runners, refer to the [Self-hosted GitHub Runners](#Self-hosted-GitHub-Runners) section.
+ 
 ## Lifecycle-Management
 Different components of an AKS solution are often owned by different teams and typically follow their own lifecycle management schedule and process, sometimes using different tools. In this section we will cover the following lifecycle management processes:
 
