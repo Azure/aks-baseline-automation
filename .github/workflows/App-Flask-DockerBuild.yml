@@ -3,7 +3,6 @@
 name: AppDeploy - Flask - Docker Build
 
 on:
-  workflow_call:
   workflow_dispatch:
     inputs:
       RG:
