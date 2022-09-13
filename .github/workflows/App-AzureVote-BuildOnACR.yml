@@ -160,6 +160,8 @@ jobs:
             workloads/azure-vote/back-service.yml
             workloads/azure-vote/front-deployment.yml
             workloads/azure-vote/front-service.yml
+            workloads/azure-vote/ingress.yml
+            workloads/azure-vote/networkpolicy.yml
           images: |
             ${{ env.ACRNAME }}.azurecr.io/azure-vote-front:${{ github.sha }}
           namespace: ${{ inputs.NAMESPACE }}

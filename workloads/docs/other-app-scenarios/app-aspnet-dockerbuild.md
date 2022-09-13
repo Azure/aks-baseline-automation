@@ -1,4 +1,4 @@
-# Azure Vote - Docker Build and Push Scenario
+# ASP.Net - Docker Build and Push Scenario
 
 ## Overview
 
@@ -10,7 +10,7 @@ The application is the [ASP.Net Hello World](https://github.com/mspnp/aks-baseli
 
 The Azure Credentials required are that of OpenID Connect (OIDC) based Federated Identity Credentials, please see [here](/docs/oidc-federated-credentials.md) for more information.
 
-The workflow file is located [here](/.github/workflows/App-AspNet-DockerBuild-Actions.yml).
+To create this workflow, just copy the [App-Flask-DockerBuild.yml](/.github/workflows/App-Flask-DockerBuild.yml) file and then update in the last step of the workflow the parameters of the action **k8s-deploy** to list the manifest files for the aspnet application deployment. These file are located under this [folder](../../aspnet/).
 
 ## Scenario Components
 

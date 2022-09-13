@@ -35,33 +35,19 @@ jobs:
       - name: Dummy step
         run: echo "Resuable workflows can't be directly reference ENV/INPUTS (yet)"
 
-  # BuildOnACR:
-  #   needs: [ReusableWF]
-  #   uses: ./.github/workflows/App-AzureVote-BuildOnACRs.yml
-  #   with:
-  #     ENVIRONMENT: ${{ needs.ReusableWF.outputs.ENVIRONMENT }}
-  #     RG: ${{ needs.ReusableWF.outputs.RG }}
-  #     AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
-  #     ACRNAME: ${{ needs.ReusableWF.outputs.ACRNAME }}
-  #     APPNAME: basevote1
-  #   secrets:
-  #     AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-  #     AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-  #     AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-  # DockerBuild:
-  #   needs: [ReusableWF]
-  #   uses: ./.github/workflows/App-AzureVote-DockerBuild.yml
-  #   with:
-  #     ENVIRONMENT: ${{ needs.ReusableWF.outputs.ENVIRONMENT }}
-  #     RG: ${{ needs.ReusableWF.outputs.RG }}
-  #     AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
-  #     ACRNAME: ${{ needs.ReusableWF.outputs.ACRNAME }}
-  #     APPNAME: basevote2
-  #   secrets:
-  #     AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-  #     AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-  #     AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  BuildOnACR:
+    needs: [ReusableWF]
+    uses: ./.github/workflows/App-AzureVote-BuildOnACRs.yml
+    with:
+      ENVIRONMENT: ${{ needs.ReusableWF.outputs.ENVIRONMENT }}
+      RG: ${{ needs.ReusableWF.outputs.RG }}
+      AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
+      ACRNAME: ${{ needs.ReusableWF.outputs.ACRNAME }}
+      APPNAME: basevote1
+    secrets:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
  
   HelmRunCmd:
     needs: [ReusableWF]
