@@ -10,6 +10,7 @@
 # This workflow demonstrates building and pushing a container image to an Azure Container Registry.
 # The workflow then updates the necessary Kubernetes manifest deployment file so a GitOps operator can sync from the manifest file deploying the application to an Azure Kubernetes Service cluster.
 # It is split into separate jobs for readability but could be squashed into a single job if that best suits your scenario.
+name: AppDeploy - Flask - GitOps
 
 on: 
   workflow_dispatch:
@@ -17,41 +18,23 @@ on:
       ResourceGroupName:
         description: 'The Resource Group where your resources are deployed'
         required: true
-        default: "gitops-example"
         type: string
       AKSName:
         description: 'The Name of the AKS resource'
         required: true
-        default: "mygitopsappaks1"
         type: string
       ACRName:
         description: 'The Name of the ACR resource'
         required: true
-        default: "mygitopsappacr1"
         type: string
       AppName:
         description: 'The Name of the Application to deploy'
         required: false
-        default: "azure-vote"
+        default: "flusk"
         type: string
       Namespace:
         description: 'The Kubernetes Namespace to deploy the Application to'
         default: "default"
-        required: false
-        type: string
-      AppRepo:
-        description: 'The GitHub App code repo'
-        default: "mosabami/msdocs-python-flask-webapp-quickstart" #"azure-samples/azure-voting-app-redis" 
-        required: false
-        type: string
-      AppRepoRef:
-        description: 'The GitHub REF to use when referencing the App code repo'
-        default: "129888"
-        required: false
-        type: string
-      AppRepoPath:
-        description: 'The directory in the repo containing the Dockerfile'
-        default: "./" #"./azure-vote"
         required: false
         type: string
       Environment:
@@ -59,11 +42,6 @@ on:
         required: false
         default: dev
         type: environment  
-      Region:
-        description: 'Location where the resources need to be deployed'
-        required: false
-        default: "eastus2"
-        type: string
 
 permissions:
       id-token: write
@@ -143,15 +121,15 @@ jobs:
       uses: azure/powershell@v1
       with:
         inlineScript: |
-          $line = Get-Content workloads/flaskapp/app-deployment.yaml | Select-String image: | Select-Object -ExpandProperty Line
-          $content = Get-Content workloads/flaskapp/app-deployment.yaml
-          $content | ForEach-Object {$_ -replace $line,"        image: ${{ inputs.ACRName }}.azurecr.io/${{ inputs.AppName }}:${{ github.run_number }}"} | Set-Content workloads/flaskapp/app-deployment.yaml
+          $line = Get-Content workloads/flask/app-deployment.yaml | Select-String image: | Select-Object -ExpandProperty Line
+          $content = Get-Content workloads/flask/app-deployment.yaml
+          $content | ForEach-Object {$_ -replace $line,"        image: ${{ inputs.ACRName }}.azurecr.io/${{ inputs.AppName }}:${{ github.run_number }}"} | Set-Content workloads/flask/app-deployment.yaml
         azPSVersion: "latest"
     
     - name: Commit changes in manifest to repo
       run: | 
         git config user.name "GitHub Actions Bot"
         git config user.email ""
-        git add workloads/flaskapp/app-deployment.yaml
+        git add workloads/flask/deployment.yaml
         git commit -m "Update image version in K8s Deployment manifests file"
         git push origin

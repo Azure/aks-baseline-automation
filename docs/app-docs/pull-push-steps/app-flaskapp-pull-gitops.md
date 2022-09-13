@@ -1,6 +1,6 @@
 ## Option \#2 Pull-based CI/CD(GitOps)
 
-This article outlines deploying with the pull option as describled in the [automated build and deploy for container applications article](../app-automated-build-devops-gitops.md). To deploy the **Option \#2 Pull-based CI/CD Architecture** scenario, follow the steps outlined [here](../README.md) (if you haven't already), then perform the following steps:
+This article outlines deploying with the pull option as described in the [automated build and deploy for container applications article](../app-automated-build-devops-gitops.md). To deploy the **Option \#2 Pull-based CI/CD Architecture** scenario, follow the steps outlined [here](../README.md) (if you haven't already), then perform the following steps:
 
 1. Fork this repo to your GitHub: https://github.com/Azure/aks-baseline-automation. Note: Be sure to uncheck "Copy the main branch only".
 1. Go to Actions on the forked repo and enable Workflows as shown: <https://github.com/YOURUSERNAME/aks-baseline-automation/actions>
@@ -17,7 +17,7 @@ This article outlines deploying with the pull option as describled in the [autom
        ```bash
        az account set --subscription "YOURAZURESUBSCRIPTION" *\#Set a subscription to be the current active subscription*
        ```
-    1. Create a file called `ghtoAzAuth.sh` in your bash working directory and copy the code block in this .md file into it: https://github.com/Azure/aks-baseline-automation/blob/main/docs/oidc-federated-credentials.md. You will need to update the following variable values:
+    1. Create a file called `ghToAzAuth.sh` in your bash working directory and copy the code block in this .md file into it: https://github.com/Azure/aks-baseline-automation/blob/main/docs/oidc-federated-credentials.md. You will need to update the following variable values:
        ```bash
        APPNAME=myApp
        RG=<AKS resource group name>
@@ -28,7 +28,7 @@ This article outlines deploying with the pull option as describled in the [autom
        ```
     1. Save the shell script after you have made the updates to those variables and run the script in your cloud shell
        ```bash
-       bash ghtoAzAuth.sh
+       bash ghToAzAuth.sh
        ```
        It will create the federated credentials *in* Azure *for* you. Navigate to Azure Portal \> Microsoft \| Overview \> Azure Active Directory \> App registrations \> YOURREGISTEREDAPPNAME \| Certificates & secrets
        You should have the following 3 Federated credentials similar to what is shown *in* the following screenshot:
@@ -46,7 +46,7 @@ This article outlines deploying with the pull option as describled in the [autom
     1. At the bottom of the resulting screen under Environment secrets click on *Add secret*
        ```bash
        # The values should be in the following format shown in these examples:
-        AZURE_CLIENT_ID = hgce4f22-5ca0-873c-54ac-b451d7f73e622
+        AZURE_CLIENT_ID = 1gce4f22-5ca0-873c-54ac-b451d7f73e622
         AZURE_TENANT_ID: 43f977bf-83f1-41zs-91cg-2d3cd022ty43
         AZURE_SUBSCRIPTION_ID: C25c2f54-gg5a-567e-be90-11f5ca072277
 

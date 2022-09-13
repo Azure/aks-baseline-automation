@@ -1,5 +1,6 @@
 # This workflow demonstrates building a container image, pushing to an Azure Container Registry and deploying to Kubernetes
 # It is split into separate jobs for readability but could be squashed into a single job if that best suits your scenario
+name: AppDeploy - Flask - Docker Build
 
 on:
   workflow_call:
@@ -19,26 +20,12 @@ on:
         type: string
       APPNAME:
         description: 'The Name of the Application to deploy'
+        default: "flask"
         required: true
         type: string
       NAMESPACE:
         description: 'The Kubernetes Namespace to deploy the Application to'
         default: "default"
-        required: false
-        type: string
-      APPREPO:
-        description: 'The GitHub App code repo'
-        default: "mosabami/msdocs-python-flask-webapp-quickstart" #"azure-samples/azure-voting-app-redis" 
-        required: false
-        type: string
-      APPREPOREF:
-        description: 'The GitHub REF to use when referencing the App code repo'
-        default: "129888"
-        required: false
-        type: string
-      APPREPOPATH:
-        description: 'The directory in the repo containing the Dockerfile'
-        default: "./" #"./azure-vote"
         required: false
         type: string
       ENVIRONMENT:
@@ -68,9 +55,8 @@ jobs:
     steps:
       - name: Get application code from repo
         uses: actions/checkout@v2
-        with:
-          repository: ${{ inputs.APPREPO}}
-          #ref: ${{ inputs.APPREPOREF}}
+        #with:
+        #  repository: ${{ inputs.APPREPO}}
 
       - name: Job parameter inspection
         run: |
@@ -112,7 +98,7 @@ jobs:
           ACRSERVER: "${{ steps.acrconnect.outputs.loginServer }}"
           APPNAME: "${{ inputs.APPNAME }}"
         run: |
-          cd $APPREPOPATH
+          cd "workload/$APPREPOPATH"
           docker build . -t $ACRSERVER/$APPNAME:${{ github.sha }}
           docker push $ACRSERVER/$APPNAME:${{ github.sha }}
 
@@ -158,8 +144,8 @@ jobs:
           ACRNAME: "${{ inputs.ACRNAME}}"
         with:
           manifests: |
-            workloads/flaskapp/app-deployment.yaml
-            workloads/flaskapp/ingress-svc-http.yaml
+            workloads/flush/deployment.yaml
+            workloads/flush/ingress.yaml
           images: |
             ${{ env.ACRNAME }}.azurecr.io/${{ inputs.APPNAME }}:${{ github.sha }}
             #${{ env.ACRNAME }}.azurecr.io/azure-vote-front:${{ github.sha }}

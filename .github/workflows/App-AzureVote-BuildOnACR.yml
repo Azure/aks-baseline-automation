@@ -1,5 +1,6 @@
 # This workflow demonstrates ACR building and storing a container image, and deploying to Kubernetes
 # It is split into separate jobs for readability but could be squashed into a single job if that best suits your scenario
+name: AppDeploy - Azure Vote - BuildOnACR
 
 on:
   workflow_call:

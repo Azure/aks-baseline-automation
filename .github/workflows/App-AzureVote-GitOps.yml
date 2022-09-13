@@ -10,6 +10,7 @@
 # This workflow demonstrates building and pushing a container image to an Azure Container Registry.
 # The workflow then updates the necessary Kubernetes manifest deployment file so a GitOps operator can sync from the manifest file deploying the application to an Azure Kubernetes Service cluster.
 # It is split into separate jobs for readability but could be squashed into a single job if that best suits your scenario.
+name: AppDeploy - Azure Vote - GitOps
 
 on: 
   workflow_dispatch:

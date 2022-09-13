@@ -33,6 +33,7 @@
         "GHENV",
         "GHORG",
         "GHREPO",
+        "ghToAzAuth"
         "gitops",
         "helmruncmd",
         "INGRESSTYPE",
@@ -68,6 +69,8 @@
         "vnet",
         "vnets",
         "Vnets",
+        "YOURAZURESUBSCRIPTION"
+        "YOURREGISTEREDAPPNAME"
         "yourorg",
         "yourrepo",
         "Xamarin"
