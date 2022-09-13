@@ -54,8 +54,6 @@ jobs:
     steps:
       - name: Get application code from repo
         uses: actions/checkout@v2
-        #with:
-        #  repository: ${{ inputs.APPREPO}}
 
       - name: Job parameter inspection
         run: |
