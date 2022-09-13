@@ -22,8 +22,7 @@ This scenario covers a pull-based DevOps pipeline for a web application with a f
 1.  The App code is developed.
 1.  The App code is committed to the GitHub git repository.
 1.  GitHub Actions Builds a container image from the App code and pushes the container image to Azure Container Registry.
-1.  GitHub Actions logs into the AKS cluster and creates a secret for connecting to ACR used by the image deployment.
-1.  GitHub Actions Updates a Kubernetes Manifest Deployment file with the current image version based on the version number of the container image in the Azure Container Registry and updates the manifest with the Kubernetes Secret name used to pull the container image from the Azure Container Registry.
+1.  GitHub Actions Updates a Kubernetes Manifest Deployment file with the current image version based on the version number of the container image in the Azure Container Registry.
 1.  The GitOps Operator Argo CD syncs / pulls with the Git repository.
 1.  The GitOps Operator Argo CD deploys the app to the AKS cluster.
 
