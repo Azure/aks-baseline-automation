@@ -30,7 +30,7 @@ on:
       AppName:
         description: 'The Name of the Application to deploy'
         required: false
-        default: "flusk"
+        default: "flask"
         type: string
       Namespace:
         description: 'The Kubernetes Namespace to deploy the Application to'
