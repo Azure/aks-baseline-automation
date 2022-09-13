@@ -143,8 +143,8 @@ jobs:
           ACRNAME: "${{ inputs.ACRNAME}}"
         with:
           manifests: |
-            workloads/flush/deployment.yaml
-            workloads/flush/ingress.yaml
+           workloads/flaskapp/deployment.yaml
+           workloads/flaskapp/ingress.yaml
           images: |
             ${{ env.ACRNAME }}.azurecr.io/${{ inputs.APPNAME }}:${{ github.sha }}
           namespace: ${{ inputs.NAMESPACE }}
