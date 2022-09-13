@@ -121,15 +121,15 @@ jobs:
       uses: azure/powershell@v1
       with:
         inlineScript: |
-          $line = Get-Content workloads/flaskapp/deployment.yaml | Select-String image: | Select-Object -ExpandProperty Line
-          $content = Get-Content workloads/flaskapp/deployment.yaml
-          $content | ForEach-Object {$_ -replace $line,"        image: ${{ inputs.ACRName }}.azurecr.io/${{ inputs.AppName }}:${{ github.run_number }}"} | Set-Content workloads/flaskapp/deployment.yaml
+          $line = Get-Content workloads/flask/deployment.yaml | Select-String image: | Select-Object -ExpandProperty Line
+          $content = Get-Content workloads/flask/deployment.yaml
+          $content | ForEach-Object {$_ -replace $line,"        image: ${{ inputs.ACRName }}.azurecr.io/${{ inputs.AppName }}:${{ github.run_number }}"} | Set-Content workloads/flask/deployment.yaml
         azPSVersion: "latest"
     
     - name: Commit changes in manifest to repo
       run: | 
         git config user.name "GitHub Actions Bot"
         git config user.email ""
-        git add workloads/flaskapp/deployment.yaml
+        git add workloads/flask/deployment.yaml
         git commit -m "Update image version in K8s Deployment manifests file"
         git push origin

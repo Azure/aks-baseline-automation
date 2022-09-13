@@ -56,7 +56,7 @@ This article outlines deploying with the pull option as described in the [automa
        ![](media/049073d69afee0baddf4396830c99f17.png)
 1. Run the GitHub Actions workflow:
     1. Go to [https://github.com/YOUR REPO/aks-baseline-automation/actions](https://github.com/YOUR%20REPO/aks-baseline-automation/actions)
-    1. Run the following workflow: .github/workflows/App-Flaskapp-GitOps.yml
+    1. Run the following workflow: .github/workflows/App-flask-GitOps.yml
     1. Enter the needed inputs:
        ![](media/b4bf25dc9497c669d54a205648cb864c.png)
 1. Create a new app for the App in Argo CD. See this link on how to create a new app in Argo CD: https://argo-cd.readthedocs.io/en/stable/getting_started/\\\#creating-apps-via-ui. This is an example of the successful App in Argo CD:

@@ -54,7 +54,7 @@ This article outlines deploying with the push option as described in the [automa
        ![](media/049073d69afee0baddf4396830c99f17.png)
 1. Run the GitHub Actions workflow:
     1. Go to [https://github.com/YOUR REPO/aks-baseline-automation/actions](https://github.com/YOUR%20REPO/aks-baseline-automation/actions)
-    1. Run the .github/workflows/App-Flaskapp-DockerBuild-Actions.yml workflow
+    1. Run the .github/workflows/App-flask-DockerBuild-Actions.yml workflow
     1. Enter the needed inputs:
        ![](media/305b724858e713c324483ab24ad3c7cf.png)
     1. You will see the workflows start.
