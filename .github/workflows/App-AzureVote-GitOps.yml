@@ -58,7 +58,7 @@ on:
       Environment:
         description: 'A GitHub Environment to pull action secrets from'
         required: false
-        default: dev
+        default: prod
         type: environment  
       Region:
         description: 'Location where the resources need to be deployed'
