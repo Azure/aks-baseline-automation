@@ -25,7 +25,7 @@ The first three namespaces are workload agnostic and tend to all cluster-wide co
 
 The **cluster** directory contains the configuration that applies to entire cluster (such as ClusterRole, ClusterRoleBinding), rather than to individual namespaces.
 
-Note: to deploy shared services through a GitHub action workflow instead of using GitOps, refer to [this article](./doc/../docs/shared-services-workflow.md)
+Note: to deploy shared services through a GitHub action workflow instead of using GitOps, refer to [this article](./shared-services-workflow.md)
 
 ## Private bootstrapping repository
 
