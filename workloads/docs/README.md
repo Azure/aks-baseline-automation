@@ -4,7 +4,7 @@ In the [**Automated build & deployment of container applications using DevOps & 
 
 ### Option \#1 Push-based CI/CD Architecture and Dataflow
 
-![Figure 1 - Option 1 Push based Architecture with GitHub Actions for CI and CD](./media/5ef464b58b9ce8ab4499ed1c2aec882f.png)
+![Figure 1 - Option 1 Push based Architecture with GitHub Actions for CI and CD](./media/5ef464b58b9ce8ab4499ed1c2aec882f2.png)
 
 This scenario covers a push-based DevOps pipeline for a web application with a front-end component. This pipeline uses GitHub Actions for build push and deployment. The data flows through the scenario as follows:
 
@@ -15,7 +15,7 @@ This scenario covers a push-based DevOps pipeline for a web application with a f
 
 ### Option \#2 Pull-based CI/CD Architecture and Dataflow
 
-![Figure 2 - Option 2 Pull based Architecture with GitHub Actions for CI and Argo CD for CD](./media/72be57feef5bb9b47658cfc16f3d779f.png)
+![Figure 2 - Option 2 Pull based Architecture with GitHub Actions for CI and Argo CD for CD](./media/72be57feef5bb9b47658cfc16f3d779f3.png)
 
 This scenario covers a pull-based DevOps pipeline for a web application with a front-end component. This pipeline uses GitHub Actions for build and push it uses Argo CD a GitOps operator pull/sync for deployment. The data flows through the scenario as follows:
 
