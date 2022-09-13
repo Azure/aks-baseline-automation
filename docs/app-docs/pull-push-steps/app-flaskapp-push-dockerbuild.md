@@ -37,8 +37,6 @@ This article outlines deploying with the push option as described in the [automa
 1. Create Actions secrets for your Azure subscription in your GitHub Repository *\#Reference: https://docs.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux\#use-the-azure-login-action-with-a-service-principal-secret*
     1. Navigate to Github Actions Secrets in your browser: From your repo select *Settings* > on the left plane select *Secrets* > select *Actions* in the dropdown
     1. Select *New repository secret* 
-    1. Name the secret AZURE_CREDENTIALS in the *Name* field
-    1. Paste *in* your JSON object *for* your service principal in the *Secret* field
     1. Click *Add secret*
 1. Review Environment secrets
     1. Navigate to environments in your browser: From your repo select *Settings* > on the left plane select *Environments* > select *New environment* at the top right corner of the resulting screen
