@@ -30,7 +30,7 @@ Each team will be responsible for maintaining their own automation pipeline. The
 This section demonstrates the implementation of a CI/CD pipeline built using GitHub Actions to automate the deployments of AKS and other Azure resources that AKS depends on. This pipeline deploys the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline) using either Biceps or Terraform modules.
 
 
-![Infrastructure-as-Code](./docs/.attachments/IaC.jpg)
+![Infrastructure-as-Code](./media/IaC.jpg)
 
 ### Deploy AKS using GitHub Actions and Bicep
 Under the IaC/bicep folder you will find the instructions and the code to deploy the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline) through a GitHub Actions pipeline leveraging bicep CARML modules. The steps can be found [here](https://github.com/Azure/aks-baseline-automation/tree/main/IaC/bicep).
@@ -45,7 +45,7 @@ We also provide example of metrics of interest from these Shared-Services that c
 In this section we demonstrate two implementation options:
 
  * A GitOps solution using the AKS [Flux](https://fluxcd.io/) add-on. Refer to [Shared-Services](./shared-services/README.md) for instructions on how to set it up so that the Traefik ingress controller gets automatically deployed.
- * A CI/CD pipeline built using GitHub actions. Refer to [this article](./doc/../docs/shared-services-workflow.md) for an example of a workflow to deploy an NGINX ingress controller.
+ * A CI/CD pipeline built using GitHub actions. Refer to [this article](./shared-services/shared-services-workflow.md) for an example of a workflow to deploy an NGINX ingress controller.
 
 
 The GitOps solution features:
@@ -53,7 +53,7 @@ The GitOps solution features:
  * An opinionated [overlay structure](https://cloud.google.com/anthos-config-management/docs/how-to/use-repo-kustomize-helm) that shows separation of concern and asset structure/management of the components that are bootstrapping the cluster.
 * Safe deployment practices with GitOps
 
-![Shared-Services Deployment](./docs/.attachments/shared-services.jpg)
+![Shared-Services Deployment](./media/shared-services.jpg)
 
 Note: in a real world deployment you may want to have a dedicated GitHub repo and an ACR instance for Shared-Services to store artifacts (i.e. manifest files, helm charts and docker images), separating them from the ones used for IaC and the application workloads. For simplicity and convenience sake, we have placed all those artifacts within this same repo but in different folders.
 
@@ -63,19 +63,23 @@ This section demonstrates the deployment of an application composed of multiple 
 
  * A GitOps solution using [Flux](https://fluxcd.io/). Note that a future version of this solution will showcase an alternate GitOps products, such as [ArgoCD](https://argoproj.github.io/cd/) (see issue https://github.com/Azure/aks-baseline-automation/issues/72). This intent is to demonstrate how an app team may chose to use a separate tool for their specific workload lifecycle concerns as opposed to using the same tool as what the cluster operators use for cluster management.
 
-The application [Flask App](./docs/app-docs/README.md) is used for this deployment as this application is quite simple, but yet demonstrates how to deploy an application composed of multiple containers. In this case the application is composed of a web-front-end written in Python.
+The application [Flask App](./workloads/docs/README.md) is used for this deployment as this application is quite simple, but yet demonstrates how to deploy an application composed of multiple containers. In this case the application is composed of a web-front-end written in Python.
 
 Blue/Green and Canary release strategies for this application will also be demonstrated. Note however that this feature has not been implemented yet, see issue https://github.com/Azure/aks-baseline-automation/issues/27.
 
-### Deploy sample applications using GitHub Actions and GitOps
-Multiple GitHub action workflows are used to demonstrate the deployment of sample applications through a CI/CD pipeline (push and pull methods). Please click on the links below for instructions on how to use these workflows.
+### Deploy sample applications using GitHub Actions (push method)
+Multiple GitHub action workflows are used to demonstrate the deployment of sample applications through a CI/CD pipeline (push method). Please click on the links below for instructions on how to use these workflows.
 
 Sample App | Scenario | Description | Tags
 ---------- | -------- | ----------- | ----
-Flask Hello World| [Docker Build](./docs/app-docs/README.md) | Builds a container image from code on the runner then pushes to ACR. Deployment is done via a push model and a pull model(GitOps) as described in Microsoft docs. Requires the use of self-hosted runners if you deployed a private ACR per the instructions in the [IaC](./IaC/README.md) section of this repo. To setup self-hosted runners, refer to the [Self-hosted GitHub Runners](#Self-hosted-GitHub-Runners) section.
-Azure Vote | [AKS Run Command](./docs/app-docs/other-app-deploy-scenarios/app-azurevote-helmruncmd.md) |Sample of re-usable workflow called from the workflow [App-Test-All.yml](./.github/workflows/App-Test-All.yml). Deploys the app using a helm chart through the _AKS Command Invoke_. The focus here is to demonstrate how workloads in private clusters can still be managed through cloud hosted GitHub runners (no need to install self-hosted runners as in the other samples). It also shows how to test your application using Playwright.
-Azure Vote  | [ACR Build](./docs/app-docs/other-app-deploy-scenarios/app-azurevote-helmruncmd.md) |Another Sample of re-usable workflow called from the workflow [App-Test-All.yml](./.github/workflows/App-Test-All.yml). Builds a container image from code directly in Azure Container Registry (ACR). Deployment is done using the Azure Kubernetes GitHub actions. Requires the use of self-hosted runners if you deployed a private ACR per the instructions in the [IaC](./IaC/README.md) section of this repo. To setup self-hosted runners, refer to the [Self-hosted GitHub Runners](#Self-hosted-GitHub-Runners) section.
- 
+Flask Hello World| [Docker Build](./workloads/docs/app-flask-push-dockerbuild.md) | Builds a container image from code on the runner then pushes to ACR. Deployment is done via a push model. Requires the use of self-hosted runners if you deployed a private ACR per the instructions in the [IaC](./IaC/README.md) section of this repo. To setup self-hosted runners, refer to the [Self-hosted GitHub Runners](#Self-hosted-GitHub-Runners) section.
+Azure Vote | [AKS Run Command](./workloads/docs/other-app-scenarios/app-azurevote-helmruncmd.md) |Sample of re-usable workflow called from the workflow [App-Test-All.yml](./.github/workflows/App-Test-All.yml). Deploys the app using a helm chart through the _AKS Command Invoke_. The focus here is to demonstrate how workloads in private clusters can still be managed through cloud hosted GitHub runners (no need to install self-hosted runners as in the other samples). It also shows how to test your application using Playwright.
+Azure Vote  | [ACR Build](./workloads/docs/other-app-scenarios/app-azurevote-acrbuild.md) |Another Sample of re-usable workflow called from the workflow [App-Test-All.yml](./.github/workflows/App-Test-All.yml). Builds a container image from code directly in Azure Container Registry (ACR). Deployment is done using the Azure Kubernetes GitHub actions. Requires the use of self-hosted runners if you deployed a private ACR per the instructions in the [IaC](./IaC/README.md) section of this repo. To setup self-hosted runners, refer to the [Self-hosted GitHub Runners](#Self-hosted-GitHub-Runners) section.
+
+### Deploy sample applications using GitOps (pull method)
+You can use GitOps with flux or ArgoCD (pull method) as an alternative to GitHub action workflows to deploy your applications. 
+
+Refer to [these instructions](./workloads/docs/app-flask-pull-gitops.md) for how to setup your environment to deploy a sample application with GitOps using ArgoCD. 
 ## Lifecycle-Management
 Different components of an AKS solution are often owned by different teams and typically follow their own lifecycle management schedule and process, sometimes using different tools. In this section we will cover the following lifecycle management processes:
 
@@ -90,12 +94,12 @@ For better security and version control, all these lifecycle management processe
 Note that these features have not been implemented yet in this reference implementation. For the automation of the cluster lifecycle-management see issue https://github.com/Azure/aks-baseline-automation/issues/23.
 ## Secure DevOps
 A typical DevOps process for deploying containers to AKS can be depicted by the diagram below:
-![Typical DevOps](./docs/.attachments/secure-devOps-1.jpg)
+![Typical DevOps](./media/secure-devOps-1.jpg)
 
 
 The security team focus is to make sure that security is built into this automation pipeline and that security tasks are shifted to the left and automated as much as possible. They will need for example to work with the different automation teams to make sure that the following controls are in place within their pipelines:
 
-![Secure DevOps](./docs/.attachments/secure-devOps-2.jpg)
+![Secure DevOps](./media/secure-devOps-2.jpg)
 
 In addition to this oversight role, they will also have to build and maintain their own pipeline to automate the management of security related resources outside the clusters (Azure policies, firewall rules, NSGs, Azure RBAC, etc) as well as inside the cluster (Network Security Policies, Service Mesh Authentication and Authorization rules, Kubernetes RBAC, etc).
 
@@ -105,7 +109,7 @@ Incorporate security controls into the devOps pipeline is not implemented yet in
 
 This repository is organized as follow:
 
-![AKS Baseline Automation Repo Structure](./docs/.attachments/repo-structure.jpg)
+![AKS Baseline Automation Repo Structure](./media/repo-structure.jpg)
 
 
 ## Self-hosted GitHub Runners
@@ -117,7 +121,7 @@ For more information about the benefits of self-hosted runners, refer to [this a
 
    The diagram below depicts how a GitHub runner hosted in your Azure subscription uses a Managed Identity to connect securely to your Azure subscription and make changes to your Azure and Kubernetes resources:
    
-   ![GitHub Runners](./docs/.attachments/github-runners.jpg)
+   ![GitHub Runners](./media/github-runners.jpg)
 
 ## Contributing
 
