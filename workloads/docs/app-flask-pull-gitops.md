@@ -1,6 +1,6 @@
 ## Option \#2 Pull-based CI/CD(GitOps)
 
-This article outlines deploying with the pull option as described in the [automated build and deploy for container applications article](../app-automated-build-devops-gitops.md). To deploy the **Option \#2 Pull-based CI/CD Architecture** scenario, follow the steps outlined [here](../README.md) (if you haven't already), then perform the following steps:
+This article outlines deploying with the pull option as described in the [automated build and deploy for container applications article](../app-automated-build-devops-gitops.md). To deploy the **Option \#2 Pull-based CI/CD Architecture** scenario, follow the steps outlined [here](README.md) (if you haven't already), then perform the following steps:
 
 1. Fork this repo to your GitHub: https://github.com/Azure/aks-baseline-automation. Note: Be sure to uncheck "Copy the main branch only".
 1. Go to Actions on the forked repo and enable Workflows as shown: <https://github.com/YOURUSERNAME/aks-baseline-automation/actions>

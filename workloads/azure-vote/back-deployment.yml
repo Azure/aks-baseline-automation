@@ -2,31 +2,37 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: azure-vote-back
+  labels:
+    role: backend
+    app: back
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: azure-vote-back
+      role: backend
+      app: back
   template:
     metadata:
       labels:
-        app: azure-vote-back
+        role: backend
+        app: back
     spec:
       nodeSelector:
         "kubernetes.io/os": linux
       containers:
-      - name: azure-vote-back
-        image: mcr.microsoft.com/oss/bitnami/redis:6.0.8
-        env:
-        - name: ALLOW_EMPTY_PASSWORD
-          value: "yes"
-        resources:
-          requests:
-            cpu: 100m
-            memory: 128Mi
-          limits:
-            cpu: 250m
-            memory: 256Mi
-        ports:
-        - containerPort: 6379
-          name: redis
+        - name: back
+          image: "mcr.microsoft.com/oss/bitnami/redis:6.0.8"
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: ALLOW_EMPTY_PASSWORD
+            value: "yes"
+          ports:
+          - containerPort: 6379
+            name: redis
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi         

@@ -73,14 +73,14 @@ Multiple GitHub action workflows are used to demonstrate the deployment of sampl
 
 Sample App | Scenario | Description | Tags
 ---------- | -------- | ----------- | ----
-Flask Hello World| [Docker Build](./workloads/docs/app-flask-push-dockerbuild.md) | Builds a container image from code on the runner then pushes to ACR. Deployment is done via a push model. Requires the use of self-hosted runners if you deployed a private ACR per the instructions in the [IaC](./IaC/README.md) section of this repo. To setup self-hosted runners, refer to the [Self-hosted GitHub Runners](#Self-hosted-GitHub-Runners) section.
+Flask Hello World| [Docker Build](./workloads/docs/README.md) | Builds a container image from code on the runner then pushes to ACR. Deployment is done via a push model. Requires the use of self-hosted runners if you deployed a private ACR per the instructions in the [IaC](./IaC/README.md) section of this repo. To setup self-hosted runners, refer to the [Self-hosted GitHub Runners](#Self-hosted-GitHub-Runners) section.
 Azure Vote | [AKS Run Command](./workloads/docs/other-app-scenarios/app-azurevote-helmruncmd.md) |Sample of re-usable workflow called from the workflow [App-Test-All.yml](./.github/workflows/App-Test-All.yml). Deploys the app using a helm chart through the _AKS Command Invoke_. The focus here is to demonstrate how workloads in private clusters can still be managed through cloud hosted GitHub runners (no need to install self-hosted runners as in the other samples). It also shows how to test your application using Playwright.
 Azure Vote  | [ACR Build](./workloads/docs/other-app-scenarios/app-azurevote-acrbuild.md) |Another Sample of re-usable workflow called from the workflow [App-Test-All.yml](./.github/workflows/App-Test-All.yml). Builds a container image from code directly in Azure Container Registry (ACR). Deployment is done using the Azure Kubernetes GitHub actions. Requires the use of self-hosted runners if you deployed a private ACR per the instructions in the [IaC](./IaC/README.md) section of this repo. To setup self-hosted runners, refer to the [Self-hosted GitHub Runners](#Self-hosted-GitHub-Runners) section.
 
 ### Deploy sample applications using GitOps (pull method)
 You can use GitOps with flux or ArgoCD (pull method) as an alternative to GitHub action workflows to deploy your applications. 
 
-Refer to [these instructions](./workloads/docs/app-flask-pull-gitops.md) for how to setup your environment to deploy a sample application with GitOps using ArgoCD. 
+Refer to [these instructions](./workloads/docs/README.md) for how to setup your environment to deploy a sample application with GitOps using ArgoCD. 
 ## Lifecycle-Management
 Different components of an AKS solution are often owned by different teams and typically follow their own lifecycle management schedule and process, sometimes using different tools. In this section we will cover the following lifecycle management processes:
 
