@@ -180,6 +180,8 @@ jobs:
           echo "AKV Name from bicep output is ${{ steps.cluster.outputs.keyVaultName }}"
           echo "aksIngressControllerPodManagedIdentityResourceId from bicep output is ${{ steps.cluster.outputs.aksIngressControllerPodManagedIdentityResourceId }}"
           echo "To prove that this should work: hubVnetId is ${{ steps.hub.outputs.hubVnetId }}"
+          echo "aksClusterName from bicep output is ${{ steps.cluster.outputs.aksClusterName }}"
+          echo "clusterVnetResourceId from bicep output is ${{ steps.spoke.outputs.clusterVnetResourceId }}"
 
         # Re-authentication is required for the commands that follow
       - name: Azure Login
