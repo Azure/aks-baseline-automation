@@ -95,7 +95,8 @@ jobs:
           ACRSERVER: "${{ steps.acrconnect.outputs.loginServer }}"
           APPNAME: "${{ inputs.APPNAME }}"
         run: |
-          cd "workload/$APPNAME"
+          pwd
+          cd "workloads/$APPNAME"
           docker build . -t $ACRSERVER/$APPNAME:${{ github.sha }}
           docker push $ACRSERVER/$APPNAME:${{ github.sha }}
 
