@@ -56,9 +56,10 @@ This article outlines deploying with the pull option as described in the [automa
        ![](media/049073d69afee0baddf4396830c99f17.png)
 7. Run the GitHub Actions workflow:
     1. Go to [https://github.com/YOUR REPO/aks-baseline-automation/actions](https://github.com/YOUR%20REPO/aks-baseline-automation/actions)
-    2. Run the following workflow: .github/workflows/App-flask-GitOps.yml
-    3. Enter the needed inputs:
+    1. **Note:** If you are using the IaC option, you will need to update the workloads/flask/ingress.yaml to use the traefik ingress option by commenting out the *Http agic* ingress and uncommenting the *Https traefik* ingress. You will also need to update the fqdn in Https traefik to match the configuration you have in your Application gateway. For the quick option with AKS Construction helper, no change here is required.
+    1. Run the following workflow: .github/workflows/App-flask-GitOps.yml
+    1. Enter the needed inputs:
        ![](media/b4bf25dc9497c669d54a205648cb864c.png)
-8. Create a new app for the App in Argo CD. See this link on how to create a new app in Argo CD: https://argo-cd.readthedocs.io/en/stable/getting_started/\\\#creating-apps-via-ui. This is an example of the successful App in Argo CD:
+1. Create a new app for the App in Argo CD. See this link on how to create a new app in Argo CD: https://argo-cd.readthedocs.io/en/stable/getting_started/\\\#creating-apps-via-ui. This is an example of the successful App in Argo CD:
 ![](media/58af037d65b2303dbb1c2d4196ac300f.png)
 ![](media/66908c97c321303ba2bcd58ba6431bdd.png)

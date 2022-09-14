@@ -36,8 +36,8 @@ This section demonstrates the implementation of a CI/CD pipeline built using Git
 ### Deploy AKS using GitHub Actions and Bicep
 Under the IaC/bicep folder you will find the instructions and the code to deploy the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline) through a GitHub Actions pipeline leveraging bicep CARML modules. The steps can be found [here](https://github.com/Azure/aks-baseline-automation/tree/main/IaC/bicep).
 
-### Deploy AKS using GitHub Actions and Terraform
-Under the IaC/terraform folder you will find the instructions and the code to deploy the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline) through a GitHub Actions pipeline leveraging CAF Terraform modules. The steps can be found [here](https://github.com/Azure/aks-baseline-automation/tree/main/IaC/terraform).
+### Deploy AKS using GitHub Actions and Terraform (in development)
+Under the IaC/terraform folder you will find the instructions and the code to deploy the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline) through a GitHub Actions pipeline leveraging CAF Terraform modules. The steps can be found [here](https://github.com/Azure/aks-baseline-automation/tree/main/IaC/terraform). **This option is still in development**.
 
 ## Shared-Services
 This section demonstrates the provisioning of the Shared-Services.  These services are the in-cluster common components that are used by all applications running on the cluster.

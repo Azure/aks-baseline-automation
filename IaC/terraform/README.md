@@ -1,4 +1,4 @@
-# terraform
+# terraform (still in development but you can still try it out)
 
 This folder contains the code to build the [AKS Baseline reference implementation](https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/containers/aks/secure-baseline-aks) using [CAF Terraform Landing zone framework composition](https://github.com/aztfmod/terraform-azurerm-caf).
 
