@@ -1,6 +1,6 @@
 # Deploy nginx to shared service with helm
 
-name: SharedServices Deploy Nginx
+name: SharedServices Deploy Nginx with helm
 
 on:
   workflow_dispatch:

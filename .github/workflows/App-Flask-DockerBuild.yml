@@ -1,6 +1,6 @@
 # This workflow demonstrates building a container image, pushing to an Azure Container Registry and deploying to Kubernetes
 # It is split into separate jobs for readability but could be squashed into a single job if that best suits your scenario
-name: AppDeploy - Flask - Docker Build
+name: App Deploy Flask - Docker Build
 
 on:
   workflow_dispatch:
@@ -95,7 +95,7 @@ jobs:
           ACRSERVER: "${{ steps.acrconnect.outputs.loginServer }}"
           APPNAME: "${{ inputs.APPNAME }}"
         run: |
-          cd "workload/$APPREPOPATH"
+          cd "workload/$APPNAME"
           docker build . -t $ACRSERVER/$APPNAME:${{ github.sha }}
           docker push $ACRSERVER/$APPNAME:${{ github.sha }}
 
