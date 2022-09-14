@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: azure-app-deployment
+  name: flask-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: sampleflask
+      app: flask
   template:
     metadata:
       labels:
-        app: sampleflask
+        app: flask
     spec:
       containers:
-      - name: azure-app-deployment
-        image: acraksf7qlptmhmwvmc.azurecr.io/flask:0.1
+      - name: flask-deployment
+        image: acraksf7qlptmhmwvmc.azurecr.io/flask:6c6eb75fc1a85e606757cac68e12973965ae1469
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 2000
