@@ -1,6 +1,6 @@
 # Workflow is for testing reusable workflows to expedite the developer inner loop.
 
-name: Test Harness calling Reusable App workflows
+name: App Deploy Reusable App workflows
 
 on:
   workflow_dispatch:
@@ -59,7 +59,7 @@ jobs:
       APPNAME: azure-vote
       INGRESSTYPE: Traefik
       DEBUG: true
-      HELMPACKAGEURI: "https://github.com/Azure/aks-baseline-automation/raw/main/workloads/azure-vote/AzureVote.tgz"
+      HELMPACKAGEURI: "https://github.com/Azure/aks-baseline-automation/raw/main/workloads/azure-vote/AzureVote-helm.tgz"
     secrets:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}

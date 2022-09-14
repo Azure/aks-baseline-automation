@@ -1,33 +1,39 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: azure-app-deployment
+  name: flask-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: sampleflask
+      app: flask
   template:
     metadata:
       labels:
-        app: sampleflask
+        app: flask
     spec:
       containers:
-      - name: azure-app-deployment
-        image: crazk8sehiebdpdv2i7fmty6.azurecr.io/smartbrainapp:3
+      - name: flask-deployment
+        image: acraksf7qlptmhmwvmc.azurecr.io/flask:6c6eb75fc1a85e606757cac68e12973965ae1469
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 2000
-
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi       
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: azure-app-service
+  name: flask-service
 spec:
   type: ClusterIP
   selector:
-    app: sampleflask
+    app: flask
   ports:
   - port: 2000
     targetPort: 2000

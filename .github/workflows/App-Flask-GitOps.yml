@@ -10,38 +10,37 @@
 # This workflow demonstrates building and pushing a container image to an Azure Container Registry.
 # The workflow then updates the necessary Kubernetes manifest deployment file so a GitOps operator can sync from the manifest file deploying the application to an Azure Kubernetes Service cluster.
 # It is split into separate jobs for readability but could be squashed into a single job if that best suits your scenario.
-name: AppDeploy - Flask - GitOps
+name: App Deploy Flask - GitOps
 
 on: 
   workflow_dispatch:
     inputs:
-      ResourceGroupName:
+      RG:
         description: 'The Resource Group where your resources are deployed'
         required: true
         type: string
-      AKSName:
+      AKSNAME:
         description: 'The Name of the AKS resource'
         required: true
         type: string
-      ACRName:
+      ACRNAME:
         description: 'The Name of the ACR resource'
         required: true
         type: string
-      AppName:
+      APPNAME:
         description: 'The Name of the Application to deploy'
-        required: false
         default: "flask"
+        required: true
         type: string
-      Namespace:
+      NAMESPACE:
         description: 'The Kubernetes Namespace to deploy the Application to'
         default: "default"
         required: false
         type: string
-      Environment:
+      ENVIRONMENT:
         description: 'A GitHub Environment to pull action secrets from'
-        required: false
-        default: prod
-        type: environment  
+        required: true
+        type: string
 
 permissions:
       id-token: write
@@ -71,8 +70,8 @@ jobs:
       - name: Connect to Azure Container Registry (ACR)
         id: acrconnect
         run: |
-          echo "Retrieving access token from ${{ inputs.ACRName}}"
-          TOKEN=$(az acr login -n ${{ inputs.ACRName}} --expose-token)
+          echo "Retrieving access token from ${{ inputs.ACRNAME}}"
+          TOKEN=$(az acr login -n ${{ inputs.ACRNAME}} --expose-token)
 
           if [ -z "$TOKEN" ]
           then
@@ -93,11 +92,11 @@ jobs:
       - name: Container build and push to a Azure Container Registry (ACR)
         env:
           AppRepoPath: "${{ inputs.AppRepoPath}}"
-          AppName: "${{ inputs.AppName }}"
+          APPNAME: "${{ inputs.APPNAME }}"
         run: |
-          cd $AppRepoPath
-          docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t ${{ inputs.ACRName }}.azurecr.io/${{ inputs.AppName }}:${{ github.run_number }} --label dockerfile-path=Dockerfile
-          docker push ${{ inputs.ACRName }}.azurecr.io/${{ inputs.AppName }}:${{ github.run_number }}
+          cd "workloads/$APPNAME"
+          docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t ${{ inputs.ACRNAME }}.azurecr.io/${{ inputs.APPNAME }}:${{ github.run_number }} --label dockerfile-path=Dockerfile
+          docker push ${{ inputs.ACRNAME }}.azurecr.io/${{ inputs.APPNAME }}:${{ github.run_number }}
 
   Update-K8s-Manifests:
     name: Update K8s Deployment Manifest with Image Version
@@ -123,7 +122,7 @@ jobs:
         inlineScript: |
           $line = Get-Content workloads/flask/deployment.yaml | Select-String image: | Select-Object -ExpandProperty Line
           $content = Get-Content workloads/flask/deployment.yaml
-          $content | ForEach-Object {$_ -replace $line,"        image: ${{ inputs.ACRName }}.azurecr.io/${{ inputs.AppName }}:${{ github.run_number }}"} | Set-Content workloads/flask/deployment.yaml
+          $content | ForEach-Object {$_ -replace $line,"        image: ${{ inputs.ACRNAME }}.azurecr.io/${{ inputs.APPNAME }}:${{ github.run_number }}"} | Set-Content workloads/flask/deployment.yaml
         azPSVersion: "latest"
     
     - name: Commit changes in manifest to repo

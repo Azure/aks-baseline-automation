@@ -1,4 +1,4 @@
-name: 'Deploy Terraform based AKS Cluster'
+name: 'IaC Deploy Terraform based AKS Cluster'
 
 on: 
   workflow_dispatch:

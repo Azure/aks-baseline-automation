@@ -54,13 +54,14 @@ This article outlines deploying with the push option as described in the [automa
        ![](media/049073d69afee0baddf4396830c99f17.png)
 7. Run the GitHub Actions workflow:
     1. Go to [https://github.com/YOUR REPO/aks-baseline-automation/actions](https://github.com/YOUR%20REPO/aks-baseline-automation/actions)
-    2. Run the .github/workflows/App-flask-DockerBuild-Actions.yml workflow
-    3. Enter the needed inputs:
+    1. **Note:** If you are using the IaC option, you will need to update the workloads/flask/ingress.yaml to use the traefik ingress option by commenting out the *Http agic* ingress and uncommenting the *Https traefik* ingress. You will also need to update the fqdn in Https traefik to match the configuration you have in your Application gateway. For the quick option with AKS Construction helper, no change here is required.
+    1. Run the .github/workflows/App-flask-DockerBuild-Actions.yml workflow
+    1. Enter the needed inputs:
        ![](media/305b724858e713c324483ab24ad3c7cf.png)
-    4. You will see the workflows start.
+    1. You will see the workflows start.
        ![](media/b36378c2d7d40c5d667486b058ea561a.png)
-    5. When it completes both jobs will green showing the workflow was successful.
+    1. When it completes both jobs will green showing the workflow was successful.
        ![](media/60de94d5bde946129fbc11446f956ff3.png)
-    6. You will be able to see the App was successfully deployed to the default namespace in your AKS cluster as shown in the following screenshots:
+    1. You will be able to see the App was successfully deployed to the default namespace in your AKS cluster as shown in the following screenshots:
        ![](media/c540af41853da0467e6d5363ec756c7b.png)
        ![](media/1a51da1f757ff7e33d9d72ed85bc32f9.png)
