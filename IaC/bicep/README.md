@@ -20,7 +20,7 @@ To customize the sample bicep templates provided based on your specific needs, f
 
    Customize these files based on your specific deployment requirements for each resource.
 
-4. Test the deployment of each Azure resource individually using the [Azure CLI](https://docs.microsoft.com/azure/azure-resource-manager/bicep/deploy-cli) or [PowerShell command](https://docs.microsoft.com/azure/azure-resource-manager/bicep/deploy-powershell).
+4. Test the deployment of each Azure resource individually using the [Azure CLI](https://learn.microsoft.com/azure/azure-resource-manager/bicep/deploy-cli) or [PowerShell command](https://learn.microsoft.com/azure/azure-resource-manager/bicep/deploy-powershell).
    
    For example to deploy the cluster with Azure CLI in eastus2 run:
 
@@ -38,7 +38,7 @@ To customize the sample GitHub pipeline provided based on your specific needs, f
 
     Note that this sample workflow file deploys Azure resources respectively in the hub and spoke resource groups as specified in the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline).
 
-3. Configure the GitHub Actions to access Azure resources through [Workload Identity federation with OpenID Connect](https://docs.microsoft.com/azure/developer/github/connect-from-azure?tabs=azure-portal%2Cwindows#use-the-azure-login-action-with-openid-connect). This is a more secure access method than using Service Principals because you won't have to manage any secret. Use the script in [this md file](../../docs/oidc-federated-credentials.md) to set it up.
+3. Configure the GitHub Actions to access Azure resources through [Workload Identity federation with OpenID Connect](https://learn.microsoft.com/azure/developer/github/connect-from-azure?tabs=azure-portal%2Cwindows#use-the-azure-login-action-with-openid-connect). This is a more secure access method than using Service Principals because you won't have to manage any secret. Use the script in [this md file](../../docs/oidc-federated-credentials.md) to set it up.
 
 
 ## Kick-off the GitHub action workflow
