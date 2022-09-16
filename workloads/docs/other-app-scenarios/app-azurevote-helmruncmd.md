@@ -2,9 +2,9 @@
 
 ## Overview
 
-This sample leverages the AKS Run Command ([aks command invoke](https://docs.microsoft.com/en-us/azure/aks/command-invoke)) and performs comprehensive validation steps to ensure the application has been deployed properly.
+This sample leverages the AKS Run Command ([aks command invoke](https://learn.microsoft.com/azure/aks/command-invoke)) and performs comprehensive validation steps to ensure the application has been deployed properly.
 
-The application is the [AKS Voting App](https://github.com/Azure-Samples/azure-voting-app-redis), which is used in the [AKS Getting Started Guide](https://docs.microsoft.com/en-us/azure/aks/learn/quick-kubernetes-deploy-cli). It is a 2 container application that allows the user to use a Web UI to vote between Cats/Dogs, the votes are recorded in a Redis cache.
+The application is the [AKS Voting App](https://github.com/Azure-Samples/azure-voting-app-redis), which is used in the [AKS Getting Started Guide](https://learn.microsoft.com/azure/aks/learn/quick-kubernetes-deploy-cli). It is a 2 container application that allows the user to use a Web UI to vote between Cats/Dogs, the votes are recorded in a Redis cache.
 
 ## Workflow steps
 
@@ -90,11 +90,11 @@ The reusable workflow file is located [here](/.github/workflows/App-AzureVote-He
 [Helm](https://helm.sh/) is a package manager for Kubernetes, used to package and deploy applications with ease.
 The Helm chart is written using [subcharts](https://helm.sh/docs/topics/charts/) for the deployments, whilst the parent Helm chart creates the Ingress and NetworkPolicy resources.
 
-The helm charts are packaged as **AzureVote-helm.tgz** and placed under the .\workloads\azure-vote folder of this repo. For information about how to create the helm charts for this application, refer to [this article](https://docs.microsoft.com/en-us/azure/aks/quickstart-helm?tabs=azure-cli#create-your-helm-chart).
+The helm charts are packaged as **AzureVote-helm.tgz** and placed under the .\workloads\azure-vote folder of this repo. For information about how to create the helm charts for this application, refer to [this article](https://learn.microsoft.com/azure/aks/quickstart-helm?tabs=azure-cli#create-your-helm-chart).
 
 ### AKS Run Command
 
-The [AKS Run Command](https://docs.microsoft.com/azure/aks/command-invoke) allows you to remotely invoke commands in an AKS cluster through the AKS API. This can greatly assist with access to a private cluster when the client is not on the cluster private network while still retaining and enforcing full RBAC controls.
+The [AKS Run Command](https://learn.microsoft.com/azure/aks/command-invoke) allows you to remotely invoke commands in an AKS cluster through the AKS API. This can greatly assist with access to a private cluster when the client is not on the cluster private network while still retaining and enforcing full RBAC controls.
 
 ### Key Steps in the Action Workflow
 
