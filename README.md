@@ -28,7 +28,7 @@ Each team will be responsible for maintaining their own automation pipeline. The
 
 
 ## Infrastructure as Code
-This section demonstrates the implementation of a CI/CD pipeline built using GitHub Actions to automate the deployments of AKS and other Azure resources that AKS depends on. This pipeline deploys [v1.24.0.0](https://github.com/mspnp/aks-baseline/releases/tag/v1.24.0.0) of the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline) using either Biceps or Terraform modules.
+This section demonstrates the implementation of a CI/CD pipeline built using GitHub Actions to automate the deployments of AKS and other Azure resources that AKS depends on. This pipeline deploys an AKS infrastructure similar to [v1.24.0.0](https://github.com/mspnp/aks-baseline/releases/tag/v1.24.0.0) of the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline) using either Biceps or Terraform modules.
 
 
 ![Infrastructure-as-Code](./media/IaC.jpg)
