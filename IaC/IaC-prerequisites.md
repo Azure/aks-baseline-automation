@@ -4,7 +4,7 @@
 
 In order to deploy Azure resources manually through bicep or terraform, you can use the following options:
 
-- [Windows Subsystem for Linux](https://docs.microsoft.com/windows/wsl/about#what-is-wsl-2)
+- [Windows Subsystem for Linux](https://learn.microsoft.com/windows/wsl/about#what-is-wsl-2)
 - [Azure Cloud Shell](https://shell.azure.com)
 - Linux Bash Shell
 - MacOS Shell
@@ -18,10 +18,10 @@ If you opt-in to setup a shell on your machine, there are required access and to
 
    > :warning: The user or service principal initiating the deployment process _must_ have the following minimal set of Azure Role-Based Access Control (RBAC) roles:
    >
-   > - [Contributor role](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#contributor) is _required_ at the subscription level to have the ability to create resource groups and perform deployments.
-   > - [Network Contributor role](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#network-contributor) is _required_ at the subscription level to have the ability to create and modify Virtual Network resources.
-   > - [User Access Administrator role](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator) is _required_ at the subscription level since you'll be granting least-privilege RBAC access to managed identities.
-   >   - One such example is detailed in the [Container Insights documentation](https://docs.microsoft.com/en-us/azure/azure-monitor/containers/container-insights-troubleshoot#authorization-error-during-onboarding-or-update-operation).
+   > - [Contributor role](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#contributor) is _required_ at the subscription level to have the ability to create resource groups and perform deployments.
+   > - [Network Contributor role](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#network-contributor) is _required_ at the subscription level to have the ability to create and modify Virtual Network resources.
+   > - [User Access Administrator role](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator) is _required_ at the subscription level since you'll be granting least-privilege RBAC access to managed identities.
+   >   - One such example is detailed in the [Container Insights documentation](https://learn.microsoft.com/azure/azure-monitor/containers/container-insights-troubleshoot#authorization-error-during-onboarding-or-update-operation).
 
    Example for role assignment of current logged in User. If Service Principal or Managed Identity is used, please replace OID with the object id of those credentials
    
@@ -41,16 +41,16 @@ If you opt-in to setup a shell on your machine, there are required access and to
 
    > :warning: The user or service principal initiating the deployment process _must_ have the following minimal set of Azure AD permissions assigned:
    >
-   > - Azure AD [User Administrator](https://docs.microsoft.com/azure/active-directory/users-groups-roles/directory-assign-admin-roles#user-administrator-permissions) is _required_ to create a "break glass" AKS admin Active Directory Security Group and User. Alternatively, you could get your Azure AD admin to create this for you when instructed to do so.
-   >   - If you are not part of the User Administrator group in the tenant associated to your Azure subscription, please consider [creating a new tenant](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-access-create-new-tenant#create-a-new-tenant-for-your-organization) to use while evaluating this implementation.
+   > - Azure AD [User Administrator](https://learn.microsoft.com/azure/active-directory/users-groups-roles/directory-assign-admin-roles#user-administrator-permissions) is _required_ to create a "break glass" AKS admin Active Directory Security Group and User. Alternatively, you could get your Azure AD admin to create this for you when instructed to do so.
+   >   - If you are not part of the User Administrator group in the tenant associated to your Azure subscription, please consider [creating a new tenant](https://learn.microsoft.com/azure/active-directory/fundamentals/active-directory-access-create-new-tenant#create-a-new-tenant-for-your-organization) to use while evaluating this implementation.
 
 3. Required software components.
 
    >If you opt for Azure Cloud Shell, you don't need to complete these steps and can jump on the next section (step 4).  
 
-   >On Windows, you can use the Ubuntu on [Windows Subsystem for Linux](https://docs.microsoft.com/windows/wsl/about#what-is-wsl-2) to run Bash. Once your bash shell is up you will need to install these prerequisites.
+   >On Windows, you can use the Ubuntu on [Windows Subsystem for Linux](https://learn.microsoft.com/windows/wsl/about#what-is-wsl-2) to run Bash. Once your bash shell is up you will need to install these prerequisites.
 
-   > Install latest [Azure CLI installed](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest)
+   > Install latest [Azure CLI installed](https://learn.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest)
 
    ```bash
    sudo apt install azure-cli

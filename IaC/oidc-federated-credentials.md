@@ -1,11 +1,11 @@
 # Authentication from GitHub to Azure
 
 The recommended method of Azure login/authentication is with OpenId Connect using a Federated Identity Credential.
-Please follow [this guide](https://docs.microsoft.com/azure/developer/github/connect-from-azure) to create the correct credential.
+Please follow [this guide](https://learn.microsoft.com/azure/developer/github/connect-from-azure) to create the correct credential.
 
 ## Scripted Setup
 
-This repository uses a script to provide a simple way to create a GitHub OIDC federated credential, it is based on the steps outlined here: [https://docs.microsoft.com/azure/developer/github/connect-from-azure](https://docs.microsoft.com/azure/developer/github/connect-from-azure).
+This repository uses a script to provide a simple way to create a GitHub OIDC federated credential, it is based on the steps outlined here: [https://learn.microsoft.com/azure/developer/github/connect-from-azure](https://learn.microsoft.com/azure/developer/github/connect-from-azure).
 
 The script will create a new application, assign the correct Azure RBAC permissions for the Subscription **OR** Resource Group containing your AKS cluster, and create Federated Identity Credentials for both an environment and branch.
 

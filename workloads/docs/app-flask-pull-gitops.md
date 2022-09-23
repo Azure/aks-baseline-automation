@@ -1,6 +1,6 @@
 ## Option \#2 Pull-based CI/CD(GitOps)
 
-This article outlines deploying with the pull option as described in the [automated deployment for container applications](https://docs.microsoft.com/en-us/azure/architecture/example-scenario/apps/devops-with-aks) article. To deploy the **Option \#2 Pull-based CI/CD Architecture** scenario, follow the steps outlined [here](README.md) (if you haven't already), then perform the following steps:
+This article outlines deploying with the pull option as described in the [automated deployment for container applications](https://learn.microsoft.com/azure/architecture/example-scenario/apps/devops-with-aks) article. To deploy the **Option \#2 Pull-based CI/CD Architecture** scenario, follow the steps outlined [here](README.md) (if you haven't already), then perform the following steps:
 
 1. Fork this repo to your GitHub: https://github.com/Azure/aks-baseline-automation. Note: Be sure to uncheck "Copy the main branch only".
 2. Go to Actions on the forked repo and enable Workflows as shown: <https://github.com/YOURUSERNAME/aks-baseline-automation/actions>
@@ -34,7 +34,7 @@ This article outlines deploying with the pull option as described in the [automa
        You should have the following 3 Federated credentials similar to what is shown *in* the following screenshot:
        ![](media/0664a3dd619ba6e98b475b29856e6c57.png)
        Next you need to create the Environment and GitHub Actions Repository secrets *in* your repo.
-5. Create Actions secrets for your Azure subscription in your GitHub Repository *\#Reference: https://docs.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux\#use-the-azure-login-action-with-a-service-principal-secret*
+5. Create Actions secrets for your Azure subscription in your GitHub Repository *\#Reference: https://learn.microsoft.com/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux\#use-the-azure-login-action-with-a-service-principal-secret*
     1. Navigate to Github Actions Secrets in your browser: From your repo select *Settings* > on the left plane select *Secrets* > select *Actions* in the dropdown
     2. Select *New repository secret* 
     3. Name the secret AZURE_CREDENTIALS in the *Name* field
@@ -56,9 +56,10 @@ This article outlines deploying with the pull option as described in the [automa
        ![](media/049073d69afee0baddf4396830c99f17.png)
 7. Run the GitHub Actions workflow:
     1. Go to [https://github.com/YOUR REPO/aks-baseline-automation/actions](https://github.com/YOUR%20REPO/aks-baseline-automation/actions)
-    2. Run the following workflow: .github/workflows/App-flask-GitOps.yml
-    3. Enter the needed inputs:
+    1. **Note:** If you are using the IaC option, you will need to update the workloads/flask/ingress.yaml to use the traefik ingress option by commenting out the *Http agic* ingress and uncommenting the *Https traefik* ingress. You will also need to update the fqdn in Https traefik to match the configuration you have in your Application gateway. For the quick option with AKS Construction helper, no change here is required.
+    1. Run the following workflow: .github/workflows/App-flask-GitOps.yml
+    1. Enter the needed inputs:
        ![](media/b4bf25dc9497c669d54a205648cb864c.png)
-8. Create a new app for the App in Argo CD. See this link on how to create a new app in Argo CD: https://argo-cd.readthedocs.io/en/stable/getting_started/\\\#creating-apps-via-ui. This is an example of the successful App in Argo CD:
+1. Create a new app for the App in Argo CD. See this link on how to create a new app in Argo CD: https://argo-cd.readthedocs.io/en/stable/getting_started/\\\#creating-apps-via-ui. This is an example of the successful App in Argo CD:
 ![](media/58af037d65b2303dbb1c2d4196ac300f.png)
 ![](media/66908c97c321303ba2bcd58ba6431bdd.png)

@@ -1,6 +1,6 @@
-# terraform
+# terraform (still in development but you can still try it out)
 
-This folder contains the code to build the [AKS Baseline reference implementation](https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/containers/aks/secure-baseline-aks) using [CAF Terraform Landing zone framework composition](https://github.com/aztfmod/terraform-azurerm-caf).
+This folder contains the code to build the [AKS Baseline reference implementation](https://learn.microsoft.com/azure/architecture/reference-architectures/containers/aks/secure-baseline-aks) using [CAF Terraform Landing zone framework composition](https://github.com/aztfmod/terraform-azurerm-caf).
 
 The following components will be deployed as part of this automation:
 
@@ -58,7 +58,7 @@ To customize the sample GitHub pipeline provided based on your specific needs, f
     |FLUX_TOKEN| [GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) for Flux V2||
 
     Note: do not modify the names of these secrets in the workflow yaml file as they are expected in terraform to be named as shown above.
-    Also instead of using a Service Principal and storing the secret in the GitHub Cloud, we will setup [Federated Identity](https://docs.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Cwindows#use-the-azure-login-action-with-openid-connect) once it is supported by terraform.
+    Also instead of using a Service Principal and storing the secret in the GitHub Cloud, we will setup [Federated Identity](https://learn.microsoft.com/azure/developer/github/connect-from-azure?tabs=azure-portal%2Cwindows#use-the-azure-login-action-with-openid-connect) once it is supported by terraform.
 
 2. Update the workflow [IaC-terraform-AKS.yml](../../.github/workflows/IaC-terraform-AKS.yml) with the name of the Environment you created in the previous step. The default Environment name is "Terraform". Commit the changes to your remote GitHub branch so that you can run the workflow.
     Note that this sample workflow file deploys Azure resources respectively in the hub and spoke resource groups as specified in the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline).
