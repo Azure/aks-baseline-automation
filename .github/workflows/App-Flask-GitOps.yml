@@ -91,11 +91,10 @@ jobs:
       # Builds and Pushes the container image to the Azure Container Registry (ACR)
       - name: Container build and push to a Azure Container Registry (ACR)
         env:
-          AppRepoPath: "${{ inputs.AppRepoPath}}"
           APPNAME: "${{ inputs.APPNAME }}"
         run: |
           cd "workloads/$APPNAME"
-          docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t ${{ inputs.ACRNAME }}.azurecr.io/${{ inputs.APPNAME }}:${{ github.run_number }} --label dockerfile-path=Dockerfile
+          docker build . -t ${{ inputs.ACRNAME }}.azurecr.io/${{ inputs.APPNAME }}:${{ github.run_number }}
           docker push ${{ inputs.ACRNAME }}.azurecr.io/${{ inputs.APPNAME }}:${{ github.run_number }}
 
   Update-K8s-Manifests:
