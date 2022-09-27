@@ -1,7 +1,7 @@
 - [AKS Baseline Automation](#aks-baseline-automation)
   - [Infrastructure as Code](#infrastructure-as-code)
     - [Deploy AKS using GitHub Actions and Bicep](#deploy-aks-using-github-actions-and-bicep)
-    - [Deploy AKS using GitHub Actions and Terraform](#deploy-aks-using-github-actions-and-terraform)
+    - [Deploy AKS using GitHub Actions and Terraform (in development)](#deploy-aks-using-github-actions-and-terraform-in-development)
   - [Shared-Services](#shared-services)
   - [Application Deployment](#application-deployment)
     - [Deploy sample applications using GitHub Actions (push method)](#deploy-sample-applications-using-github-actions-push-method)
@@ -62,7 +62,7 @@ Note: in a real world deployment you may want to have a dedicated GitHub repo an
 This section demonstrates the deployment of an application composed of multiple services by leveraging two options:
  * A CI/CD pipeline built using Kubernetes GitHub Actions.
 
- * A GitOps solution using [Flux](https://fluxcd.io/). Note that a future version of this solution will showcase an alternate GitOps products, such as [ArgoCD](https://argoproj.github.io/cd/) (see issue https://github.com/Azure/aks-baseline-automation/issues/72). This intent is to demonstrate how an app team may chose to use a separate tool for their specific workload lifecycle concerns as opposed to using the same tool as what the cluster operators use for cluster management.
+ * A GitOps solution using [ArgoCD](https://argoproj.github.io/cd/). Note that we could also have used [Flux](https://fluxcd.io/) as we did to deploy the Shared Services, but the intent is to demonstrate how an app team may chose to use a separate tool for their specific workload lifecycle concerns as opposed to using the same tool as what the cluster operators use for cluster management.
 
 The application [Flask App](./workloads/docs/README.md) is used for this deployment as this application is quite simple, but yet demonstrates how to deploy an application composed of multiple containers. In this case the application is composed of a web-front-end written in Python.
 

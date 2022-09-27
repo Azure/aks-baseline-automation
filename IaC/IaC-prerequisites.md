@@ -76,11 +76,11 @@ If you opt-in to setup a shell on your machine, there are required access and to
    sudo apt-get update && sudo apt-get install terraform
    ```
 
-4. Register the Azure features used by this Reference implementation. For the list of these features look at the pre-checks performed in the IaC workflows (for example [IaC-bicep-AKS.yml](../.github/workflows/IaC-bicep-AKS.yml) 
+4. Register the Azure features used by this Reference implementation. For the list of these features look at the pre-checks performed in the IaC workflows [IaC-bicep-AKS.yml](../.github/workflows/IaC-bicep-AKS.yml).
    
 5. Clone/download this repo locally, or even better fork this repository.
 
-   > :twisted_rightwards_arrows: If you have forked this reference implementation repo, you'll be able to customize some of the files and commands for a more personalized experience; also ensure references to repos mentioned are updated to use your own (e.g. the following `GITHUB_REPO`).
+   > :twisted_rightwards_arrows: If you have forked this reference implementation repo, you'll be able to customize some of the files and commands for a more personalized experience; also ensure references to repos mentioned are updated to use your own (e.g. set the variable `GITHUB_REPO` accordingly).
 
    ```bash
    export GITHUB_REPO=https://github.com/Azure/aks-baseline-automation.git

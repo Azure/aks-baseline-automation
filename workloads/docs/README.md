@@ -1,6 +1,6 @@
 # Overview
 
-In the [**Automated build & deployment of container applications using DevOps & GitOps**](http://TBDlink.com/) document we explored the options of push and pull based CI/CD options along with the pros and cons of each. In this section we are going deploy a scenario that explains these two options further. To explore the architecture in more detail, please check out the [reference architecture in Microsoft Docs](http://TBDlink.com/)
+In the [CI/CD pipeline for container-based workloads](https://learn.microsoft.com/en-us/azure/architecture/example-scenario/apps/devops-with-aks/) document we explore the options of push and pull based deployment methods along with the pros and cons of each. In this section we are going deploy a scenario that explains these two options further. To explore the architecture in more detail, please check out the article above.
 
 ### Option \#1 Push-based CI/CD Architecture and Dataflow
 
@@ -32,14 +32,12 @@ Before deploying the push or pull based end to end scenario you need to ensure y
 
 ### Prerequisites for these scenarios
 
--   You must have an existing Azure account. If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
--   An ACR instance deployed
--   An AKS cluster. It is highly recommended that you utilize one of the two options below:
-    - **Quick option:** The [AKS Construction helper](https://azure.github.io/AKS-Construction/) to deploy your Azure Container Registry (ACR) and Azure Kubernetes Service (AKS) cluster. You can use this pre-configured link: [AKS Construction helper (pre-configured)](https://azure.github.io/AKS-Construction/?ops=managed&cluster.apisecurity=none&addons.ingress=appgw&addons.monitor=aci&addons.azurepolicy=none&addons.networkPolicy=none&addons.csisecret=akvNew&deploy.location=EastUS2&addons.appgwKVIntegration=false) to create an AKS cluster to use with this CI/CD scenario. This will create an ACR (container registry), Azure Key vault, Application gateway, an AKS cluster that is AAD integrated and other required Azure resources.
-    - The **[IaC workflows](../../IaC/README.md) option:** Workflows used in this repo, which walks you through the process of managing your infrastructure using automation with bicep or terraform.
--   Argo CD installed on your AKS cluster (only required for pull option) ([Get Started with Argo CD](https://argo-cd.readthedocs.io/en/stable/getting_started/))
--   A GitHub account ([Getting started with your GitHub account](https://docs.github.com/en/get-started/onboarding/getting-started-with-your-github-account))
--   Fork the [AKS Baseline Automation repository](https://github.com/azure/aks-baseline-automation)
+1. An existing Azure account. If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
+2. A GitHub account. To setup a GitHub account, follow the steps in [Getting started with your GitHub account](https://docs.github.com/en/get-started/onboarding/getting-started-with-your-github-account).
+3. A fork of this repo [AKS Baseline Automation](https://github.com/azure/aks-baseline-automation). Note: be sure to uncheck "Copy the main branch only".
+4. An AKS cluster. It is highly recommended that you follow one of the two options below to deploy the cluster:
+    - **Quick option:** use the [AKS Construction helper](https://azure.github.io/AKS-Construction/) to deploy your Azure Kubernetes Service (AKS) cluster and the supporting services. You can use this pre-configured link: [AKS Construction helper (pre-configured)](https://azure.github.io/AKS-Construction/?ops=managed&cluster.apisecurity=none&addons.ingress=appgw&addons.monitor=aci&addons.azurepolicy=none&addons.networkPolicy=none&addons.csisecret=akvNew&deploy.location=EastUS2&addons.appgwKVIntegration=false) to create an AKS cluster that is Azure AD integrated to use with this CI/CD scenario. This will also create the supporting services such as Azure Container Registry (ACR), Azure Key vault, Application Gateway, and other required Azure resources.
+    - **[IaC workflows](../../IaC/README.md) option:** the IaC workflows in this repo will walk you through the process of creating your infrastructure through automation using bicep or terraform. This option will deploy the [Baseline architecture for an Azure Kubernetes Service (AKS) cluster](https://learn.microsoft.com/en-us/azure/architecture/reference-architectures/containers/aks/baseline-aks).
 
 ### Next
 Pick one of the following options to deploy a workload using automation

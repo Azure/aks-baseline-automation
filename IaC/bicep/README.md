@@ -20,7 +20,7 @@ To customize the sample bicep templates provided based on your specific needs, f
 
    Customize these files based on your specific deployment requirements for each resource.
 
-4. Test the deployment of each Azure resource individually using the [Azure CLI](https://learn.microsoft.com/azure/azure-resource-manager/bicep/deploy-cli) or [PowerShell command](https://learn.microsoft.com/azure/azure-resource-manager/bicep/deploy-powershell).
+4. [Optional] Test the deployment of each Azure resource individually using the [Azure CLI](https://learn.microsoft.com/azure/azure-resource-manager/bicep/deploy-cli) or [PowerShell command](https://learn.microsoft.com/azure/azure-resource-manager/bicep/deploy-powershell).
    
    For example to deploy the cluster with Azure CLI in eastus2 run:
 
@@ -32,16 +32,22 @@ To customize the sample bicep templates provided based on your specific needs, f
 ## Customize the GitHub action workflows
 To customize the sample GitHub pipeline provided based on your specific needs, follow the instructions below:
 
-1. Create your workflow [GitHub Environment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment?msclkid=62181fb1ab7511ec9be085113913a757) to store the environment variables for your workflow.
-
-2. Customize the GitHub action workflow [IaC-bicep-AKS.yml](../../.github/workflows/IaC-bicep-AKS.yml) under the .github/workflows folder to automate the deployment of your Azure resources through the GitHub pipeline using the bicep parameter and orchestration files that you previously updated.
+1. Customize the GitHub action workflow [IaC-bicep-AKS.yml](../../.github/workflows/IaC-bicep-AKS.yml) under the .github/workflows folder to automate the deployment of your Azure resources through the GitHub pipeline using the bicep parameter and orchestration files that you previously updated.
 
     Note that this sample workflow file deploys Azure resources respectively in the hub and spoke resource groups as specified in the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline).
 
-3. Configure the GitHub Actions to access Azure resources through [Workload Identity federation with OpenID Connect](https://learn.microsoft.com/azure/developer/github/connect-from-azure?tabs=azure-portal%2Cwindows#use-the-azure-login-action-with-openid-connect). This is a more secure access method than using Service Principals because you won't have to manage any secret. Use the script in [this md file](../../docs/oidc-federated-credentials.md) to set it up.
+2. Configure the GitHub Actions to access Azure resources through [Workload Identity federation with OpenID Connect](https://learn.microsoft.com/azure/developer/github/connect-from-azure?tabs=azure-portal%2Cwindows#use-the-azure-login-action-with-openid-connect). This is a more secure access method than using Service Principals because you won't have to manage any secret. Follow [these steps](../oidc-federated-credentials.md) to set it up.
 
-
+3. Create your [GitHub workflow Environment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment?msclkid=62181fb1ab7511ec9be085113913a757#environment-secrets) to store your environment secrets.
+   
 ## Kick-off the GitHub action workflow
-As the workflow trigger is set to "workflow_dispatch", you can manually start it by clicking on [Actions](https://github.com/Azure/aks-baseline-automation/actions) in this Repo, find the workflow [IaC-bicep-AKS.yml](../../.github/workflows/IaC-bicep-AKS.yml), and run it by clicking on the "Run Workflow" drop down.
+As the workflow trigger is set to "workflow_dispatch", you can manually start it by clicking on [Actions](https://github.com/Azure/aks-baseline-automation/actions) in this Repo, find the workflow [IaC-bicep-AKS.yml](../../.github/workflows/IaC-bicep-AKS.yml) through its display name ""IaC Deploy CARML based AKS Cluster", and run it by clicking on the "Run Workflow" drop down.
+
+You will get prompted to enter the following parameters:
+ * GitHub branch to run the workflow from
+ * GitHub environment name to pull secrets from
+ * Azure Region to deploy to
+ * "Kubernetes Admin" Azure AD group ObjectID. This group must be created if it does not already exists and the users who will be managing your cluster added to it.
+ * "Kubernetes Reader" Azure AD group ObjectID. This could be the same group as the previous one, if you do not need to assign users with read only access to your cluster.
 
 As the workflow runs, monitor its logs for any error.

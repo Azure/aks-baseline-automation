@@ -39,7 +39,7 @@ To customize the sample terraform templates provided based on your specific need
 
 1. Fork this repo so that you can customize it and run GitHub action workflows.
 2. Review the terraform templates provided under the IaC/terraform folder and customize these files based on your specific deployment requirements for each resource.
-3. Test the deployment of each Azure resource individually using these [manual](./terraform-manual-steps.md) commands.
+3. [Optional] Test the deployment of each Azure resource individually using these [manual](./terraform-manual-steps.md) commands.
 4. Customize the GitHub repo settings for flux so that it picks up your customized yaml files when deploying the shared services for your cluster. You need to change these settings in the file [`flux.yaml`](../../IaC/terraform/configuration/workloads/flux.tfvars) to point to your forked GitHub repo.
 
 
@@ -58,7 +58,7 @@ To customize the sample GitHub pipeline provided based on your specific needs, f
     |FLUX_TOKEN| [GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) for Flux V2||
 
     Note: do not modify the names of these secrets in the workflow yaml file as they are expected in terraform to be named as shown above.
-    Also instead of using a Service Principal and storing the secret in the GitHub Cloud, we will setup [Federated Identity](https://learn.microsoft.com/azure/developer/github/connect-from-azure?tabs=azure-portal%2Cwindows#use-the-azure-login-action-with-openid-connect) once it is supported by terraform.
+    Also instead of using a Service Principal and storing the secret in the GitHub Cloud, you should setup [Workload Identity federation with OpenID Connect](https://learn.microsoft.com/azure/developer/github/connect-from-azure?tabs=azure-portal%2Cwindows#use-the-azure-login-action-with-openid-connect). Follow [these steps](../oidc-federated-credentials.md) to set it up.
 
 2. Update the workflow [IaC-terraform-AKS.yml](../../.github/workflows/IaC-terraform-AKS.yml) with the name of the Environment you created in the previous step. The default Environment name is "Terraform". Commit the changes to your remote GitHub branch so that you can run the workflow.
     Note that this sample workflow file deploys Azure resources respectively in the hub and spoke resource groups as specified in the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline).

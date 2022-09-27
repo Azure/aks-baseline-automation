@@ -91,11 +91,9 @@ jobs:
 
       - name: Container build and push to a Azure Container Registry (ACR)
         env:
-          APPREPOPATH: "${{ inputs.APPREPOPATH}}"
           ACRSERVER: "${{ steps.acrconnect.outputs.loginServer }}"
           APPNAME: "${{ inputs.APPNAME }}"
         run: |
-          pwd
           cd "workloads/$APPNAME"
           docker build . -t $ACRSERVER/$APPNAME:${{ github.sha }}
           docker push $ACRSERVER/$APPNAME:${{ github.sha }}
@@ -135,6 +133,12 @@ jobs:
           unzip kubelogin-linux-amd64.zip
           sudo mv bin/linux_amd64/kubelogin /usr/bin
           kubelogin convert-kubeconfig -l azurecli
+
+      - name: Create the namespace if it does not exist
+        if: ${{ inputs.NAMESPACE }} != 'default'
+        run: |
+          cmdOut=$(kubectl get namespaces ${{ inputs.NAMESPACE }} -o json | jq -r '.status.phase')
+          if [ "$cmdOut" != 'Active' ]; then kubectl create namespace ${{ inputs.NAMESPACE }}; fi
 
       - name: Deploy app to AKS
         uses: azure/k8s-deploy@v1.5
