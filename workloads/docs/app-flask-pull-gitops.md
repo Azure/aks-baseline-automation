@@ -5,7 +5,9 @@ This article outlines how to deploy your workload using the pull option as descr
 1. Follow steps 1 to 5 in [Option #1 Push-based CI/CD](./app-flask-push-dockerbuild.md) to setup your GitHub environment.
 2. Install Argo CD on your AKS cluster by following the steps in [Get Started with Argo CD](https://argo-cd.readthedocs.io/en/stable/getting_started/).
    
-3. Run the [.github/workflows/App-Flask-GitOps.yml](../../.github/workflows/App-Flask-GitOps.yml) workflow by clicking on **Actions** and selecting the display name for this workflow, which is **App Deploy Flask - GitOps**. This workflow will build and push the container image to the Azure Container Registry (ACR), then it will update the application *deployment.yaml* file with the names of the pushed image.
+3. Run the [.github/workflows/App-Flask-GitOps.yml](../../.github/workflows/App-Flask-GitOps.yml) workflow by clicking on **Actions** and selecting the display name for this workflow, which is **App Deploy Flask - GitOps**. This workflow will build and push the container image to the Azure Container Registry (ACR), then it will update the application *deployment.yaml* file with the names of the pushed image. 
+   
+    Enter the parameters requested by this workflow as shown below:
        ![](media/b4bf25dc9497c669d54a205648cb864c.png)
 4. Create a new app for the App in Argo CD by following [these steps](https://argo-cd.readthedocs.io/en/stable/getting_started/#creating-apps-via-ui). Make sure you enter the following parameters:
    - Application Name: flask

@@ -8,21 +8,13 @@
 ## -------------------------------------------------------------------------------------------------------------------------
 
 # This workflow demonstrates building and pushing a container image to an Azure Container Registry.
-# The workflow then updates the necessary Kubernetes manifest deployment file so a GitOps operator can sync from the manifest file deploying the application to an Azure Kubernetes Service cluster.
+# The workflow then updates the necessary Kubernetes manifest deployment files in the GitHub repo so that a GitOps operator can sync them to deploy an application to an Azure Kubernetes Service cluster.
 # It is split into separate jobs for readability but could be squashed into a single job if that best suits your scenario.
 name: App Deploy Flask - GitOps
 
 on: 
   workflow_dispatch:
     inputs:
-      RG:
-        description: 'The Resource Group where your resources are deployed'
-        required: true
-        type: string
-      AKSNAME:
-        description: 'The Name of the AKS resource'
-        required: true
-        type: string
       ACRNAME:
         description: 'The Name of the ACR resource'
         required: true
@@ -31,11 +23,6 @@ on:
         description: 'The Name of the Application to deploy'
         default: "flask"
         required: true
-        type: string
-      NAMESPACE:
-        description: 'The Kubernetes Namespace to deploy the Application to'
-        default: "default"
-        required: false
         type: string
       ENVIRONMENT:
         description: 'A GitHub Environment to pull action secrets from'
@@ -106,14 +93,6 @@ jobs:
 
     # Checks out the baseline repository
     - uses: actions/checkout@v2
-
-    # Logs into your Azure subscription
-    - uses: azure/login@v1
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        enable-AzPSSession: true
 
     - name: Update image name in manifest file
       uses: azure/powershell@v1
