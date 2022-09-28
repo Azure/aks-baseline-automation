@@ -252,9 +252,11 @@ module keyVault '../CARML/Microsoft.KeyVault/vaults/deploy.bicep' = {
         name: 'nodepools-to-akv'
         subnetResourceId: vnetNodePoolSubnetResourceId
         service: 'vault'
-        privateDnsZoneResourceIds: [
-          akvPrivateDnsZones.outputs.resourceId
-        ]
+        privateDnsZoneGroup: {
+          privateDNSResourceIds: [
+            akvPrivateDnsZones.outputs.resourceId
+          ]
+        }
       }
     ]
   }
