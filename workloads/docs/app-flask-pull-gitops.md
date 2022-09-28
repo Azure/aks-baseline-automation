@@ -12,7 +12,7 @@ This article outlines how to deploy your workload using the pull option as descr
 4. Create a new app for the App in Argo CD by following [these steps](https://argo-cd.readthedocs.io/en/stable/getting_started/#creating-apps-via-ui). Make sure you enter the following parameters:
    - Application Name: flask
    - Project Name: default
-   - Sync Policy: Manual
+   - Sync Policy: Automatic
    - Source
      - Repository URL: https://github.com/YOURREPO/aks-baseline-automation.git
      - Revision: HEAD
