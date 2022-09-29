@@ -51,6 +51,9 @@ param kubernetesVersion string
 @description('Domain name to use for App Gateway and AKS ingress.')
 param domainName string
 
+@description('Key Vault public network access.')
+param keyVaultPublicNetworkAccess string
+
 @description('Your cluster will be bootstrapped from this git repo.')
 @minLength(9)
 param gitOpsBootstrappingRepoHttpsUrl string
@@ -222,6 +225,7 @@ module keyVault '../CARML/Microsoft.KeyVault/vaults/deploy.bicep' = {
     enableVaultForDiskEncryption: false
     enableVaultForTemplateDeployment: true
     enableSoftDelete: true
+    publicNetworkAccess: keyVaultPublicNetworkAccess
     diagnosticWorkspaceId: clusterLa.outputs.resourceId
     secrets: {}
     roleAssignments: [
@@ -252,9 +256,11 @@ module keyVault '../CARML/Microsoft.KeyVault/vaults/deploy.bicep' = {
         name: 'nodepools-to-akv'
         subnetResourceId: vnetNodePoolSubnetResourceId
         service: 'vault'
-        privateDnsZoneResourceIds: [
-          akvPrivateDnsZones.outputs.resourceId
-        ]
+        privateDnsZoneGroup: {
+          privateDNSResourceIds: [
+            akvPrivateDnsZones.outputs.resourceId
+          ]
+        }
       }
     ]
   }

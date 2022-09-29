@@ -8,8 +8,7 @@ on:
       ENVIRONMENT:
         description: 'A GitHub Environment to pull action secrets from'
         required: true
-        default: 'cset'
-        type: string
+        type: environment
       DOMAIN:
         description: 'The domain name to use for the certs (ie: contoso.com)'
         required: true

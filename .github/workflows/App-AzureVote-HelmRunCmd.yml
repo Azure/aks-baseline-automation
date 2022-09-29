@@ -61,7 +61,7 @@ on:
       ENVIRONMENT:
         description: 'A GitHub Environment to pull action secrets from'
         required: true
-        type: string
+        type: environment
 
     secrets:
       AZURE_CLIENT_ID:

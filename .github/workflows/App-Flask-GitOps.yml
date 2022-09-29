@@ -27,7 +27,7 @@ on:
       ENVIRONMENT:
         description: 'A GitHub Environment to pull action secrets from'
         required: true
-        type: string
+        type: environment
 
 permissions:
       id-token: write

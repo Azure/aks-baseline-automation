@@ -10,15 +10,16 @@
         },
         "a0008NamespaceReaderAadGroupObjectId":{
             "value": ""
-        }
-        ,
+        },
         "domainName":{
             "value": "contoso.com"
-        } ,
+        },
         "kubernetesVersion":{
             "value": "1.23.8"
-        }  
-        ,
+        },
+        "keyVaultPublicNetworkAccess":{
+            "value": "Enabled"
+        },        
         "gitOpsBootstrappingRepoHttpsUrl":{
             "value": "https://github.com/Azure/aks-baseline-automation"
         }

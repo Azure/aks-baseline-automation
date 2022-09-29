@@ -8,8 +8,7 @@ on:
       ENVIRONMENT:
         description: 'A GitHub Environment to pull action secrets from'
         required: true
-        default: 'cset'
-        type: string
+        type: environment
       RG:
         description: 'The Resource Group where your resources are deployed'
         required: true
