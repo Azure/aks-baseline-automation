@@ -50,11 +50,7 @@ jobs:
       - name: Azure Login
         uses: Azure/login@v1.4.6
         with:
-          #creds: ${{ env.AZURE_CREDENTIALS }}
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          clientSecret: ${{ secrets.AZURE_CLIENT_SECRET }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Create rsg and stg account for TF State
         if: ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }} != ""
