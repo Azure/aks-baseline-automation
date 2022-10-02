@@ -1,6 +1,7 @@
 module "caf" {
-  source  = "aztfmod/caf/azurerm"
-  version = "~> 5.6.1"
+  source = "git::https://github.com/joselcaguilar/terraform-azurerm-caf?ref=bug/private_ip_address_optional"
+  #source  = "aztfmod/caf/azurerm"
+  #version = "~> 5.6.1"
 
   providers = {
     azurerm.vhub = azurerm.vhub
