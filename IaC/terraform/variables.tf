@@ -129,11 +129,11 @@ variable "dns_zones" {
   default = {}
 }
 
-variable "application_gateways" {
+variable "application_gateway_platforms" {
   default = {}
 }
 
-variable "application_gateway_applications" {
+variable "application_gateway_applications_v1" {
   default = {}
 }
 
@@ -161,13 +161,5 @@ variable "aad_pod_identity" {
 }
 
 variable "azure_container_registries" {
-  default = {}
-}
-
-variable "application_gateway_platforms" {
-  default = {}
-}
-
-variable "application_gateway_applications_v1" {
   default = {}
 }
