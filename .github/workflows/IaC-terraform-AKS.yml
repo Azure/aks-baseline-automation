@@ -97,7 +97,7 @@ jobs:
     name: purge
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.ENVIRONMENT }}
-    if: ${{ failure() || cancelled() }}
+    #if: ${{ failure() || cancelled() }} # Only run if the previous job succeeded
     needs: [deploy-standalone]
     steps:
         # Using OIDC auth
