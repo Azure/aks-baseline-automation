@@ -19,7 +19,7 @@ role_mapping = {
         }
         "Key Vault Certificates Officer" = {
           logged_in = {
-            keys = ["user"]
+            keys = ["app"]
           }
           managed_identities = {
             keys = ["ingress", "apgw_keyvault_secrets"]
@@ -27,7 +27,7 @@ role_mapping = {
         }
         "Key Vault Secrets Officer" = {
           logged_in = {
-            keys = ["user"]
+            keys = ["app"]
           }
         }
       }
@@ -39,7 +39,7 @@ role_mapping = {
           #   keys = ["aks_admins"]
           # }
           logged_in = {
-            keys = ["user"]
+            keys = ["app"]
           }
         }
       }
