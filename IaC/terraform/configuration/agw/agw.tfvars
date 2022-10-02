@@ -1,4 +1,4 @@
-application_gateways = {
+application_gateway_platforms = {
   agw1_az1 = {
     resource_group_key = "aks_re1"
     name               = "appgateway-re1-001"
@@ -66,6 +66,19 @@ application_gateways = {
         destination_type = "log_analytics"
         destination_key  = "central_logs"
       }
+    }
+
+    #default: wont be able to change after creation as this is required for agw tf resource
+    default = {
+      frontend_port_key             = "80"
+      frontend_ip_configuration_key = "public"
+      backend_address_pool_name     = "default-beap"
+      http_setting_name             = "default-be-htst"
+      listener_name                 = "default-httplstn"
+      request_routing_rule_name     = "default-rqrt"
+      cookie_based_affinity         = "Disabled"
+      request_timeout               = "60"
+      rule_type                     = "Basic"
     }
   }
 }
