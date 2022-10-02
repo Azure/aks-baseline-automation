@@ -98,14 +98,16 @@ jobs:
   purge:
     name: purge
     runs-on: ubuntu-latest
-    environment: terraform
+    environment: ${{ github.event.inputs.ENVIRONMENT }}
     if: ${{ failure() || cancelled() }}
     needs: [deploy-standalone]
     steps:
-      - name: Login azure
-        run: |
-          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
-          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+      - name: Azure Login
+        uses: Azure/login@v1.4.6
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - name: Complete purge
         run: |
           echo RunId $ENVIRONMENT
