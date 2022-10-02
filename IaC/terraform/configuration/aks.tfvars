@@ -1,3 +1,5 @@
+aks_cluster_key = keys(var.aks_clusters)[0]
+
 aks_clusters = {
   cluster_re1 = {
     name               = "akscluster-re1-001"
