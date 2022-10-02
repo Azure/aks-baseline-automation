@@ -46,11 +46,13 @@ jobs:
           echo "Environment : ${{ github.event.inputs.ENVIRONMENT }}"
           echo "REGION : ${{ github.event.inputs.REGION }}"
 
+        # OIDC auth is not supported until TF AzureRM 3.7.0 onwards
       - name: Azure Login
         uses: Azure/login@v1.4.6
         with:
           #creds: ${{ env.AZURE_CREDENTIALS }}
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          clientSecret: ${{ secrets.AZURE_CLIENT_SECRET }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
@@ -102,6 +104,7 @@ jobs:
     if: ${{ failure() || cancelled() }}
     needs: [deploy-standalone]
     steps:
+        # Using OIDC auth
       - name: Azure Login
         uses: Azure/login@v1.4.6
         with:
