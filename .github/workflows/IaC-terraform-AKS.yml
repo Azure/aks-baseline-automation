@@ -74,6 +74,11 @@ jobs:
         with:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
           inlineScript: |
+            export ARM_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}
+            export ARM_SUBSCRIPTION_ID=${{ secrets.ARM_SUBSCRIPTION_ID }}
+            export ARM_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}
+            export ARM_CLIENT_SECRET=${{ secrets.AZURE_CLIENT_SECRET }}
+
             pwd
             cd IaC/terraform
             git clone https://github.com/Azure/caf-terraform-landingzones.git landingzone
