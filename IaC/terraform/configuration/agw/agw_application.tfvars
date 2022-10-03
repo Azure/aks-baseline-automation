@@ -10,6 +10,7 @@ application_gateway_applications_v1 = {
         front_end_ip_configuration_key = "public"
         front_end_port_key             = "443"
         keyvault_certificate = {
+          keyvault_key     = "secrets"
           certificate_name = "appgateway"
         }
       }
