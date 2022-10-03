@@ -74,18 +74,13 @@ jobs:
         with:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
           inlineScript: |
-            # export ARM_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}
-            # export ARM_SUBSCRIPTION_ID=${{ secrets.ARM_SUBSCRIPTION_ID }}
-            # export ARM_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}
-            # export ARM_CLIENT_SECRET=${{ secrets.AZURE_CLIENT_SECRET }}
-
             pwd
             cd IaC/terraform
 
             wget https://releases.hashicorp.com/terraform/1.3.1/terraform_1.3.1_linux_amd64.zip
             unzip terraform_1.3.1_linux_amd64.zip
             rm terraform_1.3.1_linux_amd64.zip
-            
+
             git clone https://github.com/Azure/caf-terraform-landingzones.git landingzone
             parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
             
@@ -95,7 +90,7 @@ jobs:
             else
               ./terraform init -upgrade
             fi
-            eval terraform apply ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -auto-approve
+            eval ./terraform apply ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -auto-approve
 
       - name: Destroy Standalone
         if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad') || github.event_name != 'issue_comment'
