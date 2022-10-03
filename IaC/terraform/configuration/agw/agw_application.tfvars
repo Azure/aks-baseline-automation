@@ -18,8 +18,7 @@ application_gateway_applications_v1 = {
         name = "sslagwcert1"
         keyvault = {
           certificate_name = "appgateway"
-          #certificate_request_key = "appgateway"
-          key = "secrets"
+          key              = "secrets"
         }
       }
     }
