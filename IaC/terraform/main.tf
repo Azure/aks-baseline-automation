@@ -10,46 +10,46 @@ terraform {
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.3.1"
+      version = "~> 3.4.3"
     }
     null = {
       source  = "hashicorp/null"
-      version = "~> 2.1.0"
+      version = "~> 3.1.1"
     }
     external = {
       source  = "hashicorp/external"
-      version = "~> 1.2.0"
+      version = "~> 2.2.2"
     }
     time = {
       source  = "hashicorp/time"
-      version = "~> 0.6.0"
+      version = "~> 0.8.0"
     }
     tls = {
       source  = "hashicorp/tls"
-      version = "~> 3.0.0"
+      version = "~> 4.0.3"
     }
     azurecaf = {
       source  = "aztfmod/azurecaf"
-      version = "~> 1.2.0"
+      version = "~> 1.2.20"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = ">= 2.0.2"
+      version = ">= 2.13.1"
     }
     kustomization = {
       source  = "kbst/kustomization"
-      version = "~> 0.5.0"
+      version = "~> 0.9.0"
     }
     kubectl = {
       source  = "gavinbunney/kubectl"
-      version = ">= 1.11.1"
+      version = ">= 1.14.0"
     }
     flux = {
       source  = "fluxcd/flux"
-      version = ">= 0.0.14"
+      version = ">= 0.19.0"
     }
   }
-  required_version = ">= 0.13"
+  required_version = ">= 1.3.1"
 
 
   # comment it out for the local backend experience
