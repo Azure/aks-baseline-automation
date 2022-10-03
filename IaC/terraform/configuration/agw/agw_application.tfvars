@@ -5,11 +5,6 @@ application_gateway_applications_v1 = {
     application_gateway_key = "agw1_az1"
 
     http_listeners = {
-      public = {
-        name                           = "public-80"
-        front_end_ip_configuration_key = "public"
-        front_end_port_key             = "80"
-      }
       public_ssl = {
         name                           = "public-443"
         front_end_ip_configuration_key = "public"
