@@ -9,9 +9,16 @@ application_gateway_applications_v1 = {
         name                           = "public-443"
         front_end_ip_configuration_key = "public"
         front_end_port_key             = "443"
-        keyvault_certificate = {
-          keyvault_key     = "secrets"
-          certificate_name = "appgateway"
+        ssl_cert_key                   = "sslagwcert"
+      }
+    }
+
+    ssl_certs = {
+      sslagwcert = {
+        name = "sslagwcert1"
+        keyvault = {
+          certificate_request_key = "appgateway"
+          key                     = "secrets"
         }
       }
     }
