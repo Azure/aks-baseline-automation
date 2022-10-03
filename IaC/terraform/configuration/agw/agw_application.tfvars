@@ -13,19 +13,11 @@ application_gateway_applications_v1 = {
       }
     }
 
-    # frontend_ports to be used only if application configuraton uses non standards https/https ports i.e anything other than 80/443
-    frontend_ports = {
-      "8443" = {
-        name = "8443"
-        port = 8443
-      }
-    }
-
     ssl_certs = {
       appgwcert = {
         name = "appgwcertrequest"
         keyvault = {
-          certificate_request_key = "appgateway"
+          certificate_key = "appgateway"
         }
       }
     }
