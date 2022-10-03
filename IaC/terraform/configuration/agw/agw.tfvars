@@ -53,8 +53,7 @@ application_gateway_platforms = {
 
     trusted_root_certificate = {
       wildcard_ingress = {
-        name = "wildcard-ingress"
-        # data =
+        name         = "wildcard-ingress"
         keyvault_key = "secrets"
       }
     }
