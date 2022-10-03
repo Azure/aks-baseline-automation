@@ -15,15 +15,6 @@ application_gateway_platforms = {
     zones        = ["1"]
     enable_http2 = false
 
-    ssl_profiles = {
-      profile1 = {
-        name = "SecureTLS"
-        ssl_policy = {
-          min_protocol_version = "TLSv1_2"
-        }
-      }
-    }
-
     identity = {
       managed_identity_keys = [
         "apgw_keyvault_secrets"
@@ -34,7 +25,6 @@ application_gateway_platforms = {
       public = {
         name          = "public"
         public_ip_key = "agw_pip1_re1"
-        subnet_key    = "application_gateway"
       }
     }
 
