@@ -13,6 +13,14 @@ application_gateway_applications_v1 = {
       }
     }
 
+    # frontend_ports to be used only if application configuraton uses non standards https/https ports i.e anything other than 80/443
+    frontend_ports = {
+      "8443" = {
+        name = "8443"
+        port = 8443
+      }
+    }
+
     ssl_certs = {
       appgwcert = {
         name = "appgwcertrequest"
@@ -24,8 +32,12 @@ application_gateway_applications_v1 = {
 
     request_routing_rules = {
       default = {
-        name      = "default_request_routing_rule_1"
-        rule_type = "Basic"
+        name              = "default_request_routing_rule_1"
+        rule_type         = "Basic"
+        http_listener_key = "public_ssl"
+        backend_pool_key  = "backend_pool_1"
+        http_settings_key = "http_setting_1"
+        priority          = 100
       }
     }
 
