@@ -30,7 +30,6 @@ application_gateway_applications_v1 = {
         host_name_from_backend_pool = true
         timeout                     = 20
         cookie_based_affinity       = "Disabled"
-        enable_probe                = true
         probe_key                   = "probe_1"
       }
     }
