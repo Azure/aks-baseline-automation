@@ -12,24 +12,6 @@ role_mapping = {
             keys = ["ingress", "apgw_keyvault_secrets"]
           }
         }
-        "Key Vault Secrets User" = {
-          managed_identities = {
-            keys = ["ingress", "apgw_keyvault_secrets"]
-          }
-        }
-        "Key Vault Certificates Officer" = {
-          logged_in = {
-            keys = ["app", "user"]
-          }
-          managed_identities = {
-            keys = ["ingress", "apgw_keyvault_secrets"]
-          }
-        }
-        "Key Vault Secrets Officer" = {
-          logged_in = {
-            keys = ["app", "user"]
-          }
-        }
       }
     }
     aks_clusters = {
