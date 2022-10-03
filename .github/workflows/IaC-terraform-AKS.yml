@@ -79,12 +79,13 @@ jobs:
             # export ARM_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}
             # export ARM_CLIENT_SECRET=${{ secrets.AZURE_CLIENT_SECRET }}
 
+            pwd
+            cd IaC/terraform
+
             wget https://releases.hashicorp.com/terraform/1.3.1/terraform_1.3.1_linux_amd64.zip
             unzip terraform_1.3.1_linux_amd64.zip
             rm terraform_1.3.1_linux_amd64.zip
-
-            pwd
-            cd IaC/terraform
+            
             git clone https://github.com/Azure/caf-terraform-landingzones.git landingzone
             parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
             
