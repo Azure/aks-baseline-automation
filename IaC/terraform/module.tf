@@ -1,6 +1,7 @@
 module "caf" {
-  source  = "aztfmod/caf/azurerm"
-  version = "~> 5.6.1"
+  source = "git::https://github.com/joselcaguilar/terraform-azurerm-caf?ref=test"
+  #source  = "aztfmod/caf/azurerm"
+  #version = "~> 5.6.1"
 
   providers = {
     azurerm.vhub = azurerm.vhub
@@ -19,9 +20,7 @@ module "caf" {
   }
 
   networking = {
-    application_gateways                                    = var.application_gateways
     application_gateway_platforms                           = var.application_gateway_platforms
-    application_gateway_applications                        = var.application_gateway_applications
     application_gateway_applications_v1                     = var.application_gateway_applications_v1
     domain_name_registrations                               = var.domain_name_registrations
     dns_zone_records                                        = var.dns_zone_records
