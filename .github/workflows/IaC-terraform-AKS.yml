@@ -95,14 +95,22 @@ jobs:
 
       - name: Destroy Standalone
         if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad') || github.event_name != 'issue_comment'
-        run: |
+        uses: azure/CLI@v1
+        with:
+          azcliversion: ${{ env.AZ_CLI_VERSION }}
+          inlineScript: |
             ls -lta
             pwd
-            cd IaC/terraform/
+            cd IaC/terraform
+
+            wget https://releases.hashicorp.com/terraform/${{ env.TF_VERSION }}/terraform_${{ env.TF_VERSION }}_linux_amd64.zip
+            unzip terraform_${{ env.TF_VERSION }}_linux_amd64.zip
+            rm terraform_${{ env.TF_VERSION }}_linux_amd64.zip
+
             parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
             # remove flux from state as flux provider has issues with destroy
-            terraform state rm 'module.flux_addon'
-            eval terraform destroy ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -auto-approve
+            ./terraform state rm 'module.flux_addon'
+            eval ./terraform destroy ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -auto-approve
   purge:
     name: purge
     runs-on: ubuntu-latest
