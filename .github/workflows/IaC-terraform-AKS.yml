@@ -55,7 +55,7 @@ jobs:
           creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Create rsg and stg account for TF State
-        if: ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }} != ""
+        if: ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }}
         uses: azure/CLI@v1
         with:
           inlineScript: |
