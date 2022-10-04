@@ -107,7 +107,7 @@ jobs:
 
             parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
             # remove flux from state as flux provider has issues with destroy
-            ./terraform state rm 'module.flux_addon'
+            #./terraform state rm 'module.flux_addon'
             eval ./terraform destroy ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -auto-approve
   purge:
     name: purge
