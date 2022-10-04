@@ -28,6 +28,20 @@ diagnostics_definition = {
       ]
     }
   }
+  azure_key_vault = {
+    name = "operational_logs_and_metrics"
+    categories = {
+      log = [
+        # ["Category name",  "Diagnostics Enabled(true/false)", "Retention Enabled(true/false)", Retention_period]
+        ["AuditEvent", true, false, 7],
+        ["AzurePolicyEvaluationDetails", true, false, 7],
+      ]
+      metric = [
+        #["Category name",  "Diagnostics Enabled(true/false)", "Retention Enabled(true/false)", Retention_period]
+        ["AllMetrics", true, false, 7],
+      ]
+    }
+  }
   azure_kubernetes_cluster = {
     name = "aks_logs_and_metrics"
     categories = {
