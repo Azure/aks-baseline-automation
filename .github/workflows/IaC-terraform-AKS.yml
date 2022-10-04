@@ -87,7 +87,8 @@ jobs:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
           inlineScript: |
             cd IaC/terraform
-
+            ls -lta
+            
             wget https://releases.hashicorp.com/terraform/${{ env.TF_VERSION }}/terraform_${{ env.TF_VERSION }}_linux_amd64.zip
             unzip terraform_${{ env.TF_VERSION }}_linux_amd64.zip
             rm terraform_${{ env.TF_VERSION }}_linux_amd64.zip
@@ -110,17 +111,17 @@ jobs:
         with:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
           inlineScript: |
-            ls -lta
             pwd
             cd IaC/terraform
-          
+            ls -lta
+            
             wget https://releases.hashicorp.com/terraform/${{ env.TF_VERSION }}/terraform_${{ env.TF_VERSION }}_linux_amd64.zip
             unzip terraform_${{ env.TF_VERSION }}_linux_amd64.zip
             rm terraform_${{ env.TF_VERSION }}_linux_amd64.zip
 
             parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
             echo "parameter_files: ${parameter_files}"
-            
+
             if [[ ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }} != '' ]]
             then
               # remove flux from state as flux provider has issues with destroy
