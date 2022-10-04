@@ -93,7 +93,7 @@ jobs:
             else
               ./terraform init -upgrade
             fi
-            #eval ./terraform apply ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -auto-approve
+            eval ./terraform apply ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -auto-approve
 
       - name: Destroy Standalone
         if: contains(github.event.comment.body, '/deploy-all') || contains(github.event.comment.body, '/deploy-launchpad') || github.event_name != 'issue_comment'
@@ -107,7 +107,7 @@ jobs:
 
             parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
             # remove flux from state as flux provider has issues with destroy
-            #./terraform state rm 'module.flux_addon'
+            ./terraform state rm 'module.flux_addon'
             eval ./terraform destroy ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -auto-approve
   purge:
     name: purge
