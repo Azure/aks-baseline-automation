@@ -105,7 +105,7 @@ jobs:
             eval ./terraform apply ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -auto-approve
 
       - name: Destroy Standalone
-        if: ${{ github.event.inputs.OPERATION == "Destroy" }}
+        if: ${{ github.event.inputs.OPERATION == 'Destroy' }}
         uses: azure/CLI@v1
         with:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
