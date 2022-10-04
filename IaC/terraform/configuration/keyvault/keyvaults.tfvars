@@ -41,5 +41,14 @@ keyvaults = {
         }
       }
     }
+
+    diagnostic_profiles = {
+      operations = {
+        name             = "akv_logs"
+        definition_key   = "azure_key_vault"
+        destination_type = "log_analytics"
+        destination_key  = "central_logs"
+      }
+    }
   }
 }
