@@ -55,6 +55,7 @@ jobs:
         run: |
           echo "Environment : ${{ github.event.inputs.ENVIRONMENT }}"
           echo "REGION : ${{ github.event.inputs.REGION }}"
+          echo "OPERATION : ${{ github.event.inputs.OPERATION }}"
 
         # OIDC auth is not supported until TF AzureRM 3.7.0 onwards
       - name: Azure Login
@@ -63,7 +64,7 @@ jobs:
           creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Create Resource Group and Storage Account for TF State
-        if: ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }} && (${{ github.event.inputs.OPERATION }} == "Deploy")
+        if: ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT != '' && github.event.inputs.OPERATION == 'Deploy' }}
         uses: azure/CLI@v1
         with:
           inlineScript: |
@@ -80,7 +81,7 @@ jobs:
       
 
       - name: Deploy Standalone
-        if: ${{ github.event.inputs.OPERATION }} == "Deploy"
+        if: ${{ github.event.inputs.OPERATION == 'Deploy' }} 
         uses: azure/CLI@v1
         with:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
@@ -104,7 +105,7 @@ jobs:
             eval ./terraform apply ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -auto-approve
 
       - name: Destroy Standalone
-        if: ${{ github.event.inputs.OPERATION }} == "Destroy"
+        if: ${{ github.event.inputs.OPERATION == "Destroy" }}
         uses: azure/CLI@v1
         with:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
@@ -119,7 +120,7 @@ jobs:
             eval ./terraform destroy ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -auto-approve
 
       - name: Complete purge
-        if: ${{ github.event.inputs.OPERATION }} == "Destroy"      
+        if: ${{ github.event.inputs.OPERATION == 'Destroy' }}     
         run: |
             echo RunId $ENVIRONMENT
             for i in `az monitor diagnostic-settings subscription list -o tsv --query "value[?contains(name, '$ENVIRONMENT' )].name"`; do echo "purging subscription diagnostic-settings: $i" && $(az monitor diagnostic-settings subscription delete --name $i --yes); done
