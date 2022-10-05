@@ -88,7 +88,7 @@ jobs:
           inlineScript: |
             cd IaC/terraform
             ls -lta
-            
+            rm terraform_${{ env.TF_VERSION }}_linux_amd64.zip
             wget https://releases.hashicorp.com/terraform/${{ env.TF_VERSION }}/terraform_${{ env.TF_VERSION }}_linux_amd64.zip
             unzip terraform_${{ env.TF_VERSION }}_linux_amd64.zip
             rm terraform_${{ env.TF_VERSION }}_linux_amd64.zip
@@ -113,7 +113,6 @@ jobs:
           inlineScript: |
             cd IaC/terraform
             ls -lta
-            rm terraform_${{ env.TF_VERSION }}_linux_amd64.zip
             wget https://releases.hashicorp.com/terraform/${{ env.TF_VERSION }}/terraform_${{ env.TF_VERSION }}_linux_amd64.zip
             unzip terraform_${{ env.TF_VERSION }}_linux_amd64.zip
             rm terraform_${{ env.TF_VERSION }}_linux_amd64.zip
