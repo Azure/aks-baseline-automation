@@ -125,7 +125,7 @@ jobs:
             then
               ./terraform init -upgrade -backend-config=storage_account_name="${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }}" -backend-config=container_name="tfstate" -backend-config=key="aks-baseline.tfstate" -backend-config=resource_group_name="${{ env.TF_BACKEND_RSG }}"
               # remove flux from state as flux provider has issues with destroy
-              ./terraform state rm 'module.flux_addon'
+              #./terraform state rm 'module.flux_addon'
             else
               ./terraform init -upgrade
             fi
