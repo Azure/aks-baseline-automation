@@ -23,7 +23,7 @@ on:
         required: false
         default: true
       DESTROY:
-        description: 'Execute Terraform apply'
+        description: 'Execute Terraform destroy'
         type: boolean
         required: false
         default: false
