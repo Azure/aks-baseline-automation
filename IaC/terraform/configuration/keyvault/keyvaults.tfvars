@@ -3,11 +3,12 @@ keyvaults = {
 
   # This keyvault is used to store the complex password created for the AKS breakglass admin user
   secrets = {
-    name                      = "secretsvaultre001"
-    resource_group_key        = "aks_re1"
-    region                    = "region1"
-    sku_name                  = "premium"
-    enable_rbac_authorization = false # Not supported yet by CAF Modules 5.6.1
+    name                            = "secretsvaultre001"
+    resource_group_key              = "aks_re1"
+    region                          = "region1"
+    sku_name                        = "premium"
+    enabled_for_template_deployment = true
+    enable_rbac_authorization       = false # Not supported yet by CAF Modules 5.6.1
 
     creation_policies = {
       logged_in_user = {
