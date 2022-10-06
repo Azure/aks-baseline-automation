@@ -17,13 +17,13 @@ keyvaults = {
       }
       ingress_umi = {
         managed_identity_key    = "ingress"
-        secret_permissions      = ["Get"]
-        certificate_permissions = ["Get"]
+        secret_permissions      = ["Get", "List"]
+        certificate_permissions = ["Get", "List"]
       }
       apgw_keyvault_secrets_umi = {
         managed_identity_key    = "apgw_keyvault_secrets"
-        certificate_permissions = ["Get"]
-        secret_permissions      = ["Get"]
+        certificate_permissions = ["Get", "List"]
+        secret_permissions      = ["Get", "List"]
       }
     }
 
