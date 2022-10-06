@@ -1,10 +1,10 @@
-# terraform
+# terraform (still in development but you can still try it out)
 
-This folder contains the code to build the [AKS Baseline reference implementation](https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/containers/aks/secure-baseline-aks) using [CAF Terraform Landing zone framework composition](https://github.com/aztfmod/terraform-azurerm-caf).
+This folder contains the code to build the [AKS Baseline reference implementation](https://learn.microsoft.com/azure/architecture/reference-architectures/containers/aks/secure-baseline-aks) using [CAF Terraform Landing zone framework composition](https://github.com/aztfmod/terraform-azurerm-caf).
 
 The following components will be deployed as part of this automation:
 
-![aks_enterprise_scale_lz](../../docs/.attachments/aks_enterprise_scale_lz2.png)
+![aks_enterprise_scale_lz](../../media/aks_enterprise_scale_lz2.png)
 
 | Components                                                                                              | Config files                                                 | Description|
 |-----------------------------------------------------------|------------------------------------------------------------|------------------------------------------------------------|
@@ -31,17 +31,19 @@ The following components will be deployed as part of this automation:
 
 ## Prerequisites
 
-Make sure these [prerequisites](../../docs/IaC-prerequisites.md) are in place before proceeding.
+Make sure these [prerequisites](../IaC-prerequisites.md) are in place before proceeding.
 
 ## Customize the Terraform templates
 
 To customize the sample terraform templates provided based on your specific needs, follow the steps below:
 
-1. Review the terraform templates provided under the IaC/terraform folder and customize these files based on your specific deployment requirements for each resource.
+1. Fork this repo so that you can customize it and run GitHub action workflows.
+2. Review the terraform templates provided under the IaC/terraform folder and customize these files based on your specific deployment requirements for each resource.
+3. [Optional] Test the deployment of each Azure resource individually using these [manual](./terraform-manual-steps.md) commands.
+4. Customize the GitHub repo settings for flux so that it picks up your customized yaml files when deploying the shared services for your cluster. You need to change these settings in the file [`flux.yaml`](../../IaC/terraform/configuration/workloads/flux.tfvars) to point to your forked GitHub repo.
 
-2. Test the deployment of each Azure resource individually using these [manual](../../docs/terraform-manual-steps.md) commands.
 
-## Customize the GitHub Action Workflows
+## Customize the GitHub action workflows
 To customize the sample GitHub pipeline provided based on your specific needs, follow the instructions below:
 
 1. Create your workflow [GitHub Environment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment?msclkid=62181fb1ab7511ec9be085113913a757) to store the following secrets:
@@ -56,12 +58,13 @@ To customize the sample GitHub pipeline provided based on your specific needs, f
     |FLUX_TOKEN| [GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) for Flux V2||
 
     Note: do not modify the names of these secrets in the workflow yaml file as they are expected in terraform to be named as shown above.
-    Also instead of using a Service Principal and storing the secret in the GitHub Cloud, we will setup [Federated Identity](https://docs.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Cwindows#use-the-azure-login-action-with-openid-connect) once it is supported by terraform.
+    Also instead of using a Service Principal and storing the secret in the GitHub Cloud, you should setup [Workload Identity federation with OpenID Connect](https://learn.microsoft.com/azure/developer/github/connect-from-azure?tabs=azure-portal%2Cwindows#use-the-azure-login-action-with-openid-connect). Follow [these steps](../oidc-federated-credentials.md) to set it up.
 
 2. Update the workflow [IaC-terraform-AKS.yml](../../.github/workflows/IaC-terraform-AKS.yml) with the name of the Environment you created in the previous step. The default Environment name is "Terraform". Commit the changes to your remote GitHub branch so that you can run the workflow.
     Note that this sample workflow file deploys Azure resources respectively in the hub and spoke resource groups as specified in the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline).
 
-3. Run and troubleshoot the Github pipeline.
-   As the workflow trigger is set to "workflow_dispatch", you can manually start it by clicking on [Actions](https://github.com/Azure/aks-baseline-automation/actions) in this repo, find the workflow [IaC-terraform-AKS.yml](../../.github/workflows/IaC-terraform-AKS.yml), and run it by clicking on the "Run Workflow" drop down.
 
-   As the workflow runs, monitor its logs for any error.
+## Kick-iff the GitHub action workflow
+As the workflow trigger is set to "workflow_dispatch", you can manually start it by clicking on [Actions](https://github.com/Azure/aks-baseline-automation/actions) in this repo, find the workflow [IaC-terraform-AKS.yml](../../.github/workflows/IaC-terraform-AKS.yml), and run it by clicking on the "Run Workflow" drop down.
+
+As the workflow runs, monitor its logs for any error.

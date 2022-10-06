@@ -1,0 +1,152 @@
+# This workflow demonstrates building a container image, pushing to an Azure Container Registry and deploying to Kubernetes
+# It is split into separate jobs for readability but could be squashed into a single job if that best suits your scenario
+name: App Deploy Flask - Docker Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      RG:
+        description: 'The Resource Group where your resources are deployed'
+        required: true
+        type: string
+      AKSNAME:
+        description: 'The Name of the AKS resource'
+        required: true
+        type: string
+      ACRNAME:
+        description: 'The Name of the ACR resource'
+        required: true
+        type: string
+      APPNAME:
+        description: 'The Name of the Application to deploy'
+        default: "flask"
+        required: true
+        type: string
+      NAMESPACE:
+        description: 'The Kubernetes Namespace to deploy the Application to'
+        default: "default"
+        required: false
+        type: string
+      ENVIRONMENT:
+        description: 'A GitHub Environment to pull action secrets from'
+        required: true
+        type: environment
+    secrets:
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_SUBSCRIPTION_ID:
+        required: true
+
+permissions:
+      id-token: write
+      contents: read
+
+jobs:
+  BuildPush:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT }}
+    env:
+      ACRNAME: "${{ inputs.ACRNAME}}"
+
+    steps:
+      - name: Get application code from repo
+        uses: actions/checkout@v2
+
+      - name: Job parameter inspection
+        run: |
+          echo "RG is ${{ inputs.RG }}"
+          echo "AKS name is ${{ inputs.AKSNAME }}"
+          echo "ACR name is ${{ inputs.ACRNAME }}"
+
+      - name: Azure Login
+        uses: Azure/login@v1.4.3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Connect to Azure Container Registry (ACR)
+        id: acrconnect
+        run: |
+          echo "Retrieving access token from $ACRNAME"
+          TOKEN=$(az acr login -n $ACRNAME --expose-token)
+
+          if [ -z "$TOKEN" ]
+          then
+            echo "ACR Token was not retrieved successfully"
+            exit 1
+          fi
+
+          ACRTOKEN=$(echo $TOKEN | jq -r ".accessToken")
+          LOGINSERVER=$(echo $TOKEN | jq -r ".loginServer")
+
+          echo "ACR Login Server: $LOGINSERVER"
+          echo "::set-output name=loginServer::$LOGINSERVER"
+
+          echo "Passing token as stdin to docker login"
+          echo $ACRTOKEN | docker login $LOGINSERVER -u 00000000-0000-0000-0000-000000000000 --password-stdin
+
+      - name: Container build and push to a Azure Container Registry (ACR)
+        env:
+          ACRSERVER: "${{ steps.acrconnect.outputs.loginServer }}"
+          APPNAME: "${{ inputs.APPNAME }}"
+        run: |
+          cd "workloads/$APPNAME"
+          docker build . -t $ACRSERVER/$APPNAME:${{ github.sha }}
+          docker push $ACRSERVER/$APPNAME:${{ github.sha }}
+
+  Deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT }}
+    needs: [BuildPush]
+
+    steps:
+      - name: Get application k8s manifests from repo
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: Azure/login@v1.4.3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Install Kubectl
+        uses: azure/setup-kubectl@v2.0
+        with:
+            version: 'latest'
+
+      - name: Set the target Azure Kubernetes Service (AKS) cluster.
+        uses: azure/aks-set-context@v2.0
+        with:
+          cluster-name: ${{ inputs.AKSNAME }}
+          resource-group: ${{ inputs.RG }}
+
+      - name: Kubelogin
+        env:
+          kubeloginversion: 'v0.0.11'
+        run: |
+          wget https://github.com/Azure/kubelogin/releases/download/${{ env.kubeloginversion }}/kubelogin-linux-amd64.zip
+          unzip kubelogin-linux-amd64.zip
+          sudo mv bin/linux_amd64/kubelogin /usr/bin
+          kubelogin convert-kubeconfig -l azurecli
+
+      - name: Create the namespace if it does not exist
+        if: ${{ inputs.NAMESPACE }} != 'default'
+        run: |
+          cmdOut=$(kubectl get namespaces ${{ inputs.NAMESPACE }} -o json | jq -r '.status.phase')
+          if [ "$cmdOut" != 'Active' ]; then kubectl create namespace ${{ inputs.NAMESPACE }}; fi
+
+      - name: Deploy app to AKS
+        uses: azure/k8s-deploy@v1.5
+        env:
+          ACRNAME: "${{ inputs.ACRNAME}}"
+        with:
+          manifests: |
+           workloads/flask/deployment.yaml
+           workloads/flask/ingress.yaml
+          images: |
+            ${{ env.ACRNAME }}.azurecr.io/${{ inputs.APPNAME }}:${{ github.sha }}
+          namespace: ${{ inputs.NAMESPACE }}

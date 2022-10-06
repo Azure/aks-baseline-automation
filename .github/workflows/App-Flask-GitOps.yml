@@ -1,0 +1,112 @@
+## ------------------------------------------------------------------------------------------------------------------------
+## Pull-Based GitOps Deployment
+## This workflow takes in an EXISTING ACR and AKS cluster and updates the AKS manifest files for GitOps to deploy the app. 
+## Assumptions:
+##     Existing ACR
+##     Existing AKS cluster
+##     ACR is attached to AKS cluster (no image pull secret required)
+## -------------------------------------------------------------------------------------------------------------------------
+
+# This workflow demonstrates building and pushing a container image to an Azure Container Registry.
+# The workflow then updates the necessary Kubernetes manifest deployment files in the GitHub repo so that a GitOps operator can sync them to deploy an application to an Azure Kubernetes Service cluster.
+# It is split into separate jobs for readability but could be squashed into a single job if that best suits your scenario.
+name: App Deploy Flask - GitOps
+
+on: 
+  workflow_dispatch:
+    inputs:
+      ACRNAME:
+        description: 'The Name of the ACR resource'
+        required: true
+        type: string
+      APPNAME:
+        description: 'The Name of the Application to deploy'
+        default: "flask"
+        required: true
+        type: string
+      ENVIRONMENT:
+        description: 'A GitHub Environment to pull action secrets from'
+        required: true
+        type: environment
+
+permissions:
+      id-token: write
+      contents: write
+
+jobs:
+  BuildPush:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.Environment }}
+    steps:
+    
+      # Get application code from repo
+      - name: Get application code from repo
+        uses: actions/checkout@main
+        with:
+          repository: ${{ inputs.AppRepo}}
+          #ref: ${{ inputs.AppRepoRef}}
+      
+      # Logs into your Azure subscription
+      - uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+      
+      - name: Connect to Azure Container Registry (ACR)
+        id: acrconnect
+        run: |
+          echo "Retrieving access token from ${{ inputs.ACRNAME}}"
+          TOKEN=$(az acr login -n ${{ inputs.ACRNAME}} --expose-token)
+
+          if [ -z "$TOKEN" ]
+          then
+            echo "ACR Token was not retrieved successfully"
+            exit 1
+          fi
+
+          ACRTOKEN=$(echo $TOKEN | jq -r ".accessToken")
+          LOGINSERVER=$(echo $TOKEN | jq -r ".loginServer")
+
+          echo "ACR Login Server: $LOGINSERVER"
+          echo "::set-output name=loginServer::$LOGINSERVER"
+
+          echo "Passing token as stdin to docker login"
+          echo $ACRTOKEN | docker login $LOGINSERVER -u 00000000-0000-0000-0000-000000000000 --password-stdin
+
+      # Builds and Pushes the container image to the Azure Container Registry (ACR)
+      - name: Container build and push to a Azure Container Registry (ACR)
+        env:
+          APPNAME: "${{ inputs.APPNAME }}"
+        run: |
+          cd "workloads/$APPNAME"
+          docker build . -t ${{ inputs.ACRNAME }}.azurecr.io/${{ inputs.APPNAME }}:${{ github.run_number }}
+          docker push ${{ inputs.ACRNAME }}.azurecr.io/${{ inputs.APPNAME }}:${{ github.run_number }}
+
+  Update-K8s-Manifests:
+    name: Update K8s Deployment Manifest with Image Version
+    needs: BuildPush
+    environment: ${{ inputs.Environment }}
+    runs-on: ubuntu-latest
+    steps:
+
+    # Checks out the baseline repository
+    - uses: actions/checkout@v2
+
+    - name: Update image name in manifest file
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          $line = Get-Content workloads/flask/deployment.yaml | Select-String image: | Select-Object -ExpandProperty Line
+          $content = Get-Content workloads/flask/deployment.yaml
+          $content | ForEach-Object {$_ -replace $line,"        image: ${{ inputs.ACRNAME }}.azurecr.io/${{ inputs.APPNAME }}:${{ github.run_number }}"} | Set-Content workloads/flask/deployment.yaml
+        azPSVersion: "latest"
+    
+    - name: Commit changes in manifest to repo
+      run: | 
+        git config user.name "GitHub Actions Bot"
+        git config user.email ""
+        git add workloads/flask/deployment.yaml
+        git commit -m "Update image version in K8s Deployment manifests file"
+        git push origin

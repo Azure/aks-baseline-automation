@@ -129,7 +129,7 @@ module nsgAppGw '../CARML/Microsoft.Network/networkSecurityGroups/deploy.bicep' 
       {
         name: 'AllowControlPlaneInBound'
         properties: {
-          description: 'Allow Azure Control Plane in. (https://docs.microsoft.com/azure/application-gateway/configuration-infrastructure#network-security-groups)'
+          description: 'Allow Azure Control Plane in. (https://learn.microsoft.com/azure/application-gateway/configuration-infrastructure#network-security-groups)'
           protocol: '*'
           sourcePortRange: '*'
           sourceAddressPrefix: '*'
@@ -143,7 +143,7 @@ module nsgAppGw '../CARML/Microsoft.Network/networkSecurityGroups/deploy.bicep' 
       {
         name: 'AllowHealthProbesInBound'
         properties: {
-          description: 'Allow Azure Health Probes in. (https://docs.microsoft.com/azure/application-gateway/configuration-infrastructure#network-security-groups)'
+          description: 'Allow Azure Health Probes in. (https://learn.microsoft.com/azure/application-gateway/configuration-infrastructure#network-security-groups)'
           protocol: '*'
           sourcePortRange: '*'
           sourceAddressPrefix: 'AzureLoadBalancer'

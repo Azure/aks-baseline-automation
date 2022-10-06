@@ -6,7 +6,7 @@
             "value": "westus2"
         },
         "geoRedundancyLocation":{
-            "value": "centralus"
+            "value": "northeurope"
         }
     }
 }

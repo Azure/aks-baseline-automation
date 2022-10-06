@@ -1,0 +1,75 @@
+# Deploy nginx to shared service with helm
+
+name: SharedServices Deploy Nginx with helm
+
+on:
+  workflow_dispatch:
+    inputs:
+      ENVIRONMENT:
+        description: 'A GitHub Environment to pull action secrets from'
+        required: true
+        type: environment
+      RG:
+        description: 'The Resource Group where your resources are deployed'
+        required: true
+        type: string
+      ACRNAME:
+        description: 'The Name of the ACR resource'
+        required: true
+        type: string
+      AKVNAME:
+        description: 'The Name of the AKV resource'
+        required: true
+        type: string
+      MINAME:
+        description: 'The Name of the Managed Identity for nginx to access secrets in the AKV'
+        required: true
+        type: string
+
+
+    secrets:
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_SUBSCRIPTION_ID:
+        required: true
+
+env:
+  event_sha: +refs/pull/${{ github.event.issue.number }}/merge
+
+permissions:
+      id-token: write
+      contents: write
+
+jobs:
+  App_Init:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT }}
+    env:
+      RG: "${{ inputs.RG }}"
+      ACRNAME: "${{ inputs.ACRNAME}}"
+      AKVNAME: "${{ inputs.AKVNAME}}"
+      MINAME: "${{ inputs.MINAME}}"
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
+          fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
+      - name: Job parameter inspection
+        run: |
+          echo "RG is ${{ inputs.RG }}"
+          echo "ACR name is ${{ inputs.ACRNAME }}"
+          echo "AKV name is ${{ inputs.AKVNAME }}"
+          echo "MI name is ${{ inputs.MINAME }}"
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: list ACR images
+        run: |
+          az acr list -g $RG

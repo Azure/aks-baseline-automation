@@ -1,0 +1,109 @@
+################ Http agic
+apiVersion: networking.k8s.io/v1
+# UPDATE API
+kind: Ingress
+metadata:
+  name: ingress-service
+  annotations:
+    kubernetes.io/ingress.class: 'azure/application-gateway'
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /*
+            # UPDATE PATH
+            pathType: Prefix
+            # ADD PATHTYPE
+            backend:
+              service:
+                # UPDATE SERVICE FIELDS
+                name: flask-service
+                port:
+                  number: 2000
+
+################ Https traefik
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: flask-ingress
+#   annotations:
+#     kubernetes.io/ingress.allow-http: "false"
+#     # defines controller implementing this ingress resource: https://learn.microsoft.com/azure/dev-spaces/how-to/ingress-https-traefik
+#     # ingress.class annotation is being deprecated in Kubernetes 1.18: https://kubernetes.io/docs/concepts/services-networking/ingress/#deprecated-annotation
+#     # For backwards compatibility, when this annotation is set, precedence is given over the new field ingressClassName under spec.
+#     kubernetes.io/ingress.class: traefik-internal
+#     traefik.ingress.kubernetes.io/router.entrypoints: websecure
+#     traefik.ingress.kubernetes.io/router.tls: "true"
+#     traefik.ingress.kubernetes.io/router.tls.options: default
+#     traefik.ingress.kubernetes.io/router.middlewares: app-gateway-snet@file, gzip-compress@file
+# spec:
+#   tls:
+#   - hosts:
+#       - <use fqdn that matches what is configured in app gateway eg bu0001a0008-00.aks-ingress.contoso.com>
+#         # It is possible to opt for certificate management strategy with dedicated
+#         # certificates for each TLS SNI route.
+#         # In this Reference Implementation for the sake of simplicity we use a
+#         # wildcard default certificate added at Ingress Controller configuration level which is *.example.com
+#         # secretName: <bu0001a0008-00-example-com-tls-secret>
+#   rules:
+#   - host: <use fqdn that matches what is configured in app gateway eg bu0001a0008-00.aks-ingress.contoso.com> 
+#     http:
+#       paths:
+#       - path: /
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: "flask-service"
+#             port:
+#               number: 2000
+
+
+################ https agic
+# apiVersion: networking.k8s.io/v1
+# # UPDATE API
+# kind: Ingress
+# metadata:
+#   name: ingress-service
+#   annotations:
+#     kubernetes.io/ingress.class: 'azure/application-gateway'
+#     appgw.ingress.kubernetes.io/ssl-redirect: "true"
+# spec:
+#   tls:
+#     - hosts:
+#       - <AppGW Public IP Host Name>.<region>.cloudapp.azure.com
+#       secretName: aks-tls-akv
+#   rules:
+#     - host: <AppGW Public IP Host Name>.<region>.cloudapp.azure.com
+#       http:
+#         paths:
+#           - path: /*
+#             # UPDATE PATH
+#             pathType: Prefix
+#             # ADD PATHTYPE
+#             backend:
+#               service:
+#                 # UPDATE SERVICE FIELDS
+#                 name: flask-service
+#                 port:
+#                   number: 2000
+
+################ http nginx
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: ingress-service
+#   annotations:
+#     kubernetes.io/ingress.class: nginx
+#     nginx.ingress.kubernetes.io/use-regex: "true"
+# spec:
+#   rules:
+#     - host: housekeeping.dev
+#       http:
+#         paths:
+#           - path: /?(.*)
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: flask-service
+#                 port:
+#                   number: 2000

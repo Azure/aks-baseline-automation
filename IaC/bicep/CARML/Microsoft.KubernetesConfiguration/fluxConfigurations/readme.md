@@ -8,7 +8,8 @@ This module deploys Kubernetes Configuration Flux Configurations.
 - [Resource Types](#Resource-Types)
 - [Parameters](#Parameters)
 - [Outputs](#Outputs)
-- [Template references](#Template-references)
+- [Cross-referenced modules](#Cross-referenced-modules)
+- [Deployment examples](#Deployment-examples)
 
 ## Prerequisites
 
@@ -32,7 +33,7 @@ For Details see [Prerequisites](https://docs.microsoft.com/en-us/azure/azure-arc
 
 | Resource Type | API Version |
 | :-- | :-- |
-| `Microsoft.KubernetesConfiguration/fluxConfigurations` | 2022-03-01 |
+| `Microsoft.KubernetesConfiguration/fluxConfigurations` | [2022-03-01](https://docs.microsoft.com/en-us/azure/templates/Microsoft.KubernetesConfiguration/2022-03-01/fluxConfigurations) |
 
 ## Parameters
 
@@ -40,7 +41,7 @@ For Details see [Prerequisites](https://docs.microsoft.com/en-us/azure/azure-arc
 | Parameter Name | Type | Allowed Values | Description |
 | :-- | :-- | :-- | :-- |
 | `clusterName` | string |  | The name of the AKS cluster that should be configured. |
-| `name` | string |  | The name of the Flux Configuration |
+| `name` | string |  | The name of the Flux Configuration. |
 | `namespace` | string |  | The namespace to which this configuration is installed to. Maximum of 253 lower case alphanumeric characters, hyphen and period only. |
 | `scope` | string | `[cluster, namespace]` | Scope at which the configuration will be installed. |
 | `sourceKind` | string | `[Bucket, GitRepository]` | Source Kind to pull the configuration data from. |
@@ -49,7 +50,7 @@ For Details see [Prerequisites](https://docs.microsoft.com/en-us/azure/azure-arc
 | Parameter Name | Type | Default Value | Description |
 | :-- | :-- | :-- | :-- |
 | `bucket` | object | `{object}` | Parameters to reconcile to the GitRepository source kind type. |
-| `configurationProtectedSettings` | object | `{object}` | Key-value pairs of protected configuration settings for the configuration |
+| `configurationProtectedSettings` | object | `{object}` | Key-value pairs of protected configuration settings for the configuration. |
 | `enableDefaultTelemetry` | bool | `True` | Enable telemetry via the Customer Usage Attribution ID (GUID). |
 | `gitRepository` | object | `{object}` | Parameters to reconcile to the GitRepository source kind type. |
 | `kustomizations` | object | `{object}` | Array of kustomizations used to reconcile the artifact pulled by the source type on the cluster. |
@@ -57,52 +58,196 @@ For Details see [Prerequisites](https://docs.microsoft.com/en-us/azure/azure-arc
 | `suspend` | bool | `False` | Whether this configuration should suspend its reconciliation of its kustomizations and sources. |
 
 
-### Parameter Usage: `bucket`
-
-```json
-"bucket": {
-    "value": {
-      "accessKey": "string",
-      "bucketName": "string",
-      "insecure": "bool",
-      "localAuthRef": "string",
-      "syncIntervalInSeconds": "int",
-      "timeoutInSeconds": "int",
-      "url": "string"
-    }
-}
-```
-
-### Parameter Usage: `gitRepository`
-
-```json
-"gitRepository": {
-    "value": {
-      "httpsCACert": "string",
-      "httpsUser": "string",
-      "localAuthRef": "string",
-      "repositoryRef": {
-        "branch": "string",
-        "commit": "string",
-        "semver": "string",
-        "tag": "string"
-      },
-      "sshKnownHosts": "string",
-      "syncIntervalInSeconds": "int",
-      "timeoutInSeconds": "int",
-      "url": "string"
-    }
-}
-```
-
 ## Outputs
 
 | Output Name | Type | Description |
 | :-- | :-- | :-- |
-| `name` | string | The name of the flux configuration |
-| `resourceGroupName` | string | The name of the resource group the flux configuration was deployed into |
-| `resourceId` | string | The resource ID of the flux configuration |
+| `name` | string | The name of the flux configuration. |
+| `resourceGroupName` | string | The name of the resource group the flux configuration was deployed into. |
+| `resourceId` | string | The resource ID of the flux configuration. |
 
-## Template references
+## Cross-referenced modules
 
-- [Fluxconfigurations](https://docs.microsoft.com/en-us/azure/templates/Microsoft.KubernetesConfiguration/2022-03-01/fluxConfigurations)
+_None_
+
+## Deployment examples
+
+The following module usage examples are retrieved from the content of the files hosted in the module's `.test` folder.
+   >**Note**: The name of each example is based on the name of the file from which it is taken.
+   >**Note**: Each example lists all the required parameters first, followed by the rest - each in alphabetical order.
+
+<h3>Example 1: Min</h3>
+
+<details>
+
+<summary>via Bicep module</summary>
+
+```bicep
+module fluxConfigurations './Microsoft.KubernetesConfiguration/fluxConfigurations/deploy.bicep' = {
+  name: '${uniqueString(deployment().name)}-fluxConfigurations'
+  params: {
+    // Required parameters
+    clusterName: '<<namePrefix>>-az-aks-kubenet-001'
+    name: 'flux2'
+    namespace: 'flux-system'
+    scope: 'cluster'
+    sourceKind: 'GitRepository'
+    // Non-required parameters
+    gitRepository: {
+      repositoryRef: {
+        branch: 'main'
+      }
+      sshKnownHosts: ''
+      syncIntervalInSeconds: 300
+      timeoutInSeconds: 180
+      url: 'https://github.com/mspnp/aks-baseline'
+    }
+  }
+}
+```
+
+</details>
+<p>
+
+<details>
+
+<summary>via JSON Parameter file</summary>
+
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    // Required parameters
+    "clusterName": {
+      "value": "<<namePrefix>>-az-aks-kubenet-001"
+    },
+    "name": {
+      "value": "flux2"
+    },
+    "namespace": {
+      "value": "flux-system"
+    },
+    "scope": {
+      "value": "cluster"
+    },
+    "sourceKind": {
+      "value": "GitRepository"
+    },
+    // Non-required parameters
+    "gitRepository": {
+      "value": {
+        "repositoryRef": {
+          "branch": "main"
+        },
+        "sshKnownHosts": "",
+        "syncIntervalInSeconds": 300,
+        "timeoutInSeconds": 180,
+        "url": "https://github.com/mspnp/aks-baseline"
+      }
+    }
+  }
+}
+```
+
+</details>
+<p>
+
+<h3>Example 2: Parameters</h3>
+
+<details>
+
+<summary>via Bicep module</summary>
+
+```bicep
+module fluxConfigurations './Microsoft.KubernetesConfiguration/fluxConfigurations/deploy.bicep' = {
+  name: '${uniqueString(deployment().name)}-fluxConfigurations'
+  params: {
+    // Required parameters
+    clusterName: '<<namePrefix>>-az-aks-kubenet-001'
+    name: 'flux2'
+    namespace: 'flux-system'
+    scope: 'cluster'
+    sourceKind: 'GitRepository'
+    // Non-required parameters
+    gitRepository: {
+      repositoryRef: {
+        branch: 'main'
+      }
+      sshKnownHosts: ''
+      syncIntervalInSeconds: 300
+      timeoutInSeconds: 180
+      url: 'https://github.com/mspnp/aks-baseline'
+    }
+    kustomizations: {
+      unified: {
+        dependsOn: []
+        force: false
+        path: './cluster-manifests'
+        prune: true
+        syncIntervalInSeconds: 300
+        timeoutInSeconds: 300
+      }
+    }
+  }
+}
+```
+
+</details>
+<p>
+
+<details>
+
+<summary>via JSON Parameter file</summary>
+
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    // Required parameters
+    "clusterName": {
+      "value": "<<namePrefix>>-az-aks-kubenet-001"
+    },
+    "name": {
+      "value": "flux2"
+    },
+    "namespace": {
+      "value": "flux-system"
+    },
+    "scope": {
+      "value": "cluster"
+    },
+    "sourceKind": {
+      "value": "GitRepository"
+    },
+    // Non-required parameters
+    "gitRepository": {
+      "value": {
+        "repositoryRef": {
+          "branch": "main"
+        },
+        "sshKnownHosts": "",
+        "syncIntervalInSeconds": 300,
+        "timeoutInSeconds": 180,
+        "url": "https://github.com/mspnp/aks-baseline"
+      }
+    },
+    "kustomizations": {
+      "value": {
+        "unified": {
+          "dependsOn": [],
+          "force": false,
+          "path": "./cluster-manifests",
+          "prune": true,
+          "syncIntervalInSeconds": 300,
+          "timeoutInSeconds": 300
+        }
+      }
+    }
+  }
+}
+```
+
+</details>
+<p>

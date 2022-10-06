@@ -1,0 +1,66 @@
+# Workflow is for testing reusable workflows to expedite the developer inner loop.
+
+name: App Deploy Reusable App workflows
+
+on:
+  workflow_dispatch:
+    inputs:
+      ResourceGroup:
+        description: 'Resource Group Name'
+        type: string
+        required: true
+      AKSNAME:
+        description: 'AKS Cluster Name'
+        type: string
+        required: true
+      ACRNAME:
+        description: 'ACR Name'
+        required: true
+        type: string
+      Environment:
+        description: 'A GitHub Environment to pull action secrets from'
+        type: environment
+        required: false
+
+jobs:
+  ReusableWF:
+    runs-on: ubuntu-latest
+    outputs:
+      RG: ${{ github.event.inputs.ResourceGroup }}
+      AKSNAME: ${{ github.event.inputs.AKSNAME }}
+      ACRNAME: ${{ github.event.inputs.ACRNAME }}
+      ENVIRONMENT: ${{ github.event.inputs.Environment }}
+
+    steps:
+      - name: Dummy step
+        run: echo "Resuable workflows can't be directly reference ENV/INPUTS (yet)"
+
+  BuildOnACR:
+    needs: [ReusableWF]
+    uses: ./.github/workflows/App-AzureVote-BuildOnACRs.yml
+    with:
+      ENVIRONMENT: ${{ needs.ReusableWF.outputs.ENVIRONMENT }}
+      RG: ${{ needs.ReusableWF.outputs.RG }}
+      AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
+      ACRNAME: ${{ needs.ReusableWF.outputs.ACRNAME }}
+      APPNAME: basevote1
+    secrets:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+ 
+  HelmRunCmd:
+    needs: [ReusableWF]
+    uses: ./.github/workflows/App-AzureVote-HelmRunCmd.yml
+    with:
+      ENVIRONMENT: ${{ needs.ReusableWF.outputs.ENVIRONMENT }}
+      RG: ${{ needs.ReusableWF.outputs.RG }}
+      AKSNAME: ${{ needs.ReusableWF.outputs.AKSNAME }}
+      APPNAME: azure-vote
+      INGRESSTYPE: Traefik
+      DEBUG: true
+      HELMPACKAGEURI: "https://github.com/Azure/aks-baseline-automation/raw/main/workloads/azure-vote/AzureVote-helm.tgz"
+    secrets:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}

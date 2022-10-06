@@ -14,8 +14,10 @@
         "APPIP",
         "APPNAME",
         "argo",
+        "aspnet",
         "aspnetapp",
         "aspnetsample",
+        "azureidentity",
         "AZURERBAC",
         "azurevote",
         "CARML",
@@ -31,6 +33,7 @@
         "GHENV",
         "GHORG",
         "GHREPO",
+        "ghToAzAuth"
         "gitops",
         "helmruncmd",
         "INGRESSTYPE",
@@ -40,6 +43,7 @@
         "keyvaults",
         "kubeconfig",
         "kubectl",
+        "kube",
         "Kubernetes",
         "Kured",
         "kustomization",
@@ -55,6 +59,7 @@
         "podmi",
         "refs",
         "roadmap",
+        "secretproviderclass",
         "subcharts",
         "SUBSCRIPTIONID",
         "TENANTID",
@@ -64,6 +69,8 @@
         "vnet",
         "vnets",
         "Vnets",
+        "YOURAZURESUBSCRIPTION"
+        "YOURREGISTEREDAPPNAME"
         "yourorg",
         "yourrepo",
         "Xamarin"

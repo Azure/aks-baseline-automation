@@ -3,10 +3,18 @@ kind: Service
 metadata:
   name: azure-vote-front
   annotations:
-    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+    service.beta.kubernetes.io/azure-load-balancer-internal: "false"
+  labels:
+    role: frontend
+    app: front
 spec:
-  type: LoadBalancer
+  type: ClusterIP
+  loadBalancerIP: 10.240.4.4
   ports:
-  - port: 80
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
   selector:
-    app: azure-vote-front
+    role: frontend
+    app: front

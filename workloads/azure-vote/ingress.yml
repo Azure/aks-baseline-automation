@@ -1,0 +1,34 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: azure-vote
+  annotations:
+    kubernetes.io/ingress.allow-http: "false"
+    # defines controller implementing this ingress resource: https://learn.microsoft.com/azure/dev-spaces/how-to/ingress-https-traefik
+    # ingress.class annotation is being deprecated in Kubernetes 1.18: https://kubernetes.io/docs/concepts/services-networking/ingress/#deprecated-annotation
+    # For backwards compatibility, when this annotation is set, precedence is given over the new field ingressClassName under spec.
+    kubernetes.io/ingress.class: traefik-internal
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.tls.options: default
+    traefik.ingress.kubernetes.io/router.middlewares: app-gateway-snet@file, gzip-compress@file
+spec:
+  tls:
+  - hosts:
+      - bu0001a0008-00.aks-ingress.contoso.com
+        # It is possible to opt for certificate management strategy with dedicated
+        # certificates for each TLS SNI route.
+        # In this Reference Implementation for the sake of simplicity we use a
+        # wildcard default certificate added at Ingress Controller configuration level which is *.example.com
+        # secretName: <bu0001a0008-00-example-com-tls-secret>
+  rules:
+  - host: bu0001a0008-00.aks-ingress.contoso.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: "azure-vote-front"
+            port:
+              number: 80

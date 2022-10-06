@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask
+  template:
+    metadata:
+      labels:
+        app: flask
+    spec:
+      containers:
+      - name: flask-deployment
+        image: acraksf7qlptmhmwvmc.azurecr.io/flask:6c6eb75fc1a85e606757cac68e12973965ae1469
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 2000
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi       
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-service
+spec:
+  type: ClusterIP
+  selector:
+    app: flask
+  ports:
+  - port: 2000
+    targetPort: 2000
