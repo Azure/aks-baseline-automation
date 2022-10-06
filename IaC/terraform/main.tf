@@ -61,8 +61,10 @@ provider "azurerm" {
   partner_id = "451dc593-a3a3-4d41-91e7-3aadf93e1a78"
   features {
     key_vault {
-      purge_soft_delete_on_destroy    = true
-      recover_soft_deleted_key_vaults = true
+      purge_soft_delete_on_destroy               = true
+      recover_soft_deleted_key_vaults            = true
+      purge_soft_deleted_certificates_on_destroy = true
+      recover_soft_deleted_certificates          = true
     }
   }
 }
