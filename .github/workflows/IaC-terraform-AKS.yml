@@ -9,20 +9,24 @@ on:
         type: environment
       REGION:
         description: 'The Azure region to deploy to'
+        type: string
         required: true
         default: eastus
       TF_BACKEND_STORAGE_ACCOUNT:
         description: 'The Azure Storage Account where TF backend will be stored (must be unique). Skip this param if you want to use a TF local backend'
+        type: string
         required: false
         default: ""
-      OPERATION:
-        description: 'Select what operation you want to run through terraform'
-        required: true
-        default: 'Deploy' 
-        type: choice
-        options:
-        - Deploy
-        - Destroy
+      DEPLOY:
+        description: 'Whether the solution will be deployed through terraform'
+        type: boolean
+        required: false
+        default: true
+      DESTROY:
+        description: 'Whether the solution will be destroyed through terraform'
+        type: boolean
+        required: false
+        default: false
 
 env:
   AZURE_CREDENTIALS: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}", "clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}", "subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
@@ -55,7 +59,9 @@ jobs:
         run: |
           echo "Environment : ${{ github.event.inputs.ENVIRONMENT }}"
           echo "REGION : ${{ github.event.inputs.REGION }}"
-          echo "OPERATION : ${{ github.event.inputs.OPERATION }}"
+          echo "TF_BACKEND_STORAGE_ACCOUNT : ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }}"
+          echo "DEPLOY : ${{ github.event.inputs.DEPLOY }}"
+          echo "DESTROY : ${{ github.event.inputs.DESTROY }}"
 
         # OIDC auth is not supported until TF AzureRM 3.7.0 onwards
       - name: Azure Login
@@ -64,7 +70,7 @@ jobs:
           creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Create Resource Group and Storage Account for TF State
-        if: ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT != '' && github.event.inputs.OPERATION == 'Deploy' }}
+        if: ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT != '' && github.event.inputs.DEPLOY }}
         uses: azure/CLI@v1
         with:
           inlineScript: |
@@ -81,7 +87,7 @@ jobs:
       
 
       - name: Deploy Standalone
-        if: ${{ github.event.inputs.OPERATION == 'Deploy' }} 
+        if: ${{ github.event.inputs.DEPLOY }}
         uses: azure/CLI@v1
         with:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
@@ -105,7 +111,7 @@ jobs:
             eval ./terraform apply ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -auto-approve
 
       - name: Destroy Standalone
-        if: ${{ github.event.inputs.OPERATION == 'Destroy' }}
+        if: ${{ github.event.inputs.DESTROY }}
         uses: azure/CLI@v1
         with:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
@@ -119,18 +125,21 @@ jobs:
             parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
             echo "parameter_files: ${parameter_files}"
 
-            if [ -n ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }} ]
+            if [ ${{ github.event.inputs.DEPLOY }} == 'false']
             then
-              ./terraform init -upgrade -backend-config=storage_account_name="${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }}" -backend-config=container_name="tfstate" -backend-config=key="aks-baseline.tfstate" -backend-config=resource_group_name="${{ env.TF_BACKEND_RSG }}"
-              # remove flux from state as flux provider has issues with destroy
-              #./terraform state rm 'module.flux_addon'
-            else
-              ./terraform init -upgrade
+              if [ -n ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }} ]
+              then
+                ./terraform init -upgrade -backend-config=storage_account_name="${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }}" -backend-config=container_name="tfstate" -backend-config=key="aks-baseline.tfstate" -backend-config=resource_group_name="${{ env.TF_BACKEND_RSG }}"
+                # remove flux from state as flux provider has issues with destroy
+                #./terraform state rm 'module.flux_addon'
+              else
+                ./terraform init -upgrade
+              fi
             fi
             eval ./terraform destroy ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -auto-approve
 
       - name: Complete purge
-        if: ${{ github.event.inputs.OPERATION == 'Destroy' }}     
+        if: ${{ github.event.inputs.DESTROY }}
         run: |
             echo RunId $ENVIRONMENT
             for i in `az monitor diagnostic-settings subscription list -o tsv --query "value[?contains(name, '$ENVIRONMENT' )].name"`; do echo "purging subscription diagnostic-settings: $i" && $(az monitor diagnostic-settings subscription delete --name $i --yes); done
