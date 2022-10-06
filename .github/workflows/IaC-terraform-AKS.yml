@@ -18,12 +18,12 @@ on:
         required: false
         default: ""
       DEPLOY:
-        description: 'Whether the solution will be deployed through terraform'
+        description: 'Execute Terraform apply'
         type: boolean
         required: false
         default: true
       DESTROY:
-        description: 'Whether the solution will be destroyed through terraform'
+        description: 'Execute Terraform apply'
         type: boolean
         required: false
         default: false
