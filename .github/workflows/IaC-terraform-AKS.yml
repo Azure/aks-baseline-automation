@@ -84,9 +84,8 @@ jobs:
       #   with:
       #     terraform_version: ${{ env.TF_VERSION }}
       #     terraform_wrapper: false
-      
 
-      - name: Deploy Standalone
+      - name: Deploy Plan Standalone
         if: ${{ github.event.inputs.DEPLOY }}
         uses: azure/CLI@v1
         with:
@@ -94,11 +93,13 @@ jobs:
           inlineScript: |
             cd IaC/terraform
             ls -lta
+            
             wget -nc https://releases.hashicorp.com/terraform/${{ env.TF_VERSION }}/terraform_${{ env.TF_VERSION }}_linux_amd64.zip
             unzip terraform_${{ env.TF_VERSION }}_linux_amd64.zip
             rm terraform_${{ env.TF_VERSION }}_linux_amd64.zip
 
             git clone https://github.com/Azure/caf-terraform-landingzones.git landingzone
+            
             parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
             echo "parameter_files: ${parameter_files}"
             
@@ -108,7 +109,42 @@ jobs:
             else
               ./terraform init -upgrade
             fi
-            eval ./terraform apply ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -auto-approve
+            eval ./terraform plan ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -out tfdeployplan
+
+      - name: Deploy Standalone
+        if: ${{ github.event.inputs.DEPLOY }}
+        uses: azure/CLI@v1
+        with:
+          azcliversion: ${{ env.AZ_CLI_VERSION }}
+          inlineScript: |
+            cd IaC/terraform
+            ls -lta
+            
+            eval ./terraform apply -parallelism=30 -auto-approve tfdeployplan
+
+      - name: Destroy Plan Standalone
+        if: ${{ github.event.inputs.DESTROY }}
+        uses: azure/CLI@v1
+        with:
+          azcliversion: ${{ env.AZ_CLI_VERSION }}
+          inlineScript: |
+            cd IaC/terraform
+            ls -lta
+
+            wget -nc https://releases.hashicorp.com/terraform/${{ env.TF_VERSION }}/terraform_${{ env.TF_VERSION }}_linux_amd64.zip
+            unzip terraform_${{ env.TF_VERSION }}_linux_amd64.zip
+            rm terraform_${{ env.TF_VERSION }}_linux_amd64.zip
+
+            parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
+            echo "parameter_files: ${parameter_files}"
+
+            if [ -n ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }} ]
+            then
+              ./terraform init -upgrade -backend-config=storage_account_name="${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }}" -backend-config=container_name="tfstate" -backend-config=key="aks-baseline.tfstate" -backend-config=resource_group_name="${{ env.TF_BACKEND_RSG }}"
+            else
+              ./terraform init -upgrade
+            fi
+            eval ./terraform plan ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -destroy -out tfdestroyplan
 
       - name: Destroy Standalone
         if: ${{ github.event.inputs.DESTROY }}
@@ -118,25 +154,8 @@ jobs:
           inlineScript: |
             cd IaC/terraform
             ls -lta
-            wget -nc https://releases.hashicorp.com/terraform/${{ env.TF_VERSION }}/terraform_${{ env.TF_VERSION }}_linux_amd64.zip
-            unzip terraform_${{ env.TF_VERSION }}_linux_amd64.zip
-            rm terraform_${{ env.TF_VERSION }}_linux_amd64.zip
 
-            parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
-            echo "parameter_files: ${parameter_files}"
-
-            if [ ${{ github.event.inputs.DEPLOY }} == 'false']
-            then
-              if [ -n ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }} ]
-              then
-                ./terraform init -upgrade -backend-config=storage_account_name="${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }}" -backend-config=container_name="tfstate" -backend-config=key="aks-baseline.tfstate" -backend-config=resource_group_name="${{ env.TF_BACKEND_RSG }}"
-                # remove flux from state as flux provider has issues with destroy
-                #./terraform state rm 'module.flux_addon'
-              else
-                ./terraform init -upgrade
-              fi
-            fi
-            eval ./terraform destroy ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -auto-approve
+            eval ./terraform apply -parallelism=30 -auto-approve tfdestroyplan
 
       - name: Complete purge
         if: ${{ github.event.inputs.DESTROY }}
