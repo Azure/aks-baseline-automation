@@ -21,7 +21,7 @@ role_mapping = {
           #   keys = ["aks_admins"]
           # }
           logged_in = {
-            keys = ["app", "user"]
+            keys = ["app"]
           }
         }
       }
