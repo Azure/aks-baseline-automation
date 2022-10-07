@@ -8,6 +8,14 @@ terraform {
       source  = "hashicorp/azuread"
       version = "~> 1.4.0"
     }
+    azapi = {
+      source  = "azure/azapi"
+      version = "~> 1.0.0"
+    }
+    azurecaf = {
+      source  = "aztfmod/azurecaf"
+      version = "~> 1.2.20"
+    }
     random = {
       source  = "hashicorp/random"
       version = "~> 3.3.1"
@@ -28,25 +36,21 @@ terraform {
       source  = "hashicorp/tls"
       version = "~> 4.0.3"
     }
-    azurecaf = {
-      source  = "aztfmod/azurecaf"
-      version = "~> 1.2.20"
-    }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = ">= 2.13.1"
+      version = "~> 2.13.1"
+    }
+    kubectl = {
+      source  = "gavinbunney/kubectl"
+      version = "~> 1.14.0"
     }
     kustomization = {
       source  = "kbst/kustomization"
       version = "~> 0.9.0"
     }
-    kubectl = {
-      source  = "gavinbunney/kubectl"
-      version = ">= 1.14.0"
-    }
     flux = {
       source  = "fluxcd/flux"
-      version = ">= 0.19.0"
+      version = "~> 0.19.0"
     }
   }
   required_version = ">= 1.3.1"
@@ -79,37 +83,3 @@ provider "azurerm" {
 }
 
 data "azurerm_client_config" "default" {}
-
-#### Addons providers config ####
-
-provider "kubectl" {
-  host                   = try(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.host, null)
-  username               = try(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.username, null)
-  password               = try(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.password, null)
-  client_key             = try(base64decode(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.client_key), null)
-  client_certificate     = try(base64decode(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.client_certificate), null)
-  cluster_ca_certificate = try(base64decode(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.cluster_ca_certificate), null)
-  load_config_file       = false
-}
-
-provider "kubernetes" {
-  host                   = try(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.host, null)
-  username               = try(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.username, null)
-  password               = try(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.password, null)
-  client_key             = try(base64decode(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.client_key), null)
-  client_certificate     = try(base64decode(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.client_certificate), null)
-  cluster_ca_certificate = try(base64decode(data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config.0.cluster_ca_certificate), null)
-}
-
-provider "kustomization" {
-  kubeconfig_raw = data.azurerm_kubernetes_cluster.kubeconfig.kube_admin_config_raw
-}
-
-# Get kubeconfig from AKS clusters
-data "azurerm_kubernetes_cluster" "kubeconfig" {
-  depends_on = [
-    module.caf
-  ]
-  name                = module.caf.aks_clusters[var.aks_cluster_key].cluster_name
-  resource_group_name = module.caf.aks_clusters[var.aks_cluster_key].resource_group_name
-}
