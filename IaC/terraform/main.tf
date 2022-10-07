@@ -108,7 +108,7 @@ provider "kustomization" {
 # Get kubeconfig from AKS clusters
 data "azurerm_kubernetes_cluster" "kubeconfig" {
   depends_on = [
-    module.caf.aks_clusters
+    module.caf
   ]
   name                = module.caf.aks_clusters[var.aks_cluster_key].cluster_name
   resource_group_name = module.caf.aks_clusters[var.aks_cluster_key].resource_group_name
