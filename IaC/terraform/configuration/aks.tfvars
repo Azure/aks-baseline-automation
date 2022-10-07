@@ -1,9 +1,8 @@
 aks_clusters = {
   cluster_re1 = {
-    name                            = "akscluster-re1-001"
-    resource_group_key              = "aks_re1"
-    os_type                         = "Linux"
-    api_server_authorized_ip_ranges = ["0.0.0.0/32"]
+    name               = "akscluster-re1-001"
+    resource_group_key = "aks_re1"
+    os_type            = "Linux"
 
     diagnostic_profiles = {
       operations = {
