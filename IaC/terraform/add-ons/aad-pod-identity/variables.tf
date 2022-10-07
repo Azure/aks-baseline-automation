@@ -1,7 +1,7 @@
 variable "aks_cluster_key" {
   description = "AKS cluster key to deploy AAD Pod identities CRDs objects. The key must be defined in the variable aks_clusters"
 }
-variable "aks_clusters" {
+variable "caf_config" {
   default = {}
 }
 variable "vnets" {
