@@ -146,6 +146,20 @@ jobs:
             fi
             eval ./terraform plan ${parameter_files} -var tags='{repo_environment='"$ENVIRONMENT"'}' -destroy -out tfdestroyplan
 
+      - name: Diagnostics purge
+        if: ${{ github.event.inputs.DESTROY == 'true' }}
+        run: |
+            echo RepoEnvironment $ENVIRONMENT
+            
+            resource_groups=`az group list --tag repo_environment='$ENVIRONMENT' --query '[].name' -o json | jq -r '.[]'`
+            resource_groups_array=($resource_groups)
+            resource_ids=()
+            for i in "${resource_groups_array[@]}"; do resource_ids+=`az resource list -g $i -o json --query '[].id' | jq -r '.[]'`; done
+            resource_ids_array=($resource_ids)
+            for i in "$resource_ids_array[@]"; do echo "Purging diagnostic-settings in: $i" && $(az monitor diagnostic-settings delete --resource $i --yes); done
+            
+            for i in `az keyvault list-deleted --query "[?properties.tags.repo_environment=='$ENVIRONMENT'].name" -o tsv`; do az keyvault purge --name $i; done
+
       - name: Destroy Standalone
         if: ${{ github.event.inputs.DESTROY == 'true' }}
         uses: azure/CLI@v1
@@ -160,6 +174,4 @@ jobs:
       - name: Complete purge
         if: ${{ github.event.inputs.DESTROY == 'true' }}
         run: |
-            echo RepoEnvironment $ENVIRONMENT
-            for i in `az monitor diagnostic-settings subscription list -o tsv --query "value[?contains(name, '$ENVIRONMENT' )].name"`; do echo "purging subscription diagnostic-settings: $i" && $(az monitor diagnostic-settings subscription delete --name $i --yes); done
             for i in `az keyvault list-deleted --query "[?properties.tags.repo_environment=='$ENVIRONMENT'].name" -o tsv`; do az keyvault purge --name $i; done
