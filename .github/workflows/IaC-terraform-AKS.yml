@@ -70,7 +70,7 @@ jobs:
           creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Create Resource Group and Storage Account for TF State
-        if: ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT != '' && github.event.inputs.DEPLOY }}
+        if: ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT != '' && github.event.inputs.DEPLOY == 'true' }}
         uses: azure/CLI@v1
         with:
           inlineScript: |
@@ -86,7 +86,7 @@ jobs:
       #     terraform_wrapper: false
 
       - name: Deploy Plan Standalone
-        if: ${{ github.event.inputs.DEPLOY }}
+        if: ${{ github.event.inputs.DEPLOY == 'true' }}
         uses: azure/CLI@v1
         with:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
@@ -95,7 +95,7 @@ jobs:
             ls -lta
             
             wget -nc https://releases.hashicorp.com/terraform/${{ env.TF_VERSION }}/terraform_${{ env.TF_VERSION }}_linux_amd64.zip
-            unzip terraform_${{ env.TF_VERSION }}_linux_amd64.zip
+            unzip -o terraform_${{ env.TF_VERSION }}_linux_amd64.zip
             rm terraform_${{ env.TF_VERSION }}_linux_amd64.zip
 
             git clone https://github.com/Azure/caf-terraform-landingzones.git landingzone
@@ -112,7 +112,7 @@ jobs:
             eval ./terraform plan ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -out tfdeployplan
 
       - name: Deploy Standalone
-        if: ${{ github.event.inputs.DEPLOY }}
+        if: ${{ github.event.inputs.DEPLOY == 'true' }}
         uses: azure/CLI@v1
         with:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
@@ -123,7 +123,7 @@ jobs:
             eval ./terraform apply -parallelism=30 -auto-approve tfdeployplan
 
       - name: Destroy Plan Standalone
-        if: ${{ github.event.inputs.DESTROY }}
+        if: ${{ github.event.inputs.DESTROY == 'true' }}
         uses: azure/CLI@v1
         with:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
@@ -132,7 +132,7 @@ jobs:
             ls -lta
 
             wget -nc https://releases.hashicorp.com/terraform/${{ env.TF_VERSION }}/terraform_${{ env.TF_VERSION }}_linux_amd64.zip
-            unzip terraform_${{ env.TF_VERSION }}_linux_amd64.zip
+            unzip -o terraform_${{ env.TF_VERSION }}_linux_amd64.zip
             rm terraform_${{ env.TF_VERSION }}_linux_amd64.zip
 
             parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
@@ -147,7 +147,7 @@ jobs:
             eval ./terraform plan ${parameter_files} -var tags='{testing_job_id='"$ENVIRONMENT"'}' -destroy -out tfdestroyplan
 
       - name: Destroy Standalone
-        if: ${{ github.event.inputs.DESTROY }}
+        if: ${{ github.event.inputs.DESTROY == 'true' }}
         uses: azure/CLI@v1
         with:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
@@ -158,7 +158,7 @@ jobs:
             eval ./terraform apply -parallelism=30 -auto-approve tfdestroyplan
 
       - name: Complete purge
-        if: ${{ github.event.inputs.DESTROY }}
+        if: ${{ github.event.inputs.DESTROY == 'true' }}
         run: |
             echo RunId $ENVIRONMENT
             for i in `az monitor diagnostic-settings subscription list -o tsv --query "value[?contains(name, '$ENVIRONMENT' )].name"`; do echo "purging subscription diagnostic-settings: $i" && $(az monitor diagnostic-settings subscription delete --name $i --yes); done
