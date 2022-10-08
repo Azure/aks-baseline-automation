@@ -58,6 +58,7 @@ jobs:
       - name: "Parameter Check"
         run: |
           echo "Environment : ${{ github.event.inputs.ENVIRONMENT }}"
+          echo "Environment tag : ${{ env.ENVIRONMENT }}"
           echo "REGION : ${{ github.event.inputs.REGION }}"
           echo "TF_BACKEND_STORAGE_ACCOUNT : ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }}"
           echo "DEPLOY : ${{ github.event.inputs.DEPLOY }}"
