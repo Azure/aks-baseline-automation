@@ -110,7 +110,7 @@ jobs:
             else
               ./terraform init -upgrade
             fi
-            eval ./terraform plan ${parameter_files} -var tags='{repo_environment='"$ENVIRONMENT"'}' -out tfdeployplan
+            eval ./terraform plan ${parameter_files} -var tags='{repo_environment="${{ env.ENVIRONMENT }}"}' -out tfdeployplan
 
       - name: Deploy Standalone
         if: ${{ github.event.inputs.DEPLOY == 'true' }}
@@ -145,7 +145,7 @@ jobs:
             else
               ./terraform init -upgrade
             fi
-            eval ./terraform plan ${parameter_files} -var tags='{repo_environment='"$ENVIRONMENT"'}' -destroy -out tfdestroyplan
+            eval ./terraform plan ${parameter_files} -var tags='{repo_environment="${{ env.ENVIRONMENT }}"}' -destroy -out tfdestroyplan
 
       - name: Diagnostics purge
         if: ${{ github.event.inputs.DESTROY == 'true' }}
