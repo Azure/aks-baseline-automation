@@ -6,5 +6,5 @@ module "flux_addon" {
 }
 
 output "flux_addon_output" {
-  value = module.flux_addon
+  value = module.flux_addon.flux_output
 }
