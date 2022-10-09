@@ -132,7 +132,7 @@ jobs:
             cd IaC/terraform
             ls -lta
 
-            if [ ${{ github.event.inputs.DEPLOY }} -eq 'false' ]
+            if [ ${{ github.event.inputs.DEPLOY }} == 'false' ]
             then
               wget -nc https://releases.hashicorp.com/terraform/${{ env.TF_VERSION }}/terraform_${{ env.TF_VERSION }}_linux_amd64.zip
               unzip -o terraform_${{ env.TF_VERSION }}_linux_amd64.zip
