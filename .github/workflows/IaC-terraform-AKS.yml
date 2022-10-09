@@ -153,6 +153,7 @@ jobs:
 
       - name: Diagnostics purge
         if: ${{ github.event.inputs.DESTROY == 'true' }}
+        continue-on-error: true
         run: |
           echo RepoEnvironment $ENVIRONMENT
           
