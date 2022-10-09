@@ -165,7 +165,7 @@ jobs:
           for i in "${resource_ids_array[@]}"
           do
             diagnostic_query=`az monitor diagnostic-settings list --resource $i --query 'value[]' 2>nul || true`
-            if [ $diagnostic_query != '[]' ]; then
+            if [ ${#diagnostic_query} -gt 2 ]; then
               diagnostic_names+=(`echo $diagnostic_query | jq -r '.[].name'`)
               diagnostic_parent_ids+=(`echo $diagnostic_query | jq -r '.[].id' | grep -oP '^.*?(?=\/providers\/microsoft.insights)'`)
             fi
