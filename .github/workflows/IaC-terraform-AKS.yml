@@ -124,7 +124,7 @@ jobs:
             eval ./terraform apply -parallelism=30 -auto-approve tfdeployplan
 
       - name: Destroy Plan Standalone
-        if: ${{ github.event.inputs.DESTROY == 'true' }}
+        if: ${{ github.event.inputs.DESTROY == 'false' }}
         uses: azure/CLI@v1
         with:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
