@@ -146,6 +146,13 @@ jobs:
               fi
             fi
             
+            tf_state_resources=`terraform state list | grep 'module.flux_addon' || true`
+            if [ ${#tf_state_resources} -gt 0 ]
+            then
+              echo "Destroying Flux Addon from state as flux provider has issues with destroy"
+              ./terraform state rm 'module.flux_addon'
+            fi
+
             parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
             echo "parameter_files: ${parameter_files}"
 
@@ -185,9 +192,6 @@ jobs:
           inlineScript: |
             cd IaC/terraform
             ls -lta
-
-            # remove flux from state as flux provider has issues with destroy
-            ./terraform state rm 'module.flux_addon'
 
             eval ./terraform apply -parallelism=30 -auto-approve tfdestroyplan
 
