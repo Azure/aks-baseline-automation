@@ -171,7 +171,7 @@ jobs:
             fi
           done
 
-          for (( i=0; i<=${#diagnostic_names[@]}; i++ ))
+          for (( i=0; i<${#diagnostic_names[@]}; i++ ))
           do
             echo "Purging diagnostic-settings: ${diagnostic_names[$i]}" && \
             $(az monitor diagnostic-settings delete --resource ${diagnostic_parent_ids[$i]} --name ${diagnostic_names[$i]} --yes)
