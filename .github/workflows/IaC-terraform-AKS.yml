@@ -156,7 +156,8 @@ jobs:
         run: |
             echo RepoEnvironment $ENVIRONMENT
             
-            resource_groups=`az group list --tag repo_environment='$ENVIRONMENT' --query '[].name' -o json | jq -r '.[]'`
+            az group list
+            resource_groups=`az group list --tag repo_environment='${{ env.ENVIRONMENT }}' --query '[].name' -o json | jq -r '.[]'`
             resource_groups_array=($resource_groups)
             echo rgs : ${resource_groups_array[@]}
             resource_ids=()
@@ -165,7 +166,7 @@ jobs:
             echo resources : ${resource_ids_array[@]}
             for i in "$resource_ids_array[@]"; do echo "Purging diagnostic-settings in: $i" && $(az monitor diagnostic-settings delete --resource $i --yes); done
             
-            for i in `az keyvault list-deleted --query "[?properties.tags.repo_environment=='$ENVIRONMENT'].name" -o tsv`; do az keyvault purge --name $i; done
+            for i in `az keyvault list-deleted --query "[?properties.tags.repo_environment=='${{ env.ENVIRONMENT }}'].name" -o tsv`; do az keyvault purge --name $i; done
 
       - name: Destroy Standalone
         if: ${{ github.event.inputs.DESTROY == 'true' }}
