@@ -157,8 +157,10 @@ jobs:
           echo RepoEnvironment $ENVIRONMENT
           
           resource_groups_array=(`az group list --tag repo_environment='${{ env.ENVIRONMENT }}' --query '[].name' -o json | jq -r '.[]'`)
+          echo rgs : ${resource_groups_array[@]}
           resource_ids_array=()
           for i in "${resource_groups_array[@]}"; do resource_ids_array+=(`az resource list -g $i -o json --query '[].id' | jq -r '.[]'`); done
+          echo resources : ${resource_ids_array[@]}
           diagnostic_names=()
           diagnostic_parent_ids=()
           for i in "${resource_ids_array[@]}"
@@ -170,7 +172,10 @@ jobs:
             fi
           done
 
-          for (( i=0; i<${#diagnostic_names[@]}; i++ ))
+          echo diagnostics : ${diagnostic_names[@]}
+          echo diagnostic_parent_ids : ${diagnostic_parent_ids[@]}
+
+          for (( i=0; i<=${#diagnostic_names[@]}; i++ ))
           do
             echo "Purging diagnostic-settings: ${diagnostic_names[$i]}" && \
             $(az monitor diagnostic-settings delete --resource ${diagnostic_parent_ids[$i]} --name ${diagnostic_names[$i]} --yes)
