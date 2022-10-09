@@ -154,19 +154,27 @@ jobs:
       - name: Diagnostics purge
         if: ${{ github.event.inputs.DESTROY == 'true' }}
         run: |
-            echo RepoEnvironment $ENVIRONMENT
-            
-            az group list
-            resource_groups=`az group list --tag repo_environment='${{ env.ENVIRONMENT }}' --query '[].name' -o json | jq -r '.[]'`
-            resource_groups_array=($resource_groups)
-            echo rgs : ${resource_groups_array[@]}
-            resource_ids=()
-            for i in "${resource_groups_array[@]}"; do resource_ids+=`az resource list -g $i -o json --query '[].id' | jq -r '.[]'`; done
-            resource_ids_array=($resource_ids)
-            echo resources : ${resource_ids_array[@]}
-            for i in "$resource_ids_array[@]"; do echo "Purging diagnostic-settings in: $i" && $(az monitor diagnostic-settings delete --resource $i --yes); done
-            
-            for i in `az keyvault list-deleted --query "[?properties.tags.repo_environment=='${{ env.ENVIRONMENT }}'].name" -o tsv`; do az keyvault purge --name $i; done
+          echo RepoEnvironment $ENVIRONMENT
+          
+          resource_groups_array=(`az group list --tag repo_environment='${{ env.ENVIRONMENT }}' --query '[].name' -o json | jq -r '.[]'`)
+          resource_ids_array=()
+          for i in "${resource_groups_array[@]}"; do resource_ids_array+=(`az resource list -g $i -o json --query '[].id' | jq -r '.[]'`); done
+          diagnostic_names=()
+          diagnostic_parent_ids=()
+          for i in "${resource_ids_array[@]}"
+          do
+            diagnostic_query=`az monitor diagnostic-settings list --resource $i --query 'value[]' 2>nul | jq -r '.[]'`
+            if [ $? -eq 0 ]; then
+              diagnostic_names+=(`echo $diagnostic_query | jq -r '.name'`)
+              diagnostic_parent_ids+=(`echo $diagnostic_query | jq -r '.id' | grep -oP '^.*?(?=\/providers\/microsoft.insights)'`)
+            fi
+          done
+
+          for (( i=0; i<${#diagnostic_names[@]}; i++ ))
+          do
+            echo "Purging diagnostic-settings: ${diagnostic_names[$i]}" && \
+            $(az monitor diagnostic-settings delete --resource ${diagnostic_parent_ids[$i]} --name ${diagnostic_names[$i]} --yes)
+          done
 
       - name: Destroy Standalone
         if: ${{ github.event.inputs.DESTROY == 'true' }}
@@ -182,4 +190,4 @@ jobs:
       - name: Complete purge
         if: ${{ github.event.inputs.DESTROY == 'true' }}
         run: |
-            for i in `az keyvault list-deleted --query "[?properties.tags.repo_environment=='$ENVIRONMENT'].name" -o tsv`; do az keyvault purge --name $i; done
+          for i in `az keyvault list-deleted --query "[?properties.tags.repo_environment=='$ENVIRONMENT'].name" -o tsv`; do az keyvault purge --name $i; done
