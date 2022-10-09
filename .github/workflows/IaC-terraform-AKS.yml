@@ -153,7 +153,7 @@ jobs:
 
       - name: Diagnostics purge
         if: ${{ github.event.inputs.DESTROY == 'true' }}
-        continue-on-error: true
+        #continue-on-error: true
         run: |
           echo RepoEnvironment $ENVIRONMENT
           
@@ -167,6 +167,8 @@ jobs:
           for i in "${resource_ids_array[@]}"
           do
             diagnostic_query=`az monitor diagnostic-settings list --resource $i --query 'value[]' 2>nul | jq -r '.[]'`
+            echo diagnosticName : $diagnostic_query | jq -r '.name'`
+            echo diagnosticParentId : $diagnostic_query | jq -r '.id' | grep -oP '^.*?(?=\/providers\/microsoft.insights)'`
             if [ $? -eq 0 ]; then
               diagnostic_names+=(`echo $diagnostic_query | jq -r '.name'`)
               diagnostic_parent_ids+=(`echo $diagnostic_query | jq -r '.id' | grep -oP '^.*?(?=\/providers\/microsoft.insights)'`)
