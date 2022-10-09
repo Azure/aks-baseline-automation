@@ -167,8 +167,6 @@ jobs:
           for i in "${resource_ids_array[@]}"
           do
             diagnostic_query=`az monitor diagnostic-settings list --resource $i --query 'value[]' 2>nul | jq -r '.[]'`
-            echo diagnosticName : $diagnostic_query | jq -r '.name'`
-            echo diagnosticParentId : $diagnostic_query | jq -r '.id' | grep -oP '^.*?(?=\/providers\/microsoft.insights)'`
             if [ $? -eq 0 ]; then
               diagnostic_names+=(`echo $diagnostic_query | jq -r '.name'`)
               diagnostic_parent_ids+=(`echo $diagnostic_query | jq -r '.id' | grep -oP '^.*?(?=\/providers\/microsoft.insights)'`)
@@ -183,6 +181,7 @@ jobs:
             echo "Purging diagnostic-settings: ${diagnostic_names[$i]}" && \
             $(az monitor diagnostic-settings delete --resource ${diagnostic_parent_ids[$i]} --name ${diagnostic_names[$i]} --yes)
           done
+          exit 1
 
       - name: Destroy Standalone
         if: ${{ github.event.inputs.DESTROY == 'true' }}
