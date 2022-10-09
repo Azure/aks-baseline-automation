@@ -174,7 +174,7 @@ jobs:
           for (( i=0; i<${#diagnostic_names[@]}; i++ ))
           do
             echo "Purging diagnostic-settings: ${diagnostic_names[$i]}" && \
-            $(az monitor diagnostic-settings delete --resource ${diagnostic_parent_ids[$i]} --name ${diagnostic_names[$i]} --yes)
+            $(az monitor diagnostic-settings delete --resource ${diagnostic_parent_ids[$i]} --name ${diagnostic_names[$i]})
           done
 
       - name: Destroy Standalone
