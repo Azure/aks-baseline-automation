@@ -186,6 +186,9 @@ jobs:
             cd IaC/terraform
             ls -lta
 
+            # remove flux from state as flux provider has issues with destroy
+            terraform state rm 'module.flux_addon'
+            
             eval ./terraform apply -parallelism=30 -auto-approve tfdestroyplan
 
       - name: Complete purge
