@@ -124,7 +124,7 @@ jobs:
             eval ./terraform apply -parallelism=30 -auto-approve tfdeployplan
 
       - name: Destroy Plan Standalone
-        if: ${{ github.event.inputs.DESTROY == 'false' }}
+        if: ${{ github.event.inputs.DESTROY == 'true' }}
         uses: azure/CLI@v1
         with:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
@@ -157,30 +157,25 @@ jobs:
           echo RepoEnvironment $ENVIRONMENT
           
           resource_groups_array=(`az group list --tag repo_environment='${{ env.ENVIRONMENT }}' --query '[].name' -o json | jq -r '.[]'`)
-          echo rgs : ${resource_groups_array[@]}
+          echo Resource Groups tagged : ${resource_groups_array[@]}
           resource_ids_array=()
           for i in "${resource_groups_array[@]}"; do resource_ids_array+=(`az resource list -g $i -o json --query '[].id' | jq -r '.[]'`); done
-          echo resources : ${resource_ids_array[@]}
           diagnostic_names=()
           diagnostic_parent_ids=()
           for i in "${resource_ids_array[@]}"
           do
-            diagnostic_query=`az monitor diagnostic-settings list --resource $i --query 'value[]' 2>nul | jq -r '.[]'`
-            if [ $? -eq 0 ]; then
-              diagnostic_names+=(`echo $diagnostic_query | jq -r '.name'`)
-              diagnostic_parent_ids+=(`echo $diagnostic_query | jq -r '.id' | grep -oP '^.*?(?=\/providers\/microsoft.insights)'`)
+            diagnostic_query=`az monitor diagnostic-settings list --resource $i --query 'value[]' 2>nul || true`
+            if [ $diagnostic_query != '[]' ]; then
+              diagnostic_names+=(`echo $diagnostic_query | jq -r '.[].name'`)
+              diagnostic_parent_ids+=(`echo $diagnostic_query | jq -r '.[].id' | grep -oP '^.*?(?=\/providers\/microsoft.insights)'`)
             fi
           done
-
-          echo diagnostics : ${diagnostic_names[@]}
-          echo diagnostic_parent_ids : ${diagnostic_parent_ids[@]}
 
           for (( i=0; i<=${#diagnostic_names[@]}; i++ ))
           do
             echo "Purging diagnostic-settings: ${diagnostic_names[$i]}" && \
             $(az monitor diagnostic-settings delete --resource ${diagnostic_parent_ids[$i]} --name ${diagnostic_names[$i]} --yes)
           done
-          exit 0
 
       - name: Destroy Standalone
         if: ${{ github.event.inputs.DESTROY == 'true' }}
