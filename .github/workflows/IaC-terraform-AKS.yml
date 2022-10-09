@@ -167,7 +167,6 @@ jobs:
           do
             diagnostic_query=`az monitor diagnostic-settings list --resource $i --query 'value[]' 2>nul | jq -r '.[]'`
             if [ $? -eq 0 ]; then
-              echo reached
               diagnostic_names+=(`echo $diagnostic_query | jq -r '.name'`)
               diagnostic_parent_ids+=(`echo $diagnostic_query | jq -r '.id' | grep -oP '^.*?(?=\/providers\/microsoft.insights)'`)
             fi
@@ -181,7 +180,7 @@ jobs:
             echo "Purging diagnostic-settings: ${diagnostic_names[$i]}" && \
             $(az monitor diagnostic-settings delete --resource ${diagnostic_parent_ids[$i]} --name ${diagnostic_names[$i]} --yes)
           done
-          exit 1
+          exit 0
 
       - name: Destroy Standalone
         if: ${{ github.event.inputs.DESTROY == 'true' }}
