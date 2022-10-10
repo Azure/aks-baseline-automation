@@ -20,6 +20,7 @@ application_gateway_applications_v1 = {
         port = 8443
       }
     }
+
     ssl_certs = {
       sslagwcert = {
         name = "sslagwcert1"
