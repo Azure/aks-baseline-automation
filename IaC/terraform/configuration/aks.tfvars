@@ -50,10 +50,10 @@ aks_clusters = {
       azure_policy = {
         enabled = true
       }
-      # ingress_application_gateway = {
-      #   enabled = true
-      #   key     = "agw1_az1"
-      # }
+      ingress_application_gateway = {
+        enabled = true
+        key     = "agw1_az1"
+      }
     }
 
 
