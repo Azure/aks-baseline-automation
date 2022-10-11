@@ -129,6 +129,10 @@ variable "dns_zones" {
   default = {}
 }
 
+variable "application_gateway_waf_policies" {
+  default = {}
+}
+
 variable "application_gateway_platforms" {
   default = {}
 }
