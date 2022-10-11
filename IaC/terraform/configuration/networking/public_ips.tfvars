@@ -34,7 +34,7 @@ public_ip_addresses = {
     sku                     = "Standard"
     allocation_method       = "Static"
     ip_version              = "IPv4"
-    zones                   = "3"
+    zones                   = ["1"]
     idle_timeout_in_minutes = "4"
 
   }

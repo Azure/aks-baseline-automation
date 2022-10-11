@@ -15,7 +15,7 @@ application_gateway_platforms = {
         maximum_scale_unit = 10
       }
     }
-    zones        = ["3"]
+    zones        = ["1"]
     enable_http2 = false
 
     identity = {
