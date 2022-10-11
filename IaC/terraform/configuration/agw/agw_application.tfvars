@@ -8,7 +8,7 @@ application_gateway_applications_v1 = {
       public_ssl = {
         name                           = "public-443"
         front_end_ip_configuration_key = "public"
-        front_end_port_key             = "https_port"
+        front_end_port_key             = "443"
         ssl_cert_key                   = "sslagwcert"
       }
     }
@@ -27,7 +27,7 @@ application_gateway_applications_v1 = {
     http_settings = {
       http_setting_1 = {
         name                        = "aks_http_setting_1"
-        front_end_port_key          = "https_port"
+        front_end_port_key          = "443"
         root_certs                  = "wildcard-ingress"
         host_name_from_backend_pool = true
         timeout                     = 20
