@@ -32,12 +32,12 @@ application_gateway_platforms = {
     }
 
     front_end_ports = {
-      80 = {
+      http_port = {
         name     = "http-80"
         port     = 80
         protocol = "Http"
       }
-      443 = {
+      https_port = {
         name     = "https-443"
         port     = 443
         protocol = "Https"
@@ -72,7 +72,7 @@ application_gateway_platforms = {
 
     #default: wont be able to change after creation as this is required for agw tf resource
     default = {
-      frontend_port_key             = "80"
+      frontend_port_key             = "http_port"
       frontend_ip_configuration_key = "public"
       backend_address_pool_name     = "default-beap"
       http_setting_name             = "default-be-htst"
