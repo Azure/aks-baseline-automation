@@ -13,16 +13,6 @@ application_gateway_applications_v1 = {
       }
     }
 
-    ssl_certs = {
-      sslagwcert = {
-        name = "sslagwcert1"
-        keyvault = {
-          certificate_name = "appgateway"
-          key              = "secrets"
-        }
-      }
-    }
-
     request_routing_rules = {
       default = {
         name              = "default_request_routing_rule_1"
@@ -50,8 +40,8 @@ application_gateway_applications_v1 = {
     probes = {
       probe_1 = {
         name                         = "probe-fqdn-backend-aks"
-        protocol                     = "Http"
-        path                         = "/favicon.ico"
+        protocol                     = "Https"
+        path                         = "/"
         interval                     = 30
         timeout                      = 30
         threshold                    = 3
