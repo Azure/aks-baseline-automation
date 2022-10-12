@@ -146,7 +146,7 @@ jobs:
               fi
             fi
 
-            tf_state_resources=`terraform state list | grep 'module.flux_addon' || true`
+            tf_state_resources=`./terraform state list | grep 'module.flux_addon' || true`
             if [ ${#tf_state_resources} -gt 0 ]
             then
               echo "Destroying Flux Addon from state as flux provider has issues with destroy"
