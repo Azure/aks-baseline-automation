@@ -5,7 +5,10 @@
         "location": {
             "value": "westus2"
         },
-        "domainName":{
+        "keyVaultPublicNetworkAccess": {
+            "value": "Enabled"
+        },
+        "domainName": {
             "value": "contoso.com"
         }
     }

@@ -5,27 +5,23 @@
         "location": {
             "value": "westus2"
         },
-        "clusterAdminAadGroupObjectId":{
+        "clusterAdminAadGroupObjectId": {
             "value": ""
         },
-        "a0008NamespaceReaderAadGroupObjectId":{
+        "a0008NamespaceReaderAadGroupObjectId": {
             "value": ""
         },
-        "domainName":{
+        "domainName": {
             "value": "contoso.com"
         },
-        "kubernetesVersion":{
+        "kubernetesVersion": {
             "value": "1.23.8"
         },
-        "keyVaultPublicNetworkAccess":{
-            "value": "Enabled"
-        },        
-        "gitOpsBootstrappingRepoHttpsUrl":{
+        "gitOpsBootstrappingRepoHttpsUrl": {
             "value": "https://github.com/Azure/aks-baseline-automation"
-        }
-        ,
-        "gitOpsBootstrappingRepoBranch":{
+        },
+        "gitOpsBootstrappingRepoBranch": {
             "value": "main"
-        }         
+        }
     }
 }
