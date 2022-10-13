@@ -18,17 +18,17 @@ locals {
       cluster_re1 = {
         "Azure Kubernetes Service RBAC Cluster Admin" = {
           object_ids = {
-            keys = var.clusterAdminAADGroupsObjectIds
+            keys = compact(var.clusterAdminAADGroupsObjectIds)
           }
         }
         "Azure Kubernetes Service Cluster User Role" = {
           object_ids = {
-            keys = var.clusterAdminAADGroupsObjectIds == var.clusterUserAADGroupsObjectIds ? var.clusterUserAADGroupsObjectIds : concat(var.clusterAdminAADGroupsObjectIds, var.clusterUserAADGroupsObjectIds)
+            keys = var.clusterAdminAADGroupsObjectIds == var.clusterUserAADGroupsObjectIds ? compact(var.clusterUserAADGroupsObjectIds) : compact(concat(var.clusterAdminAADGroupsObjectIds, var.clusterUserAADGroupsObjectIds))
           }
         }
         "Azure Kubernetes Service RBAC Reader" = {
           object_ids = {
-            keys = var.clusterUserAADGroupsObjectIds
+            keys = compact(var.clusterUserAADGroupsObjectIds)
           }
         }
       }
