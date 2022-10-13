@@ -13,6 +13,8 @@ locals {
     passthrough    = true
   }
 
+  k8sClusterRole = 
+
   role_mapping_aks_clusters = {
     aks_clusters = {
       cluster_re1 = {
@@ -23,7 +25,7 @@ locals {
         }
         "Azure Kubernetes Service Cluster User Role" = {
           object_ids = {
-            keys = concat(var.clusterAdminAADGroupsObjectIds, var.clusterUserAADGroupsObjectIds)
+            keys = var.clusterAdminAADGroupsObjectIds == var.clusterUserAADGroupsObjectIds ? var.clusterUserAADGroupsObjectIds : concat(var.clusterAdminAADGroupsObjectIds, var.clusterUserAADGroupsObjectIds)
           }
         }
         "Azure Kubernetes Service RBAC Reader" = {
