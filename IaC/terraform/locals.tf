@@ -13,8 +13,6 @@ locals {
     passthrough    = true
   }
 
-  k8sClusterRole = 
-
   role_mapping_aks_clusters = {
     aks_clusters = {
       cluster_re1 = {
