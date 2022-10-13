@@ -122,7 +122,7 @@ jobs:
             else
               ./terraform init -upgrade
             fi
-            eval ./terraform plan ${parameter_files} -var 'tags={repo_environment=\"$ENVIRONMENT\"}' -out tfdeployplan
+            eval ./terraform plan ${parameter_files} -var 'tags={repo_environment=\"$ENVIRONMENT\"}' -var 'regions=[\"${{ github.event.inputs.REGION\"]' -out tfdeployplan
 
       - name: Deploy Standalone
         if: ${{ github.event.inputs.DEPLOY == 'true' }}
@@ -171,7 +171,7 @@ jobs:
             parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
             echo "parameter_files: ${parameter_files}"
 
-            eval ./terraform plan ${parameter_files} -var 'tags={repo_environment=\"$ENVIRONMENT\"}' -destroy -out tfdestroyplan
+            eval ./terraform plan ${parameter_files} -var 'tags={repo_environment=\"$ENVIRONMENT\"}' -var 'regions=[\"${{ github.event.inputs.REGION\"]' -destroy -out tfdestroyplan
 
       - name: Diagnostics purge
         if: ${{ github.event.inputs.DESTROY == 'true' }}

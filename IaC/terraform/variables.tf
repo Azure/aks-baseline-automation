@@ -6,9 +6,15 @@ variable "global_settings" {
     random_length  = 4
     default_region = "region1"
     regions = {
-      region1 = "southeastasia"
+      region1 = "eastus"
     }
   }
+}
+
+variable "regions" {
+  description = "global_settings Azure regions comma separated"
+  type        = list(string)
+  default     = []
 }
 
 variable "resource_groups" {
