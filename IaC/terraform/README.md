@@ -59,15 +59,17 @@ To customize the sample GitHub pipeline provided based on your specific needs, f
     Also instead of using a Service Principal and storing the secret in the GitHub Cloud, once AzureRM Provider is updated to 3.7.0+ you should setup [Workload Identity federation with OpenID Connect](https://learn.microsoft.com/azure/developer/github/connect-from-azure?tabs=azure-portal%2Cwindows#use-the-azure-login-action-with-openid-connect). Follow [these steps](../oidc-federated-credentials.md) to set it up with [Terraform Azure Provider Auth](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/service_principal_oidc).
 
 2. Provide the workflow [IaC-terraform-AKS.yml](../../.github/workflows/IaC-terraform-AKS.yml) inputs during the workflow run:
-   | Input                      | Description                                                                                                                       | Default value |
-   | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------- |
-   | ENVIRONMENT                | A GitHub Environment which must be selected to pull action secrets from                                                           |               |
-   | REGION                     | The Azure region to deploy to                                                                                                     | eastus        |
-   | TF_BACKEND_STORAGE_ACCOUNT | The Azure Storage Account where TF backend will be stored (must be unique). Skip this param if you want to use a TF local backend |               |
-   | DEPLOY_PLAN_ONLY           | Execute Terraform plan only                                                                                                       | false         |
-   | DEPLOY                     | Execute Terraform apply only                                                                                                      | true          |
-   | DESTROY_PLAN_ONLY          | Execute Terraform plan -destroy only                                                                                              | false         |
-   | DESTROY                    | Execute Terraform destroy                                                                                                         | false         |
+   | Input                        | Description                                                                                                                       | Default value |
+   | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+   | ENVIRONMENT                  | A GitHub Environment which must be selected to pull action secrets from                                                           |               |
+   | REGION                       | The Azure region to deploy to                                                                                                     | eastus        |
+   | TF_BACKEND_STORAGE_ACCOUNT   | The Azure Storage Account where TF backend will be stored (must be unique). Skip this param if you want to use a TF local backend |               |
+   | DEPLOY_PLAN_ONLY             | Execute Terraform plan only                                                                                                       | false         |
+   | DEPLOY                       | Execute Terraform apply only                                                                                                      | true          |
+   | DESTROY_PLAN_ONLY            | Execute Terraform plan -destroy only                                                                                              | false         |
+   | DESTROY                      | Execute Terraform destroy                                                                                                         | false         |
+   | clusterAdminAADGroupObjectId | K8S Admin Azure AAD Group ObjectID                                                                                                |               |
+   | clusterUserAADGroupObjectId  | K8S Admin Azure AAD Group ObjectID                                                                                                |               |
     > Note: This sample workflow file deploys Azure resources respectively in the hub and spoke resource groups as specified in the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline).
 
 
