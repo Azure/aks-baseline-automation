@@ -125,7 +125,7 @@ jobs:
             else
               ./terraform init -upgrade
             fi
-            eval ./terraform plan ${parameter_files} -var 'tags={repo_environment=\"$ENVIRONMENT\"}' -var 'regions=[\"${{ github.event.inputs.REGION\"]' -var 'clusterAdminAADGroupsObjectIds=[\"${{ github.event.inputs.clusterAdminAADGroupObjectId\"]' -var 'clusterUserAADGroupsObjectIds=[\"${{ github.event.inputs.clusterUserAADGroupObjectId\"]' -out tfdeployplan
+            eval ./terraform plan ${parameter_files} -var 'tags={repo_environment=\"$ENVIRONMENT\"}' -var 'regions=[\"${{ github.event.inputs.REGION }}\"]' -var 'clusterAdminAADGroupsObjectIds=[\"${{ github.event.inputs.clusterAdminAADGroupObjectId }}\"]' -var 'clusterUserAADGroupsObjectIds=[\"${{ github.event.inputs.clusterUserAADGroupObjectId }}\"]' -out tfdeployplan
 
       - name: Deploy Standalone
         if: ${{ github.event.inputs.DEPLOY == 'true' }}
@@ -174,7 +174,7 @@ jobs:
             parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
             echo "parameter_files: ${parameter_files}"
 
-            eval ./terraform plan ${parameter_files} -var 'tags={repo_environment=\"$ENVIRONMENT\"}' -var 'regions=[\"${{ github.event.inputs.REGION\"]' -var 'clusterAdminAADGroupsObjectIds=[\"${{ github.event.inputs.clusterAdminAADGroupObjectId\"]' -var 'clusterUserAADGroupsObjectIds=[\"${{ github.event.inputs.clusterUserAADGroupObjectId\"]' -destroy -out tfdestroyplan
+            eval ./terraform plan ${parameter_files} -var 'tags={repo_environment=\"$ENVIRONMENT\"}' -var 'regions=[\"${{ github.event.inputs.REGION }}\"]' -var 'clusterAdminAADGroupsObjectIds=[\"${{ github.event.inputs.clusterAdminAADGroupObjectId }}\"]' -var 'clusterUserAADGroupsObjectIds=[\"${{ github.event.inputs.clusterUserAADGroupObjectId }}\"]' -destroy -out tfdestroyplan
 
       - name: Diagnostics purge
         if: ${{ github.event.inputs.DESTROY == 'true' }}
