@@ -17,11 +17,21 @@ on:
         type: string
         required: false
         default: ""
+      DEPLOY_PLAN_ONLY:
+        description: "Execute Terraform plan only"
+        type: boolean
+        required: false
+        default: false
       DEPLOY:
         description: "Execute Terraform apply"
         type: boolean
         required: false
         default: true
+      DESTROY_PLAN_ONLY:
+        description: "Execute Terraform plan -destroy only"
+        type: boolean
+        required: false
+        default: false
       DESTROY:
         description: "Execute Terraform destroy"
         type: boolean
@@ -61,7 +71,9 @@ jobs:
           echo "Environment tag : ${{ env.ENVIRONMENT }}"
           echo "REGION : ${{ github.event.inputs.REGION }}"
           echo "TF_BACKEND_STORAGE_ACCOUNT : ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }}"
+          echo "DEPLOY_PLAN_ONLY : ${{ github.event.inputs.DEPLOY_PLAN_ONLY }}"
           echo "DEPLOY : ${{ github.event.inputs.DEPLOY }}"
+          echo "DESTROY_PLAN_ONLY : ${{ github.event.inputs.DESTROY_PLAN_ONLY }}"
           echo "DESTROY : ${{ github.event.inputs.DESTROY }}"
 
         # OIDC auth is not supported until TF AzureRM 3.7.0 onwards
@@ -71,7 +83,7 @@ jobs:
           creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Create Resource Group and Storage Account for TF State
-        if: ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT != '' && github.event.inputs.DEPLOY == 'true' }}
+        if: ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT != '' && (github.event.inputs.DEPLOY_PLAN_ONLY == 'true' || github.event.inputs.DEPLOY == 'true') }}
         uses: azure/CLI@v1
         with:
           inlineScript: |
@@ -87,7 +99,7 @@ jobs:
       #     terraform_wrapper: false
 
       - name: Deploy Plan Standalone
-        if: ${{ github.event.inputs.DEPLOY == 'true' }}
+        if: ${{ github.event.inputs.DEPLOY_PLAN_ONLY == 'true' || github.event.inputs.DEPLOY == 'true' }}
         uses: azure/CLI@v1
         with:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
@@ -124,7 +136,7 @@ jobs:
             eval ./terraform apply -parallelism=30 -auto-approve tfdeployplan
 
       - name: Destroy Plan Standalone
-        if: ${{ github.event.inputs.DESTROY == 'true' }}
+        if: ${{ github.event.inputs.DESTROY_PLAN_ONLY == 'true' || github.event.inputs.DESTROY == 'true' }}
         uses: azure/CLI@v1
         with:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
@@ -132,7 +144,7 @@ jobs:
             cd IaC/terraform
             ls -lta
 
-            if [ ${{ github.event.inputs.DEPLOY }} == 'false' ]
+            if [ ${{ github.event.inputs.DEPLOY_PLAN_ONLY }} == 'false' ] && [ ${{ github.event.inputs.DEPLOY }} == 'false' ]
             then
               wget -nc https://releases.hashicorp.com/terraform/${{ env.TF_VERSION }}/terraform_${{ env.TF_VERSION }}_linux_amd64.zip
               unzip -o terraform_${{ env.TF_VERSION }}_linux_amd64.zip
@@ -146,11 +158,14 @@ jobs:
               fi
             fi
 
-            tf_state_resources=`./terraform state list | grep 'module.flux_addon' || true`
-            if [ ${#tf_state_resources} -gt 0 ]
+            if [ ${{ github.event.inputs.DESTROY_PLAN_ONLY }} == 'false' ]
             then
-              echo "Destroying Flux Addon from state as flux provider has issues with destroy"
-              ./terraform state rm 'module.flux_addon'
+              tf_state_resources=`./terraform state list | grep 'module.flux_addon' || true`
+              if [ ${#tf_state_resources} -gt 0 ]
+              then
+                echo "Destroying Flux Addon from state as flux provider has issues with destroy"
+                ./terraform state rm 'module.flux_addon'
+              fi
             fi
 
             parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
