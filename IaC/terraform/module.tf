@@ -11,7 +11,7 @@ module "caf" {
   global_settings      = merge((var.override_prefix == "" ? {} : { prefix = var.override_prefix }), local.global_settings)
   logged_user_objectId = var.logged_user_objectId
   tags                 = var.tags
-  resource_groups      = var.resource_groups
+  resource_groups      = local.resource_groups
   keyvaults            = var.keyvaults
   managed_identities   = var.managed_identities
   role_mapping         = var.role_mapping

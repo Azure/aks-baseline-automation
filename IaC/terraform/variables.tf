@@ -12,7 +12,7 @@ variable "global_settings" {
 }
 
 variable "regions" {
-  description = "global_settings Azure regions comma separated"
+  description = "global_settings Azure regions"
   type        = list(string)
   default     = []
 }
