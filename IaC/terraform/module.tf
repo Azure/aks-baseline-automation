@@ -1,10 +1,8 @@
 module "caf" {
-  source = "git::https://github.com/joselcaguilar/terraform-azurerm-caf?ref=debug"
-  #source = "git::https://github.com/joselcaguilar/terraform-azurerm-caf?ref=bug/frontend-port-cmd"
-  #source = "git::https://github.com/aztfmod/terraform-azurerm-caf"
+  source = "git::https://github.com/aztfmod/terraform-azurerm-caf"
 
   #source  = "aztfmod/caf/azurerm"
-  #version = "~> 5.6.1"
+  #version = "~> 5.6.3"
 
   providers = {
     azurerm.vhub = azurerm.vhub
