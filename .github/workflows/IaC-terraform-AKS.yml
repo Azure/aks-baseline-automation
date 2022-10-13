@@ -91,13 +91,6 @@ jobs:
             az storage account create -n ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }} -g ${{ env.TF_BACKEND_RSG }} -l ${{ github.event.inputs.REGION }} --sku Standard_LRS --https-only $true --min-tls-version TLS1_2
             az storage container create -n tfstate --account-name ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }}
 
-      # Not needed for azure/CLI@v1, using this instead of run due to https://github.com/Azure/azure-cli/issues/24029 with AzCLI 2.40.0
-      # Output: https://stackoverflow.com/questions/65170927/terraform-output-value-failed-formatted-by-jq-in-github-actions
-      # - uses: hashicorp/setup-terraform@v1
-      #   with:
-      #     terraform_version: ${{ env.TF_VERSION }}
-      #     terraform_wrapper: false
-
       - name: Deploy Plan Standalone
         if: ${{ github.event.inputs.DEPLOY_PLAN_ONLY == 'true' || github.event.inputs.DEPLOY == 'true' }}
         uses: azure/CLI@v1
