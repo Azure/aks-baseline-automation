@@ -6,9 +6,9 @@ application_gateway_platforms = {
     subnet_key         = "application_gateway"
     sku_name           = "WAF_v2"
     sku_tier           = "WAF_v2"
-    waf_policy = {
-      key = "wp1"
-    }
+    # waf_policy = {
+    #   key = "wp1"
+    # }
     capacity = {
       autoscale = {
         minimum_scale_unit = 0
