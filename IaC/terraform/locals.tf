@@ -13,4 +13,30 @@ locals {
     passthrough    = true
   }
 
+  role_mapping_aks_clusters = {
+    aks_clusters = {
+      cluster_re1 = {
+        "Azure Kubernetes Service RBAC Cluster Admin" = {
+          object_ids = {
+            keys = var.clusterAdminAADGroupsObjectIds
+          }
+        }
+        "Azure Kubernetes Service Cluster User Role" = {
+          object_ids = {
+            keys = concat(var.clusterAdminAADGroupsObjectIds, var.clusterUserAADGroupsObjectIds)
+          }
+        }
+        "Azure Kubernetes Service RBAC Reader" = {
+          object_ids = {
+            keys = var.clusterUserAADGroupsObjectIds
+          }
+        }
+      }
+    }
+  }
+  partial_role_mapping_merged = merge(var.role_mapping.built_in_role_mapping, local.role_mapping_aks_clusters)
+  role_mapping = {
+    built_in_role_mapping = local.partial_role_mapping_merged
+  }
+
 }

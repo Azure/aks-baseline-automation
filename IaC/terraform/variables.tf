@@ -71,6 +71,18 @@ variable "role_mapping" {
   default = {}
 }
 
+variable "clusterAdminAADGroupsObjectIds" {
+  description = "K8S Admin Azure AAD Groups ObjectIDs"
+  type        = list(string)
+  default     = []
+}
+
+variable "clusterUserAADGroupsObjectIds" {
+  description = "K8S Reader Azure AAD Groups ObjectIDs"
+  type        = list(string)
+  default     = []
+}
+
 variable "keyvaults" {
   default = {}
 }
