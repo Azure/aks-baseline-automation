@@ -1,6 +1,5 @@
 module "caf" {
-  source = "git::https://github.com/joselcaguilar/terraform-azurerm-caf?ref=bug/destroy-agw-application-dependencies"
-  #source = "git::https://github.com/aztfmod/terraform-azurerm-caf"
+  source = "git::https://github.com/aztfmod/terraform-azurerm-caf"
 
   #source  = "aztfmod/caf/azurerm"
   #version = "~> 5.6.3"
