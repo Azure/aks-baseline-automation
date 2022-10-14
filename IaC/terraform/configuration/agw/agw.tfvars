@@ -6,6 +6,9 @@ application_gateway_platforms = {
     subnet_key         = "application_gateway"
     sku_name           = "WAF_v2"
     sku_tier           = "WAF_v2"
+    waf_policy = {
+      key = "wp1"
+    }
     capacity = {
       autoscale = {
         minimum_scale_unit = 0
@@ -41,6 +44,16 @@ application_gateway_platforms = {
       }
     }
 
+    ssl_certs = {
+      sslagwcert = {
+        name = "sslagwcert1"
+        keyvault = {
+          certificate_name = "appgateway"
+          key              = "secrets"
+        }
+      }
+    }
+
     trusted_root_certificate = {
       wildcard_ingress = {
         name         = "wildcard-ingress"
@@ -63,10 +76,11 @@ application_gateway_platforms = {
       frontend_ip_configuration_key = "public"
       backend_address_pool_name     = "default-beap"
       http_setting_name             = "default-be-htst"
-      listener_name                 = "default-httplstn"
-      request_routing_rule_name     = "default-rqrt"
       cookie_based_affinity         = "Disabled"
       request_timeout               = "60"
+      ssl_cert_key                  = "sslagwcert"
+      listener_name                 = "default-httplstn"
+      request_routing_rule_name     = "default-rqrt"
       rule_type                     = "Basic"
     }
 

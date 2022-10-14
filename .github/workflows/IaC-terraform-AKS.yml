@@ -1,29 +1,49 @@
-name: 'IaC Deploy Terraform based AKS Cluster'
+name: "IaC Deploy Terraform based AKS Cluster"
 
-on: 
+on:
   workflow_dispatch:
     inputs:
       ENVIRONMENT:
-        description: 'A GitHub Environment to pull action secrets from'
+        description: "A GitHub Environment to pull action secrets from"
         required: true
         type: environment
       REGION:
-        description: 'The Azure region to deploy to'
+        description: "The Azure region to deploy to"
         type: string
         required: true
         default: eastus
       TF_BACKEND_STORAGE_ACCOUNT:
-        description: 'The Azure Storage Account where TF backend will be stored (must be unique). Skip this param if you want to use a TF local backend'
+        description: "The Azure Storage Account where TF backend will be stored (must be unique). Skip this param if you want to use a TF local backend"
         type: string
         required: false
         default: ""
+      clusterAdminAADGroupObjectId:
+        description: 'K8S Admin Azure AAD Group ObjectID'
+        required: false
+        type: string
+        default: ""
+      clusterUserAADGroupObjectId:
+        description: 'K8S Reader Azure AAD Group ObjectID'
+        required: false
+        type: string
+        default: ""
+      DEPLOY_PLAN_ONLY:
+        description: "Execute Terraform plan only"
+        type: boolean
+        required: false
+        default: false
       DEPLOY:
-        description: 'Execute Terraform apply'
+        description: "Execute Terraform apply"
         type: boolean
         required: false
         default: true
+      DESTROY_PLAN_ONLY:
+        description: "Execute Terraform plan -destroy only"
+        type: boolean
+        required: false
+        default: false
       DESTROY:
-        description: 'Execute Terraform destroy'
+        description: "Execute Terraform destroy"
         type: boolean
         required: false
         default: false
@@ -39,12 +59,12 @@ env:
   ENVIRONMENT: "${{ github.repository }}/${{ github.ref_name }}-${{ github.event.inputs.ENVIRONMENT }}"
   TF_BACKEND_RSG: "rg-enterprise-tf-dependencies"
   TF_VERSION: "1.3.2"
-  AZ_CLI_VERSION: "2.39.0" # Please do not upgrade until https://github.com/Azure/azure-cli/issues/24029 is solved
-  
+  AZ_CLI_VERSION: "2.41.0" # Updated thanks to the WAF Policy, reference https://github.com/Azure/azure-cli/issues/24029 added just in case new issues arise
+
 permissions:
   id-token: write
   contents: read
-  
+
 jobs:
   deploy-standalone:
     runs-on: ubuntu-latest
@@ -54,14 +74,16 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
-      
+
       - name: "Parameter Check"
         run: |
           echo "Environment : ${{ github.event.inputs.ENVIRONMENT }}"
           echo "Environment tag : ${{ env.ENVIRONMENT }}"
           echo "REGION : ${{ github.event.inputs.REGION }}"
           echo "TF_BACKEND_STORAGE_ACCOUNT : ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }}"
+          echo "DEPLOY_PLAN_ONLY : ${{ github.event.inputs.DEPLOY_PLAN_ONLY }}"
           echo "DEPLOY : ${{ github.event.inputs.DEPLOY }}"
+          echo "DESTROY_PLAN_ONLY : ${{ github.event.inputs.DESTROY_PLAN_ONLY }}"
           echo "DESTROY : ${{ github.event.inputs.DESTROY }}"
 
         # OIDC auth is not supported until TF AzureRM 3.7.0 onwards
@@ -71,7 +93,7 @@ jobs:
           creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Create Resource Group and Storage Account for TF State
-        if: ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT != '' && github.event.inputs.DEPLOY == 'true' }}
+        if: ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT != '' && (github.event.inputs.DEPLOY_PLAN_ONLY == 'true' || github.event.inputs.DEPLOY == 'true') }}
         uses: azure/CLI@v1
         with:
           inlineScript: |
@@ -79,38 +101,31 @@ jobs:
             az storage account create -n ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }} -g ${{ env.TF_BACKEND_RSG }} -l ${{ github.event.inputs.REGION }} --sku Standard_LRS --https-only $true --min-tls-version TLS1_2
             az storage container create -n tfstate --account-name ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }}
 
-      # Not needed for azure/CLI@v1, using this instead of run due to https://github.com/Azure/azure-cli/issues/24029 with AzCLI 2.40.0
-      # Output: https://stackoverflow.com/questions/65170927/terraform-output-value-failed-formatted-by-jq-in-github-actions
-      # - uses: hashicorp/setup-terraform@v1
-      #   with:
-      #     terraform_version: ${{ env.TF_VERSION }}
-      #     terraform_wrapper: false
-
       - name: Deploy Plan Standalone
-        if: ${{ github.event.inputs.DEPLOY == 'true' }}
+        if: ${{ github.event.inputs.DEPLOY_PLAN_ONLY == 'true' || github.event.inputs.DEPLOY == 'true' }}
         uses: azure/CLI@v1
         with:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
           inlineScript: |
             cd IaC/terraform
             ls -lta
-            
+
             wget -nc https://releases.hashicorp.com/terraform/${{ env.TF_VERSION }}/terraform_${{ env.TF_VERSION }}_linux_amd64.zip
             unzip -o terraform_${{ env.TF_VERSION }}_linux_amd64.zip
             rm terraform_${{ env.TF_VERSION }}_linux_amd64.zip
 
             git clone https://github.com/Azure/caf-terraform-landingzones.git landingzone
-            
+
             parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
             echo "parameter_files: ${parameter_files}"
-            
+
             if [ -n ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }} ]
             then
               ./terraform init -upgrade -backend-config=storage_account_name="${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT }}" -backend-config=container_name="tfstate" -backend-config=key="aks-baseline.tfstate" -backend-config=resource_group_name="${{ env.TF_BACKEND_RSG }}"
             else
               ./terraform init -upgrade
             fi
-            eval ./terraform plan ${parameter_files} -var 'tags={repo_environment=\"$ENVIRONMENT\"}' -out tfdeployplan
+            eval ./terraform plan ${parameter_files} -var 'tags={repo_environment=\"$ENVIRONMENT\"}' -var 'regions=[\"${{ github.event.inputs.REGION }}\"]' -var 'clusterAdminAADGroupsObjectIds=[\"${{ github.event.inputs.clusterAdminAADGroupObjectId }}\"]' -var 'clusterUserAADGroupsObjectIds=[\"${{ github.event.inputs.clusterUserAADGroupObjectId }}\"]' -out tfdeployplan
 
       - name: Deploy Standalone
         if: ${{ github.event.inputs.DEPLOY == 'true' }}
@@ -120,11 +135,11 @@ jobs:
           inlineScript: |
             cd IaC/terraform
             ls -lta
-            
+
             eval ./terraform apply -parallelism=30 -auto-approve tfdeployplan
 
       - name: Destroy Plan Standalone
-        if: ${{ github.event.inputs.DESTROY == 'true' }}
+        if: ${{ github.event.inputs.DESTROY_PLAN_ONLY == 'true' || github.event.inputs.DESTROY == 'true' }}
         uses: azure/CLI@v1
         with:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
@@ -132,7 +147,7 @@ jobs:
             cd IaC/terraform
             ls -lta
 
-            if [ ${{ github.event.inputs.DEPLOY }} == 'false' ]
+            if [ ${{ github.event.inputs.DEPLOY_PLAN_ONLY }} == 'false' ] && [ ${{ github.event.inputs.DEPLOY }} == 'false' ]
             then
               wget -nc https://releases.hashicorp.com/terraform/${{ env.TF_VERSION }}/terraform_${{ env.TF_VERSION }}_linux_amd64.zip
               unzip -o terraform_${{ env.TF_VERSION }}_linux_amd64.zip
@@ -145,24 +160,27 @@ jobs:
                 ./terraform init -upgrade
               fi
             fi
-            
-            tf_state_resources=`terraform state list | grep 'module.flux_addon' || true`
-            if [ ${#tf_state_resources} -gt 0 ]
+
+            if [ ${{ github.event.inputs.DESTROY_PLAN_ONLY }} == 'false' ]
             then
-              echo "Destroying Flux Addon from state as flux provider has issues with destroy"
-              ./terraform state rm 'module.flux_addon'
+              tf_state_resources=`./terraform state list | grep 'module.flux_addon' || true`
+              if [ ${#tf_state_resources} -gt 0 ]
+              then
+                echo "Destroying Flux Addon from state as flux provider has issues with destroy"
+                ./terraform state rm 'module.flux_addon'
+              fi
             fi
 
             parameter_files=$(find configuration -not -path "*launchpad*" | grep .tfvars | sed 's/.*/-var-file &/' | xargs)
             echo "parameter_files: ${parameter_files}"
 
-            eval ./terraform plan ${parameter_files} -var 'tags={repo_environment=\"$ENVIRONMENT\"}' -destroy -out tfdestroyplan
+            eval ./terraform plan ${parameter_files} -var 'tags={repo_environment=\"$ENVIRONMENT\"}' -var 'regions=[\"${{ github.event.inputs.REGION }}\"]' -var 'clusterAdminAADGroupsObjectIds=[\"${{ github.event.inputs.clusterAdminAADGroupObjectId }}\"]' -var 'clusterUserAADGroupsObjectIds=[\"${{ github.event.inputs.clusterUserAADGroupObjectId }}\"]' -destroy -out tfdestroyplan
 
       - name: Diagnostics purge
         if: ${{ github.event.inputs.DESTROY == 'true' }}
         run: |
           echo RepoEnvironment $ENVIRONMENT
-          
+
           resource_groups_array=(`az group list --tag repo_environment='${{ env.ENVIRONMENT }}' --query '[].name' -o json | jq -r '.[]'`)
           echo Resource Groups tagged : ${resource_groups_array[@]}
           resource_ids_array=()

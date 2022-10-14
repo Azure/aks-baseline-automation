@@ -6,9 +6,15 @@ variable "global_settings" {
     random_length  = 4
     default_region = "region1"
     regions = {
-      region1 = "southeastasia"
+      region1 = "eastus"
     }
   }
+}
+
+variable "regions" {
+  description = "global_settings Azure regions"
+  type        = list(string)
+  default     = []
 }
 
 variable "resource_groups" {
@@ -63,6 +69,18 @@ variable "azuread_groups" {
 
 variable "role_mapping" {
   default = {}
+}
+
+variable "clusterAdminAADGroupsObjectIds" {
+  description = "K8S Admin Azure AAD Groups ObjectIDs"
+  type        = list(string)
+  default     = []
+}
+
+variable "clusterUserAADGroupsObjectIds" {
+  description = "K8S Reader Azure AAD Groups ObjectIDs"
+  type        = list(string)
+  default     = []
 }
 
 variable "keyvaults" {
@@ -126,6 +144,10 @@ variable "dns_zone_records" {
 }
 
 variable "dns_zones" {
+  default = {}
+}
+
+variable "application_gateway_waf_policies" {
   default = {}
 }
 

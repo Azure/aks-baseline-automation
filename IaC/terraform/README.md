@@ -1,4 +1,4 @@
-# terraform (still in development but you can still try it out)
+# Terraform
 
 This folder contains the code to build the [AKS Baseline reference implementation](https://learn.microsoft.com/azure/architecture/reference-architectures/containers/aks/secure-baseline-aks) using [CAF Terraform Landing zone framework composition](https://github.com/aztfmod/terraform-azurerm-caf).
 
@@ -14,7 +14,7 @@ The following components will be deployed as part of this automation:
 |                              | <p align="center">**Identity & Access Management**</p>                                                                                                                                                                                                                                                                                                                                                                                     |                                                                                       |
 | Identity & Access Management | [iam_managed_identities.tfvars](./configuration/iam/iam_managed_identities.tfvars) <br /> [iam_role_mappings.tfvars](./configuration/iam/iam_role_mappings.tfvars)                                                                                                                                                                                                                                                                         | AAD admin group, User Managed Identities & Role Assignments                           |
 |                              | <p align="center">**Gateway**</p>                                                                                                                                                                                                                                                                                                                                                                                                          |                                                                                       |
-| Application Gateway          | [agw.tfvars](./configuration/agw/agw.tfvars) <br /> [agw_application.tfvars](./configuration/agw/agw_application.tfvars) <br />                                                                                                                                                                                                                                                                                                            | Application Gateway WAF v2 Configs with aspnetapp workload settings                   |
+| Application Gateway          | [agw.tfvars](./configuration/agw/agw.tfvars) <br /> [agw_application.tfvars](./configuration/agw/agw_application.tfvars) <br /> [waf_policies.tfvars](./configuration/agw/waf_policies.tfvars) <br />                                                                                                                                                                                                                                      | Application Gateway WAF v2 Configs and Policies with aspnetapp workload settings      |
 | App Service Domains          | [domain.tfvars](./configuration/agw/domain.tfvars)                                                                                                                                                                                                                                                                                                                                                                                         | Public domain to be used in Application Gateway                                       |
 |                              | <p align="center">**Networking**</p>                                                                                                                                                                                                                                                                                                                                                                                                       |                                                                                       |
 | Virtual networks             | [networking.tfvars](./configuration/networking/networking.tfvars) <br /> [peerings.tfvars](./configuration/networking/peerings.tfvars) <br /> [nsg.tfvars](./configuration/networking/nsg.tfvars) <br /> [ip_groups.tfvars](./configuration/networking/ip_groups.tfvars)                                                                                                                                                                   | CIDRs, Subnets, NSGs & peerings config for Azure Firewall Hub & AKS Spoke             |
@@ -46,22 +46,31 @@ To customize the sample terraform templates provided based on your specific need
 ## Customize the GitHub action workflows
 To customize the sample GitHub pipeline provided based on your specific needs, follow the instructions below:
 
-1. Create your workflow [GitHub Environment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment?msclkid=62181fb1ab7511ec9be085113913a757) to store the following secrets:
+1. Create your workflow [GitHub Environment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment) to store the following secrets:
 
-    | Secret              | Description                                                                                                                                                 | Sample   |
-    | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-    | ENVIRONMENT         | Name of the environment where you are deploying the Azure resources                                                                                         | non-prod |
-    | ARM_CLIENT_ID       | Service Principal which will be used to provision resources                                                                                                 |          |
-    | ARM_CLIENT_SECRET   | Service Principal secret                                                                                                                                    |          |
-    | ARM_SUBSCRIPTION_ID | Azure subscription id                                                                                                                                       |          |
-    | ARM_TENANT_ID       | Azure tenant id                                                                                                                                             |          |
-    | FLUX_TOKEN          | [GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) for Flux V2 |          |
+    | Secret                | Description                                                 | Sample |
+    | --------------------- | ----------------------------------------------------------- | ------ |
+    | AZURE_CLIENT_ID       | Service Principal which will be used to provision resources |        |
+    | AZURE_CLIENT_SECRET   | Service Principal secret                                    |        |
+    | AZURE_SUBSCRIPTION_ID | Azure subscription id                                       |        |
+    | AZURE_TENANT_ID       | Azure tenant id                                             |        |
 
-    Note: Do not modify the names of these secrets in the workflow yaml file as they are expected in terraform to be named as shown above.
+    > Note: Do not modify the names of these secrets in the workflow yaml file as they are expected in terraform to be named as shown above.
     Also instead of using a Service Principal and storing the secret in the GitHub Cloud, once AzureRM Provider is updated to 3.7.0+ you should setup [Workload Identity federation with OpenID Connect](https://learn.microsoft.com/azure/developer/github/connect-from-azure?tabs=azure-portal%2Cwindows#use-the-azure-login-action-with-openid-connect). Follow [these steps](../oidc-federated-credentials.md) to set it up with [Terraform Azure Provider Auth](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/service_principal_oidc).
 
-2. Update the workflow [IaC-terraform-AKS.yml](../../.github/workflows/IaC-terraform-AKS.yml) with the name of the Environment you created in the previous step. The default Environment name is "Terraform". Commit the changes to your remote GitHub branch so that you can run the workflow.
-    Note that this sample workflow file deploys Azure resources respectively in the hub and spoke resource groups as specified in the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline).
+2. Provide the workflow [IaC-terraform-AKS.yml](../../.github/workflows/IaC-terraform-AKS.yml) inputs during the workflow run:
+   | Input                        | Description                                                                                                                       | Default value |
+   | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+   | ENVIRONMENT                  | A GitHub Environment which must be selected to pull action secrets from                                                           |               |
+   | REGION                       | The Azure region to deploy to                                                                                                     | eastus        |
+   | TF_BACKEND_STORAGE_ACCOUNT   | The Azure Storage Account where TF backend will be stored (must be unique). Skip this param if you want to use a TF local backend |               |
+   | DEPLOY_PLAN_ONLY             | Execute Terraform plan only                                                                                                       | false         |
+   | DEPLOY                       | Execute Terraform apply only                                                                                                      | true          |
+   | DESTROY_PLAN_ONLY            | Execute Terraform plan -destroy only                                                                                              | false         |
+   | DESTROY                      | Execute Terraform destroy                                                                                                         | false         |
+   | clusterAdminAADGroupObjectId | K8S Admin Azure AAD Group ObjectID                                                                                                |               |
+   | clusterUserAADGroupObjectId  | K8S Admin Azure AAD Group ObjectID                                                                                                |               |
+    > Note: This sample workflow file deploys Azure resources respectively in the hub and spoke resource groups as specified in the [AKS Baseline Reference Implementation](https://github.com/mspnp/aks-baseline).
 
 
 ## Kick-off the GitHub action workflow

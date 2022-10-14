@@ -1,18 +1,19 @@
 module "caf" {
   source = "git::https://github.com/aztfmod/terraform-azurerm-caf"
+
   #source  = "aztfmod/caf/azurerm"
-  #version = "~> 5.6.1"
+  #version = "~> 5.6.3"
 
   providers = {
     azurerm.vhub = azurerm.vhub
   }
-  global_settings      = merge((var.override_prefix == "" ? {} : { prefix = var.override_prefix }), var.global_settings)
+  global_settings      = merge((var.override_prefix == "" ? {} : { prefix = var.override_prefix }), local.global_settings)
   logged_user_objectId = var.logged_user_objectId
   tags                 = var.tags
-  resource_groups      = var.resource_groups
+  resource_groups      = local.resource_groups
   keyvaults            = var.keyvaults
   managed_identities   = var.managed_identities
-  role_mapping         = var.role_mapping
+  role_mapping         = local.role_mapping
   azuread = {
     azuread_apps   = var.azuread_apps
     azuread_users  = var.azuread_users
@@ -20,6 +21,7 @@ module "caf" {
   }
 
   networking = {
+    application_gateway_waf_policies                        = var.application_gateway_waf_policies
     application_gateway_platforms                           = var.application_gateway_platforms
     application_gateway_applications_v1                     = var.application_gateway_applications_v1
     domain_name_registrations                               = var.domain_name_registrations

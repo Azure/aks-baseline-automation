@@ -14,18 +14,32 @@ role_mapping = {
         }
       }
     }
-    aks_clusters = {
-      cluster_re1 = {
-        "Azure Kubernetes Service RBAC Cluster Admin" = {
-          # azuread_groups = {
-          #   keys = ["aks_admins"]
-          # }
-          logged_in = {
-            keys = ["app"]
-          }
-        }
-      }
-    }
+    # AKS Cluster roles provided using ../../locals.tf
+    # aks_clusters = {
+    #   cluster_re1 = {
+    #     "Azure Kubernetes Service RBAC Cluster Admin" = {
+    #       # azuread_groups = {
+    #       #   keys = ["aks_cluster_re1_admins"]
+    #       # }
+    #       # logged_in = {
+    #       #   keys = ["user"]
+    #       # }
+    #     }
+    #     "Azure Kubernetes Service Cluster User Role" = {
+    #       # azuread_groups = {
+    #       #   keys = ["aks_cluster_re1_admins, aks_cluster_re1_users"]
+    #       # }
+    #       # logged_in = {
+    #       #   keys = ["user"]
+    #       # }
+    #     }
+    #     "Azure Kubernetes Service RBAC Reader" = {
+    #       # azuread_groups = {
+    #       #   keys = ["aks_cluster_re1_users"]
+    #       # }
+    #     }
+    #   }
+    # }
     azure_container_registries = {
       acr1 = {
         "AcrPull" = {

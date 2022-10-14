@@ -7,10 +7,8 @@ resource_groups = {
     name   = "rg-enterprise-networking-hubs"
     region = "region1"
   }
-
   aks_spoke_re1 = {
     name   = "rg-enterprise-networking-spokes"
     region = "region1"
   }
-
 }
