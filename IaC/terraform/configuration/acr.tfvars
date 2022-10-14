@@ -1,6 +1,6 @@
 azure_container_registries = {
   acr1 = {
-    name               = "acr-re1-001"
+    name               = "acr-re1-002"
     resource_group_key = "aks_re1"
     sku                = "Premium"
     diagnostic_profiles = {
@@ -12,6 +12,12 @@ azure_container_registries = {
       }
     }
     # georeplication_region_keys = ["region2"]
+
+    network_rule_set = {
+      deny_public_access = {
+        default_action = "Deny"
+      }
+    }
 
     private_endpoints = {
       # Require enforce_private_link_endpoint_network_policies set to true on the subnet

@@ -18,8 +18,8 @@ aks_clusters = {
     }
 
 
-    # kubernetes_version = "1.20.5"
-    vnet_key = "vnet_aks_re1"
+    kubernetes_version = "1.23.8"
+    vnet_key           = "vnet_aks_re1"
 
     # network plugin and network policy should be "azure" (recommended by Secure AKS baseline)
     network_profile = {
@@ -36,11 +36,6 @@ aks_clusters = {
       azure_active_directory = {
         managed            = true
         azure_rbac_enabled = true
-        # admin_group_object_names = ["aks-cluster-re1-admins"]
-        # admin_group_object_ids = ["50f1138f-1d8c-4eab-b643-e3a02820f244"]
-        # azuread_groups = {
-        #   keys = ["aks_cluster_re1_admins"]
-        # }
       }
     }
 
@@ -54,10 +49,10 @@ aks_clusters = {
       azure_policy = {
         enabled = true
       }
-      # ingress_application_gateway = {
-      #   enabled = true
-      #   key     = "agw1_az1"
-      # }
+      ingress_application_gateway = {
+        enabled = true
+        key     = "agw1_az1"
+      }
     }
 
 

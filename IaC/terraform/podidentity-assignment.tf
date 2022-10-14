@@ -7,6 +7,9 @@ resource "azurerm_role_assignment" "kubelet_ingressmsi_miop" {
 }
 
 data "azurerm_resource_group" "noderg" {
+  depends_on = [
+    module.caf.aks_clusters
+  ]
   for_each = module.caf.aks_clusters
   name     = each.value.node_resource_group
 }

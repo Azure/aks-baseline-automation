@@ -1,4 +1,4 @@
-application_gateways = {
+application_gateway_platforms = {
   agw1_az1 = {
     resource_group_key = "aks_re1"
     name               = "appgateway-re1-001"
@@ -6,6 +6,9 @@ application_gateways = {
     subnet_key         = "application_gateway"
     sku_name           = "WAF_v2"
     sku_tier           = "WAF_v2"
+    waf_policy = {
+      key = "wp1"
+    }
     capacity = {
       autoscale = {
         minimum_scale_unit = 0
@@ -13,7 +16,7 @@ application_gateways = {
       }
     }
     zones        = ["1"]
-    enable_http2 = true
+    enable_http2 = false
 
     identity = {
       managed_identity_keys = [
@@ -25,15 +28,6 @@ application_gateways = {
       public = {
         name          = "public"
         public_ip_key = "agw_pip1_re1"
-        subnet_key    = "application_gateway"
-      }
-      private = {
-        name                          = "private"
-        vnet_key                      = "vnet_aks_re1"
-        subnet_key                    = "application_gateway"
-        subnet_cidr_index             = 0 # It is possible to have more than one cidr block per subnet
-        private_ip_offset             = 4 # e.g. cidrhost(10.10.0.0/25,4) = 10.10.0.4 => AGW private IP address
-        private_ip_address_allocation = "Static"
       }
     }
 
@@ -50,11 +44,51 @@ application_gateways = {
       }
     }
 
+    ssl_certs = {
+      sslagwcert = {
+        name = "sslagwcert1"
+        keyvault = {
+          certificate_name = "appgateway"
+          key              = "secrets"
+        }
+      }
+    }
+
     trusted_root_certificate = {
       wildcard_ingress = {
-        name = "wildcard-ingress"
-        # data =
+        name         = "wildcard-ingress"
         keyvault_key = "secrets"
+      }
+    }
+
+    diagnostic_profiles = {
+      operations = {
+        name             = "agw_logs"
+        definition_key   = "azure_application_gateway"
+        destination_type = "log_analytics"
+        destination_key  = "central_logs"
+      }
+    }
+
+    #default: wont be able to change after creation as this is required for agw tf resource
+    default = {
+      frontend_port_key             = "80"
+      frontend_ip_configuration_key = "public"
+      backend_address_pool_name     = "default-beap"
+      http_setting_name             = "default-be-htst"
+      cookie_based_affinity         = "Disabled"
+      request_timeout               = "60"
+      ssl_cert_key                  = "sslagwcert"
+      listener_name                 = "default-httplstn"
+      request_routing_rule_name     = "default-rqrt"
+      rule_type                     = "Basic"
+    }
+
+    listener_ssl_policy = {
+      default = {
+        policy_type          = "Predefined"
+        policy_name          = "AppGwSslPolicy20170401S"
+        min_protocol_version = "TLSv1_2"
       }
     }
   }
