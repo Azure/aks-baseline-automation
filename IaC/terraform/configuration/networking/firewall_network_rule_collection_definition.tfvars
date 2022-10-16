@@ -1,9 +1,10 @@
 
 azurerm_firewall_network_rule_collection_definition = {
   aks = {
-    name     = "aks"
-    action   = "Allow"
-    priority = 150
+    name                = "aks"
+    action              = "Allow"
+    firewall_policy_key = "base_policy"
+    priority            = 150
     ruleset = {
       ntp = {
         name = "ntp"

@@ -1,8 +1,9 @@
 azurerm_firewall_application_rule_collection_definition = {
   aks = {
-    name     = "aks"
-    action   = "Allow"
-    priority = 100
+    name                = "aks"
+    action              = "Allow"
+    firewall_policy_key = "policies"
+    priority            = 100
     ruleset = {
       aks = {
         name = "aks"

@@ -18,9 +18,10 @@ vnets = {
     }
     subnets = {
       AzureBastionSubnet = {
-        name    = "AzureBastionSubnet" #Must be called AzureBastionSubnet
-        cidr    = ["10.200.0.96/27"]
-        nsg_key = "azure_bastion_nsg"
+        name              = "AzureBastionSubnet" #Must be called AzureBastionSubnet
+        cidr              = ["10.200.0.96/27"]
+        nsg_key           = "azure_bastion_nsg"
+        service_endpoints = ["Microsoft.KeyVault"]
       }
     }
   }
@@ -33,10 +34,11 @@ vnets = {
     }
     subnets = {
       aks_nodepool_system = {
-        name            = "snet-clusternodes"
-        cidr            = ["10.240.0.0/22"]
-        nsg_key         = "azure_kubernetes_cluster_nsg"
-        route_table_key = "default_to_firewall_re1"
+        name              = "snet-clusternodes"
+        cidr              = ["10.240.0.0/22"]
+        nsg_key           = "azure_kubernetes_cluster_nsg"
+        route_table_key   = "default_to_firewall_re1"
+        service_endpoints = ["Microsoft.KeyVault"]
       }
       aks_ingress = {
         name            = "snet-clusteringressservices"

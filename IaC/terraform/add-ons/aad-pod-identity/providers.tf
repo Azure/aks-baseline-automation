@@ -18,6 +18,6 @@ provider "kustomization" {
 
 # Get kubeconfig from AKS clusters
 data "azurerm_kubernetes_cluster" "kubeconfig" {
-  name                = var.aks_clusters[var.aks_cluster_key].cluster_name
-  resource_group_name = var.aks_clusters[var.aks_cluster_key].resource_group_name
+  name                = var.caf_config.aks_clusters[var.aks_cluster_key].cluster_name
+  resource_group_name = var.caf_config.aks_clusters[var.aks_cluster_key].resource_group_name
 }

@@ -6,9 +6,15 @@ variable "global_settings" {
     random_length  = 4
     default_region = "region1"
     regions = {
-      region1 = "southeastasia"
+      region1 = "eastus"
     }
   }
+}
+
+variable "regions" {
+  description = "global_settings Azure regions"
+  type        = list(string)
+  default     = []
 }
 
 variable "resource_groups" {
@@ -65,11 +71,27 @@ variable "role_mapping" {
   default = {}
 }
 
+variable "clusterAdminAADGroupsObjectIds" {
+  description = "K8S Admin Azure AAD Groups ObjectIDs"
+  type        = list(string)
+  default     = []
+}
+
+variable "clusterUserAADGroupsObjectIds" {
+  description = "K8S Reader Azure AAD Groups ObjectIDs"
+  type        = list(string)
+  default     = []
+}
+
 variable "keyvaults" {
   default = {}
 }
 
 variable "azurerm_firewalls" {
+  default = {}
+}
+
+variable "azurerm_firewall_policies" {
   default = {}
 }
 
@@ -125,11 +147,15 @@ variable "dns_zones" {
   default = {}
 }
 
-variable "application_gateways" {
+variable "application_gateway_waf_policies" {
   default = {}
 }
 
-variable "application_gateway_applications" {
+variable "application_gateway_platforms" {
+  default = {}
+}
+
+variable "application_gateway_applications_v1" {
   default = {}
 }
 
@@ -157,13 +183,5 @@ variable "aad_pod_identity" {
 }
 
 variable "azure_container_registries" {
-  default = {}
-}
-
-variable "application_gateway_platforms" {
-  default = {}
-}
-
-variable "application_gateway_applications_v1" {
   default = {}
 }
