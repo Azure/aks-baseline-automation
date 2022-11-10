@@ -40,10 +40,9 @@ on:
         required: true
 
   pull_request:
-    branches: [aks-ji-code-dependency-issue25]
-    paths-ignore:
-      - '**/*.md'
-      - '**/*.txt'
+    branches: [main]
+    paths:
+      - '.github/workflows/App-Sec-Flask-DockerBuild.yml'
 
 permissions:
       id-token: write
