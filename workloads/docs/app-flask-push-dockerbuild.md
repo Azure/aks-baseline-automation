@@ -15,7 +15,7 @@ This article outlines how to deploy your workload using the push option as descr
 
        az account set --subscription "YOURAZURESUBSCRIPTION" *\#Set a subscription to be the current active subscription*
        ```
-    2. Create a file called `ghToAzAuth.sh` in your bash working directory and copy the code block in [this .md file](https://github.com/Azure/aks-baseline-automation/blob/main/docs/oidc-federated-credentials.md) into it. You will need to update the following variable values:
+    2. Create a file called `ghToAzAuth.sh` in your bash working directory and copy the code block in [this .md file](https://github.com/Azure/aks-baseline-automation/blob/main/IaC/oidc-federated-credentials.md) into it. You will need to update the following variable values:
        ```bash
        APPNAME=myApp
        RG=<AKS resource group name>
