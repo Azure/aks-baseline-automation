@@ -40,7 +40,7 @@ on:
         required: true
 
   pull_request:
-    branches: [main]
+    branches: [aks-ji-code-dependency-issue25]
     paths-ignore:
       - '**/*.md'
       - '**/*.txt'
