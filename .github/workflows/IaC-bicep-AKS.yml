@@ -10,15 +10,17 @@ on:
       REGION:
         description: 'The Azure region to deploy to'
         required: true
-        default: westus2
+        default: easus
       clusterAdminAadGroupObjectId:
         description: 'K8S Admin Azure AAD Group ObjectID'
         required: true
         type: string
+        default: 6eb11854-be4f-4e3c-a9a4-acd9b25def09
       a0008NamespaceReaderAadGroupObjectId:
         description: 'K8S Reader Azure AAD Group ObjectID'
         required: true
         type: string
+        default: 0c840056-fbd4-4c2a-8f44-2833fe0021fd
 
 env:
   event_sha: +refs/pull/${{ github.event.issue.number }}/merge
