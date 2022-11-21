@@ -52,29 +52,18 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: "Check Preview Features"
-        shell: pwsh
+      - name: "Check EnableOIDCIssuerPreview Features"
         run: |
-          write-output "Verifying required Resource Providers Features are registered"
-          $aksfeatures = az feature list --query "[?contains(name, 'Microsoft.ContainerService')]" | ConvertFrom-Json
-
-          $featureName='EnableOIDCIssuerPreview'
-          write-output "-- $featureName"
-          $feature = $aksfeatures |  Where-Object {$_.name -like "*$featureName"}
-          $feature.properties.state
-          if ($feature.properties.state -ne 'Registered') {
-            Write-Output $feature
-            Write-Error "$featureName NOT registered"
-          }
-
-          $featureName='AKS-AzureDefender'
-          write-output "-- $featureName"
-          $feature = $aksfeatures |  Where-Object {$_.name -like "*$featureName"}
-          $feature.properties.state
-          if ($feature.properties.state -ne 'Registered') {
-            Write-Output $feature
-            Write-Error "$featureName NOT registered"
-          }
+          az feature list -o table --query "[?contains(name, 'Microsoft.ContainerService/EnableOIDCIssuerPreview')].{State:properties.state}"| awk '{if($1~/Registered/) print $1}'
+          if [ $state = "Registered" ];then 
+          echo $state;
+          fi
+      - name: "Check AKS-AzureDefender Features"
+        run: |
+         az feature list -o table --query "[?contains(name, 'Microsoft.ContainerService/AKS-AzureDefender')].{State:properties.state}"| awk '{if($1~/Registered/) print $1}'
+         if [ $state = "Registered" ];then 
+          echo $state;
+         fi    
 
   deployment:
     runs-on: ubuntu-latest
