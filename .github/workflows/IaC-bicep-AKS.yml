@@ -54,26 +54,25 @@ jobs:
         shell: pwsh
         run: |
           write-output "Verifying required Resource Providers Features are registered"
-          $aksfeatures = az feature list --query "[?contains(name, 'Microsoft.ContainerService')]" | ConvertFrom-Json
-
           $featureName='EnableOIDCIssuerPreview'
+          $aksfeature = az feature list --query "[?contains(name, '$featureName')]" -o json
           write-output "-- $featureName"
-          $feature = $aksfeatures |  Where-Object {$_.name -like "*$featureName"}
+          $feature = $aksfeature | Convertfrom-Json
           $feature.properties.state
           if ($feature.properties.state -ne 'Registered') {
             Write-Output $feature
             Write-Error "$featureName NOT registered"
           }
-
+          
           $featureName='AKS-AzureDefender'
+          $aksfeature = az feature list --query "[?contains(name, '$featureName')]" -o json
           write-output "-- $featureName"
-          $feature = $aksfeatures |  Where-Object {$_.name -like "*$featureName"}
+          $feature = $aksfeature | Convertfrom-Json
           $feature.properties.state
           if ($feature.properties.state -ne 'Registered') {
             Write-Output $feature
             Write-Error "$featureName NOT registered"
-          }
-        continue-on-error: true
+          } 
 
   deployment:
     runs-on: ubuntu-latest
