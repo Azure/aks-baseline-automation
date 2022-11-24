@@ -224,7 +224,7 @@ module cluster '../CARML/Microsoft.ContainerService/managedClusters/deploy.bicep
       {
         name: 'npsystem'
         count: 3
-        vmSize: 'Standard_D16pls_v5'
+        vmSize: 'Standard_DS3_v2'
         osDiskSizeGB: 80
         osDiskType: 'Ephemeral'
         osType: 'Linux'
