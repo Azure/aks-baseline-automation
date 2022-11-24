@@ -73,6 +73,7 @@ jobs:
             Write-Output $feature
             Write-Error "$featureName NOT registered"
           }
+        continue-on-error: true
 
   deployment:
     runs-on: ubuntu-latest
