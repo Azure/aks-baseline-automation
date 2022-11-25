@@ -26,7 +26,7 @@ If you opt-in to setup a shell on your machine, there are required access and to
    Example for role assignment of current logged in User. If Service Principal or Managed Identity is used, please replace OID with the object id of those credentials
    
    ```bash 
-   OID=$(az ad signed-in-user show --query objectId -o tsv)
+   OID=$(az ad signed-in-user show --query id -o tsv)
 
    az role assignment create --role "Contributor" --assignee-object-id $OID --assignee-principal-type ServicePrincipal
 
