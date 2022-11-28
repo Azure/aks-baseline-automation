@@ -38,6 +38,11 @@ on:
         required: true
       AZURE_SUBSCRIPTION_ID:
         required: true
+      
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/App-Sec-Deploy-Flask-DockerBuild.yml'
 
 permissions:
       id-token: write
@@ -150,3 +155,11 @@ jobs:
           images: |
             ${{ env.ACRNAME }}.azurecr.io/${{ inputs.APPNAME }}:${{ github.sha }}
           namespace: ${{ inputs.NAMESPACE }}
+
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout Repository'
+        uses: actions/checkout@v3
+      - name: 'Dependency Review'
+        uses: actions/dependency-review-action@v2
