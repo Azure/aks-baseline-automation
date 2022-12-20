@@ -84,6 +84,7 @@ param aadProfileClientAppID string = ''
 param aadProfileServerAppID string = ''
 
 @description('Optional. The server AAD application secret.')
+#disable-next-line secure-secrets-in-params // Not a secret
 param aadProfileServerAppSecret string = ''
 
 @description('Optional. Specifies the tenant ID of the Azure Active Directory used by the AKS cluster for authentication.')
@@ -95,8 +96,11 @@ param aadProfileAdminGroupObjectIDs array = []
 @description('Optional. Specifies whether to enable managed AAD integration.')
 param aadProfileManaged bool = true
 
+@description('Optional. Whether to enable Kubernetes Role-Based Access Control.')
+param enableRBAC bool = true
+
 @description('Optional. Specifies whether to enable Azure RBAC for Kubernetes authorization.')
-param aadProfileEnableAzureRBAC bool = true
+param aadProfileEnableAzureRBAC bool = enableRBAC
 
 @description('Optional. If set to true, getting static credentials will be disabled for this cluster. This must only be used on Managed Clusters that are AAD enabled.')
 param disableLocalAccounts bool = false
@@ -147,6 +151,7 @@ param azurePolicyVersion string = 'v2'
 param kubeDashboardEnabled bool = false
 
 @description('Optional. Specifies whether the KeyvaultSecretsProvider add-on is enabled or not.')
+#disable-next-line secure-secrets-in-params // Not a secret
 param enableKeyvaultSecretsProvider bool = false
 
 @allowed([
@@ -154,6 +159,7 @@ param enableKeyvaultSecretsProvider bool = false
   'true'
 ])
 @description('Optional. Specifies whether the KeyvaultSecretsProvider add-on uses secret rotation.')
+#disable-next-line secure-secrets-in-params // Not a secret
 param enableSecretRotation string = 'false'
 
 @description('Optional. Specifies the scan interval of the auto-scaler of the AKS cluster.')
@@ -269,7 +275,7 @@ param diagnosticEventHubName string = ''
 @maxValue(365)
 param diagnosticLogsRetentionInDays int = 365
 
-@description('Optional. Enable telemetry via the Customer Usage Attribution ID (GUID).')
+@description('Optional. Enable telemetry via a Globally Unique Identifier (GUID).')
 param enableDefaultTelemetry bool = true
 
 @description('Optional. Array of role assignment objects that contain the \'roleDefinitionIdOrName\' and \'principalId\' to define RBAC role assignments on this resource. In the roleDefinitionIdOrName attribute, you can provide either the display name of the role definition, or its fully qualified ID in the following format: \'/providers/Microsoft.Authorization/roleDefinitions/c2f4ef07-c644-48eb-af81-4b1b4947fb11\'.')
@@ -286,11 +292,12 @@ param lock string = ''
 @description('Optional. Tags of the resource.')
 param tags object = {}
 
-@description('Optional. The resource ID of the disc encryption set to apply to the clsuter. For security reasons, this value should be provided.')
+@description('Optional. The resource ID of the disc encryption set to apply to the cluster. For security reasons, this value should be provided.')
 param diskEncryptionSetID string = ''
 
-@description('Optional. The name of logs that will be streamed.')
+@description('Optional. The name of logs that will be streamed. "allLogs" includes all possible logs for the resource.')
 @allowed([
+  'allLogs'
   'kube-apiserver'
   'kube-audit'
   'kube-controller-manager'
@@ -300,13 +307,7 @@ param diskEncryptionSetID string = ''
   'guard'
 ])
 param diagnosticLogCategoriesToEnable array = [
-  'kube-apiserver'
-  'kube-audit'
-  'kube-controller-manager'
-  'kube-scheduler'
-  'cluster-autoscaler'
-  'kube-audit-admin'
-  'guard'
+  'allLogs'
 ]
 
 @description('Optional. The name of metrics that will be streamed.')
@@ -320,7 +321,7 @@ param diagnosticMetricsToEnable array = [
 @description('Optional. The name of the diagnostic setting, if deployed.')
 param diagnosticSettingsName string = '${name}-diagnosticSettings'
 
-var diagnosticsLogs = [for category in diagnosticLogCategoriesToEnable: {
+var diagnosticsLogsSpecified = [for category in filter(diagnosticLogCategoriesToEnable, item => item != 'allLogs'): {
   category: category
   enabled: true
   retentionPolicy: {
@@ -328,6 +329,17 @@ var diagnosticsLogs = [for category in diagnosticLogCategoriesToEnable: {
     days: diagnosticLogsRetentionInDays
   }
 }]
+
+var diagnosticsLogs = contains(diagnosticLogCategoriesToEnable, 'allLogs') ? [
+  {
+    categoryGroup: 'allLogs'
+    enabled: true
+    retentionPolicy: {
+      enabled: true
+      days: diagnosticLogsRetentionInDays
+    }
+  }
+] : diagnosticsLogsSpecified
 
 var diagnosticsMetrics = [for metric in diagnosticMetricsToEnable: {
   category: metric
@@ -378,7 +390,7 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (ena
   }
 }
 
-resource managedCluster 'Microsoft.ContainerService/managedClusters@2022-04-02-preview' = {
+resource managedCluster 'Microsoft.ContainerService/managedClusters@2022-09-01' = {
   name: name
   location: location
   tags: tags
@@ -433,7 +445,7 @@ resource managedCluster 'Microsoft.ContainerService/managedClusters@2022-04-02-p
     oidcIssuerProfile: enableOidcIssuerProfile ? {
       enabled: enableOidcIssuerProfile
     } : null
-    enableRBAC: aadProfileEnableAzureRBAC
+    enableRBAC: enableRBAC
     disableLocalAccounts: disableLocalAccounts
     nodeResourceGroup: nodeResourceGroup
     enablePodSecurityPolicy: enablePodSecurityPolicy
@@ -459,7 +471,7 @@ resource managedCluster 'Microsoft.ContainerService/managedClusters@2022-04-02-p
     }
     autoScalerProfile: {
       'balance-similar-node-groups': autoScalerProfileBalanceSimilarNodeGroups
-      'expander': autoScalerProfileExpander
+      expander: autoScalerProfileExpander
       'max-empty-bulk-delete': autoScalerProfileMaxEmptyBulkDelete
       'max-graceful-termination-sec': autoScalerProfileMaxGracefulTerminationSec
       'max-node-provision-time': autoScalerProfileMaxNodeProvisionTime
@@ -520,7 +532,7 @@ module managedCluster_agentPools 'agentPools/deploy.bicep' = [for (agentPool, in
     nodeLabels: contains(agentPool, 'nodeLabels') ? agentPool.nodeLabels : {}
     nodePublicIpPrefixId: contains(agentPool, 'nodePublicIpPrefixId') ? agentPool.nodePublicIpPrefixId : ''
     nodeTaints: contains(agentPool, 'nodeTaints') ? agentPool.nodeTaints : []
-    orchestratorVersion: contains(agentPool, 'orchestratorVersion') ? agentPool.orchestratorVersion : ''
+    orchestratorVersion: contains(agentPool, 'orchestratorVersion') ? agentPool.orchestratorVersion : aksClusterKubernetesVersion
     osDiskSizeGB: contains(agentPool, 'osDiskSizeGB') ? agentPool.osDiskSizeGB : -1
     osDiskType: contains(agentPool, 'osDiskType') ? agentPool.osDiskType : ''
     osSku: contains(agentPool, 'osSku') ? agentPool.osSku : ''
@@ -541,7 +553,7 @@ module managedCluster_agentPools 'agentPools/deploy.bicep' = [for (agentPool, in
   }
 }]
 
-resource managedCluster_lock 'Microsoft.Authorization/locks@2017-04-01' = if (!empty(lock)) {
+resource managedCluster_lock 'Microsoft.Authorization/locks@2020-05-01' = if (!empty(lock)) {
   name: '${managedCluster.name}-${lock}-lock'
   properties: {
     level: any(lock)

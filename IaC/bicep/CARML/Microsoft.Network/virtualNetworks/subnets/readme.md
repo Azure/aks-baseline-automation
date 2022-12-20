@@ -20,22 +20,25 @@ This module deploys a virtual network subnet.
 ## Parameters
 
 **Required parameters**
+
 | Parameter Name | Type | Description |
 | :-- | :-- | :-- |
 | `addressPrefix` | string | The address prefix for the subnet. |
 
 **Conditional parameters**
+
 | Parameter Name | Type | Description |
 | :-- | :-- | :-- |
 | `virtualNetworkName` | string | The name of the parent virtual network. Required if the template is used in a standalone deployment. |
 
 **Optional parameters**
+
 | Parameter Name | Type | Default Value | Allowed Values | Description |
 | :-- | :-- | :-- | :-- | :-- |
 | `addressPrefixes` | array | `[]` |  | List of address prefixes for the subnet. |
 | `applicationGatewayIpConfigurations` | array | `[]` |  | Application gateway IP configurations of virtual network resource. |
 | `delegations` | array | `[]` |  | The delegations to enable on the subnet. |
-| `enableDefaultTelemetry` | bool | `True` |  | Enable telemetry via the Customer Usage Attribution ID (GUID). |
+| `enableDefaultTelemetry` | bool | `True` |  | Enable telemetry via a Globally Unique Identifier (GUID). |
 | `ipAllocations` | array | `[]` |  | Array of IpAllocation which reference this subnet. |
 | `name` | string |  |  | The Name of the subnet resource. |
 | `natGatewayId` | string | `''` |  | The resource ID of the NAT Gateway to use for the subnet. |

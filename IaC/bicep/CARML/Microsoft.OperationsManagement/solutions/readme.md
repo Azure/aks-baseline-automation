@@ -19,15 +19,17 @@ This module deploys OperationsManagement Solutions.
 ## Parameters
 
 **Required parameters**
+
 | Parameter Name | Type | Description |
 | :-- | :-- | :-- |
 | `logAnalyticsWorkspaceName` | string | Name of the Log Analytics workspace where the solution will be deployed/enabled. |
 | `name` | string | Name of the solution. For Microsoft published gallery solution the target solution resource name will be composed as `{name}({logAnalyticsWorkspaceName})`. |
 
 **Optional parameters**
+
 | Parameter Name | Type | Default Value | Description |
 | :-- | :-- | :-- | :-- |
-| `enableDefaultTelemetry` | bool | `True` | Enable telemetry via the Customer Usage Attribution ID (GUID). |
+| `enableDefaultTelemetry` | bool | `True` | Enable telemetry via a Globally Unique Identifier (GUID). |
 | `location` | string | `[resourceGroup().location]` | Location for all resources. |
 | `product` | string | `'OMSGallery'` | The product of the deployed solution. For Microsoft published gallery solution it should be `OMSGallery` and the target solution resource product will be composed as `OMSGallery/{name}`. For third party solution, it can be anything. This is case sensitive. |
 | `publisher` | string | `'Microsoft'` | The publisher name of the deployed solution. For Microsoft published gallery solution, it is `Microsoft`. |
@@ -50,6 +52,7 @@ _None_
 
 The following module usage examples are retrieved from the content of the files hosted in the module's `.test` folder.
    >**Note**: The name of each example is based on the name of the file from which it is taken.
+
    >**Note**: Each example lists all the required parameters first, followed by the rest - each in alphabetical order.
 
 <h3>Example 1: Min</h3>
@@ -60,11 +63,13 @@ The following module usage examples are retrieved from the content of the files 
 
 ```bicep
 module solutions './Microsoft.OperationsManagement/solutions/deploy.bicep' = {
-  name: '${uniqueString(deployment().name)}-solutions'
+  name: '${uniqueString(deployment().name)}-test-omsmin'
   params: {
     // Required parameters
-    logAnalyticsWorkspaceName: 'adp-<<namePrefix>>-az-law-sol-001'
+    logAnalyticsWorkspaceName: '<logAnalyticsWorkspaceName>'
     name: 'Updates'
+    // Non-required parameters
+    enableDefaultTelemetry: '<enableDefaultTelemetry>'
   }
 }
 ```
@@ -83,10 +88,14 @@ module solutions './Microsoft.OperationsManagement/solutions/deploy.bicep' = {
   "parameters": {
     // Required parameters
     "logAnalyticsWorkspaceName": {
-      "value": "adp-<<namePrefix>>-az-law-sol-001"
+      "value": "<logAnalyticsWorkspaceName>"
     },
     "name": {
       "value": "Updates"
+    },
+    // Non-required parameters
+    "enableDefaultTelemetry": {
+      "value": "<enableDefaultTelemetry>"
     }
   }
 }
@@ -103,12 +112,13 @@ module solutions './Microsoft.OperationsManagement/solutions/deploy.bicep' = {
 
 ```bicep
 module solutions './Microsoft.OperationsManagement/solutions/deploy.bicep' = {
-  name: '${uniqueString(deployment().name)}-solutions'
+  name: '${uniqueString(deployment().name)}-test-omsms'
   params: {
     // Required parameters
-    logAnalyticsWorkspaceName: 'adp-<<namePrefix>>-az-law-sol-001'
+    logAnalyticsWorkspaceName: '<logAnalyticsWorkspaceName>'
     name: 'AzureAutomation'
     // Non-required parameters
+    enableDefaultTelemetry: '<enableDefaultTelemetry>'
     product: 'OMSGallery'
     publisher: 'Microsoft'
   }
@@ -129,12 +139,15 @@ module solutions './Microsoft.OperationsManagement/solutions/deploy.bicep' = {
   "parameters": {
     // Required parameters
     "logAnalyticsWorkspaceName": {
-      "value": "adp-<<namePrefix>>-az-law-sol-001"
+      "value": "<logAnalyticsWorkspaceName>"
     },
     "name": {
       "value": "AzureAutomation"
     },
     // Non-required parameters
+    "enableDefaultTelemetry": {
+      "value": "<enableDefaultTelemetry>"
+    },
     "product": {
       "value": "OMSGallery"
     },
@@ -156,12 +169,13 @@ module solutions './Microsoft.OperationsManagement/solutions/deploy.bicep' = {
 
 ```bicep
 module solutions './Microsoft.OperationsManagement/solutions/deploy.bicep' = {
-  name: '${uniqueString(deployment().name)}-solutions'
+  name: '${uniqueString(deployment().name)}-test-omsnonms'
   params: {
     // Required parameters
-    logAnalyticsWorkspaceName: 'adp-<<namePrefix>>-az-law-sol-001'
-    name: 'nonmsTestSolution'
+    logAnalyticsWorkspaceName: '<logAnalyticsWorkspaceName>'
+    name: '<<namePrefix>>omsnonms001'
     // Non-required parameters
+    enableDefaultTelemetry: '<enableDefaultTelemetry>'
     product: 'nonmsTestSolutionProduct'
     publisher: 'nonmsTestSolutionPublisher'
   }
@@ -182,12 +196,15 @@ module solutions './Microsoft.OperationsManagement/solutions/deploy.bicep' = {
   "parameters": {
     // Required parameters
     "logAnalyticsWorkspaceName": {
-      "value": "adp-<<namePrefix>>-az-law-sol-001"
+      "value": "<logAnalyticsWorkspaceName>"
     },
     "name": {
-      "value": "nonmsTestSolution"
+      "value": "<<namePrefix>>omsnonms001"
     },
     // Non-required parameters
+    "enableDefaultTelemetry": {
+      "value": "<enableDefaultTelemetry>"
+    },
     "product": {
       "value": "nonmsTestSolutionProduct"
     },
