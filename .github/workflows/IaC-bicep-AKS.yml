@@ -54,25 +54,34 @@ jobs:
         shell: pwsh
         run: |
           write-output "Verifying required Resource Providers Features are registered"
-          $featureName='EnableOIDCIssuerPreview'
-          $aksfeature = az feature list --query "[?contains(name, '$featureName')]" -o json
+          $aksfeatures = az feature list --query "[?contains(name, 'Microsoft.ContainerService')]" | ConvertFrom-Json
+
+          $featureName='AKS-ExtensionManager'
           write-output "-- $featureName"
-          $feature = $aksfeature | Convertfrom-Json
+          $feature = $aksfeatures |  Where-Object {$_.name -like "*$featureName"}
           $feature.properties.state
           if ($feature.properties.state -ne 'Registered') {
             Write-Output $feature
             Write-Error "$featureName NOT registered"
           }
-          
-          # $featureName='AKS-AzureDefender'
-          # $aksfeature = az feature list --query "[?contains(name, '$featureName')]" -o json
-          # write-output "-- $featureName"
-          # $feature = $aksfeature | Convertfrom-Json
-          # $feature.properties.state
-          # if ($feature.properties.state -ne 'Registered') {
-          #   Write-Output $feature
-          #   Write-Error "$featureName NOT registered"
-          # } 
+
+          $featureName='EnableOIDCIssuerPreview'
+          write-output "-- $featureName"
+          $feature = $aksfeatures |  Where-Object {$_.name -like "*$featureName"}
+          $feature.properties.state
+          if ($feature.properties.state -ne 'Registered') {
+            Write-Output $feature
+            Write-Error "$featureName NOT registered"
+          }
+
+          $featureName='AKS-AzureDefender'
+          write-output "-- $featureName"
+          $feature = $aksfeatures |  Where-Object {$_.name -like "*$featureName"}
+          $feature.properties.state
+          if ($feature.properties.state -ne 'Registered') {
+            Write-Output $feature
+            Write-Error "$featureName NOT registered"
+          }
 
   deployment:
     runs-on: ubuntu-latest
