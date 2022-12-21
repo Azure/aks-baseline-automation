@@ -64,15 +64,15 @@ jobs:
             Write-Error "$featureName NOT registered"
           }
           
-          $featureName='AKS-AzureDefender'
-          $aksfeature = az feature list --query "[?contains(name, '$featureName')]" -o json
-          write-output "-- $featureName"
-          $feature = $aksfeature | Convertfrom-Json
-          $feature.properties.state
-          if ($feature.properties.state -ne 'Registered') {
-            Write-Output $feature
-            Write-Error "$featureName NOT registered"
-          } 
+          # $featureName='AKS-AzureDefender'
+          # $aksfeature = az feature list --query "[?contains(name, '$featureName')]" -o json
+          # write-output "-- $featureName"
+          # $feature = $aksfeature | Convertfrom-Json
+          # $feature.properties.state
+          # if ($feature.properties.state -ne 'Registered') {
+          #   Write-Output $feature
+          #   Write-Error "$featureName NOT registered"
+          # } 
 
   deployment:
     runs-on: ubuntu-latest
