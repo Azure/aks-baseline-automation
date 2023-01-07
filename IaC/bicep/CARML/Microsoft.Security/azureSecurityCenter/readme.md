@@ -24,12 +24,14 @@ This template enables Azure security center - Standard tier by default, could be
 ## Parameters
 
 **Required parameters**
+
 | Parameter Name | Type | Description |
 | :-- | :-- | :-- |
 | `scope` | string | All the VMs in this scope will send their security data to the mentioned workspace unless overridden by a setting with more specific scope. |
 | `workspaceId` | string | The full Azure ID of the workspace to save the data in. |
 
 **Optional parameters**
+
 | Parameter Name | Type | Default Value | Allowed Values | Description |
 | :-- | :-- | :-- | :-- | :-- |
 | `appServicesPricingTier` | string | `'Free'` | `[Free, Standard]` | The pricing tier value for AppServices. Azure Security Center is provided in two pricing tiers: free and standard, with the standard tier available with a trial period. The standard tier offers advanced security capabilities, while the free tier offers basic security features. - Free or Standard. |
@@ -40,7 +42,7 @@ This template enables Azure security center - Standard tier by default, could be
 | `cosmosDbsTier` | string | `'Free'` | `[Free, Standard]` | The pricing tier value for CosmosDbs. Azure Security Center is provided in two pricing tiers: free and standard, with the standard tier available with a trial period. The standard tier offers advanced security capabilities, while the free tier offers basic security features. - Free or Standard. |
 | `deviceSecurityGroupProperties` | object | `{object}` |  | Device Security group data. |
 | `dnsPricingTier` | string | `'Free'` | `[Free, Standard]` | The pricing tier value for DNS. Azure Security Center is provided in two pricing tiers: free and standard, with the standard tier available with a trial period. The standard tier offers advanced security capabilities, while the free tier offers basic security features. - Free or Standard. |
-| `enableDefaultTelemetry` | bool | `True` |  | Enable telemetry via the Customer Usage Attribution ID (GUID). |
+| `enableDefaultTelemetry` | bool | `True` |  | Enable telemetry via a Globally Unique Identifier (GUID). |
 | `ioTSecuritySolutionProperties` | object | `{object}` |  | Security Solution data. |
 | `keyVaultsPricingTier` | string | `'Free'` | `[Free, Standard]` | The pricing tier value for KeyVaults. Azure Security Center is provided in two pricing tiers: free and standard, with the standard tier available with a trial period. The standard tier offers advanced security capabilities, while the free tier offers basic security features. - Free or Standard. |
 | `kubernetesServicePricingTier` | string | `'Free'` | `[Free, Standard]` | The pricing tier value for KubernetesService. Azure Security Center is provided in two pricing tiers: free and standard, with the standard tier available with a trial period. The standard tier offers advanced security capabilities, while the free tier offers basic security features. - Free or Standard. |
@@ -103,9 +105,10 @@ _None_
 
 The following module usage examples are retrieved from the content of the files hosted in the module's `.test` folder.
    >**Note**: The name of each example is based on the name of the file from which it is taken.
+
    >**Note**: Each example lists all the required parameters first, followed by the rest - each in alphabetical order.
 
-<h3>Example 1: Parameters</h3>
+<h3>Example 1: Common</h3>
 
 <details>
 
@@ -113,12 +116,12 @@ The following module usage examples are retrieved from the content of the files 
 
 ```bicep
 module azureSecurityCenter './Microsoft.Security/azureSecurityCenter/deploy.bicep' = {
-  name: '${uniqueString(deployment().name)}-azureSecurityCenter'
+  name: '${uniqueString(deployment().name)}-test-sasccom'
   params: {
     // Required parameters
-    scope: '/subscriptions/<<subscriptionId>>'
-    workspaceId: '/subscriptions/<<subscriptionId>>/resourcegroups/validation-rg/providers/microsoft.operationalinsights/workspaces/adp-<<namePrefix>>-az-law-x-001'
+    workspaceId: '<workspaceId>'
     // Non-required parameters
+    enableDefaultTelemetry: '<enableDefaultTelemetry>'
     securityContactProperties: {
       alertNotifications: 'Off'
       alertsToAdmins: 'Off'
@@ -142,13 +145,13 @@ module azureSecurityCenter './Microsoft.Security/azureSecurityCenter/deploy.bice
   "contentVersion": "1.0.0.0",
   "parameters": {
     // Required parameters
-    "scope": {
-      "value": "/subscriptions/<<subscriptionId>>"
-    },
     "workspaceId": {
-      "value": "/subscriptions/<<subscriptionId>>/resourcegroups/validation-rg/providers/microsoft.operationalinsights/workspaces/adp-<<namePrefix>>-az-law-x-001"
+      "value": "<workspaceId>"
     },
     // Non-required parameters
+    "enableDefaultTelemetry": {
+      "value": "<enableDefaultTelemetry>"
+    },
     "securityContactProperties": {
       "value": {
         "alertNotifications": "Off",

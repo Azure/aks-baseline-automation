@@ -73,12 +73,13 @@ param fqdns array = []
 param ipAddresses array = []
 
 @description('Optional. Secret ID of (base-64 encoded unencrypted PFX) Secret or Certificate object stored in KeyVault.')
+#disable-next-line secure-secrets-in-params // Not a secret
 param keyVaultSecretId string = ''
 
 @description('Optional. Name of the CA certificate.')
 param certificateName string = ''
 
-@description('Optional. Enable telemetry via the Customer Usage Attribution ID (GUID).')
+@description('Optional. Enable telemetry via a Globally Unique Identifier (GUID).')
 param enableDefaultTelemetry bool = true
 
 @description('Optional. Rule collection groups.')
