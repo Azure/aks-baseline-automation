@@ -18,7 +18,7 @@
             "value": "1.23.8"
         },
         "gitOpsBootstrappingRepoHttpsUrl": {
-            "value": "https://github.com/Azure/aks-baseline-automation"
+            "value": "https://github.com/renato-marciano/aks-baseline-automation"
         },
         "gitOpsBootstrappingRepoBranch": {
             "value": "main"

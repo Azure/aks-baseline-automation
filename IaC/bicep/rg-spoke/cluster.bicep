@@ -79,7 +79,7 @@ var clusterIngressSubnetName = 'snet-clusteringressservices'
 var vnetNodePoolSubnetResourceId = '${targetVnetResourceId}/subnets/${clusterNodesSubnetName}'
 // var vnetIngressServicesSubnetResourceId = '${targetVnetResourceId}/subnets/snet-cluster-ingressservices'
 var clusterControlPlaneIdentityName = 'mi-${clusterName}-controlplane'
-var aksIngressDomainName = 'aks-ingress.${domainName}'
+var aksIngressDomainName = '${domainName}'
 var isUsingAzureRBACasKubernetesRBAC = (subscription().tenantId == k8sControlPlaneAuthorizationTenantId)
 
 resource rg 'Microsoft.Resources/resourceGroups@2019-05-01' existing = {
@@ -127,7 +127,7 @@ module aksIngressDomain '../CARML/Microsoft.Network/privateDnsZones/deploy.bicep
     name: aksIngressDomainName
     a: [
       {
-        name: 'bu0001a0008-00'
+        name: 'ist'
         ttl: 3600
         aRecords: [
           {
