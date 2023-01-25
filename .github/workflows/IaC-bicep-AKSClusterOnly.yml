@@ -14,7 +14,7 @@ on:
       clusterVnetResourceId:
         description: 'The vnet resource ID (not uuid)'
         required: true
-        default: '0b0aa3d2-eb83-496c-815c-d481a3bb9983'
+        default: '/subscriptions/f75f6327-8759-4b37-87d4-b44bb79ba52b/resourceGroups/rg-spokes-eastus-005/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0008-00'
       ACRNAME:
         description: 'The Name of the ACR resource'
         required: true

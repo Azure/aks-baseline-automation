@@ -501,7 +501,7 @@ module kubernetesConfigurationFlux2 '../CARML/Microsoft.KubernetesConfiguration/
         prune: true
         force: false
       },
-      unified: {
+      workloads: {
         path: './workloads/aspnet'
         dependsOn: []
         timeoutInSeconds: 300
