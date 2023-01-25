@@ -10,20 +10,28 @@ on:
       REGION:
         description: 'The Azure region to deploy to'
         required: true
-        default: westus2
+        default: eastus
       clusterVnetResourceId:
         description: 'The vnet resource ID (not uuid)'
         required: true
+        default: '0b0aa3d2-eb83-496c-815c-d481a3bb9983'
       ACRNAME:
         description: 'The Name of the ACR resource'
         required: true
         type: string
+        default: 'acraks3lx55ezkyvmiw'
       clusterAdminAadGroupObjectId:
         description: 'K8S Admin Azure AAD Group ObjectID'
         required: true
         type: string
+        default: '47adadf2-1195-4101-b958-e12bf364cd06'
       a0008NamespaceReaderAadGroupObjectId:
         description: 'K8S Reader Azure AAD Group ObjectID'
+        required: true
+        type: string
+        default: '47adadf2-1195-4101-b958-e12bf364cd06'
+      rgSuffix:
+        description: 'Suffix added to resource group'
         required: true
         type: string
 
@@ -111,16 +119,18 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      # This step is just used for convenience as you won't be using self-signed certificate in your production environment.
+      # The certificate used in your environment will likely be generated and imported into KeyVault by your security team 
       - name: "Cert Generation"
         id: cert
         run: |
           export DOMAIN_NAME_AKS_BASELINE="contoso.com"
-          export CN="bicycle"
+          export CN="ist"
           openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out appgw.crt -keyout appgw.key -subj "/CN=${CN}.${DOMAIN_NAME_AKS_BASELINE}/O=Contoso Bicycle" -addext "subjectAltName = DNS:${CN}.${DOMAIN_NAME_AKS_BASELINE}" -addext "keyUsage = digitalSignature" -addext "extendedKeyUsage = serverAuth"
           openssl pkcs12 -export -out appgw.pfx -in appgw.crt -inkey appgw.key -passout pass:
           export APP_GATEWAY_LISTENER_CERTIFICATE_AKS_BASELINE=$(cat appgw.pfx | base64 | tr -d '\n')
           echo "APP_GATEWAY_LISTENER_CERTIFICATE=$APP_GATEWAY_LISTENER_CERTIFICATE_AKS_BASELINE" >> $GITHUB_ENV
-          openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out traefik-ingress-internal-aks-ingress-tls.crt -keyout traefik-ingress-internal-aks-ingress-tls.key -subj "/CN=*.aks-ingress.${DOMAIN_NAME_AKS_BASELINE}/O=Contoso AKS Ingress"
+          openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out traefik-ingress-internal-aks-ingress-tls.crt -keyout traefik-ingress-internal-aks-ingress-tls.key -subj "/CN=${CN}.${DOMAIN_NAME_AKS_BASELINE}/O=Contoso AKS Ingress"
           export AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE=$(cat traefik-ingress-internal-aks-ingress-tls.crt | base64 | tr -d '\n')
           echo "AKS_INGRESS_CONTROLLER_CERTIFICATE=$AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE" >> $GITHUB_ENV
 
@@ -138,14 +148,14 @@ jobs:
           region: ${{ github.event.inputs.REGION }}
           scope: subscription
           template: ./IaC/bicep/rg-spoke/cluster.bicep
-          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json appGatewayListenerCertificate=${{ env.APP_GATEWAY_LISTENER_CERTIFICATE }} aksIngressControllerCertificate=${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE }} targetVnetResourceId=${{ github.event.inputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }} vNetResourceGroup=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }} gitOpsBootstrappingRepoBranch=${{ github.ref_name }}
+          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json appGatewayListenerCertificate=${{ env.APP_GATEWAY_LISTENER_CERTIFICATE }} aksIngressControllerCertificate=${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE }} targetVnetResourceId=${{ github.event.inputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }} vNetResourceGroup=rg-spokes-${{ github.event.inputs.REGION }}-${{ github.event.inputs.rgSuffix }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-ist-${{ github.event.inputs.REGION }}-${{ github.event.inputs.rgSuffix }} gitOpsBootstrappingRepoBranch=${{ github.ref_name }}          
           failOnStdErr: false
           deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
 
       - name: "Pull AKV_NAME"
         id: akv_name
         run: |
-          export AKV_NAME=$(az deployment group list -g rg-BU0001A0008-${{ github.event.inputs.REGION }} -o table| grep 'kv-aks'|awk '{print $1}')
+          export AKV_NAME=$(az deployment group list -g rg-ist-${{ github.event.inputs.REGION }}-${{ github.event.inputs.rgSuffix }} -o table| grep 'kv-aks'|awk '{print $1}')
           echo "AKV_NAME=${AKV_NAME}" >> $GITHUB_ENV
           echo "AKV Name extracted by querying is ${AKV_NAME}"
 
