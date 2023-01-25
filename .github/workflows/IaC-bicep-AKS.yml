@@ -10,7 +10,7 @@ on:
       REGION:
         description: 'The Azure region to deploy to'
         required: true
-        default: eastus2
+        default: eastus
       clusterAdminAadGroupObjectId:
         description: 'K8S Admin Azure AAD Group ObjectID'
         default: '47adadf2-1195-4101-b958-e12bf364cd06'

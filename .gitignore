@@ -6,3 +6,4 @@
 *.tfplan
 public/
 landingzone/
+kubelogin-linux-amd64.zip
