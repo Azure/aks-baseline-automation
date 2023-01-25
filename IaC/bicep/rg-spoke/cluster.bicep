@@ -500,6 +500,15 @@ module kubernetesConfigurationFlux2 '../CARML/Microsoft.KubernetesConfiguration/
         retryIntervalInSeconds: null
         prune: true
         force: false
+      },
+      unified: {
+        path: './workloads/aspnet'
+        dependsOn: []
+        timeoutInSeconds: 300
+        syncIntervalInSeconds: 300
+        retryIntervalInSeconds: null
+        prune: true
+        force: false
       }
     }
   }
