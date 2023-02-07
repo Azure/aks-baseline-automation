@@ -28,6 +28,7 @@ az provider register --namespace Microsoft.KubernetesConfiguration
 ```
 
 For Details see [Prerequisites](https://docs.microsoft.com/en-us/azure/azure-arc/kubernetes/tutorial-use-gitops-flux2)
+
 ## Resource Types
 
 | Resource Type | API Version |
@@ -37,6 +38,7 @@ For Details see [Prerequisites](https://docs.microsoft.com/en-us/azure/azure-arc
 ## Parameters
 
 **Required parameters**
+
 | Parameter Name | Type | Description |
 | :-- | :-- | :-- |
 | `clusterName` | string | The name of the AKS cluster that should be configured. |
@@ -44,11 +46,12 @@ For Details see [Prerequisites](https://docs.microsoft.com/en-us/azure/azure-arc
 | `name` | string | The name of the Flux Configuration. |
 
 **Optional parameters**
+
 | Parameter Name | Type | Default Value | Description |
 | :-- | :-- | :-- | :-- |
 | `configurationProtectedSettings` | object | `{object}` | Configuration settings that are sensitive, as name-value pairs for configuring this extension. |
 | `configurationSettings` | object | `{object}` | Configuration settings, as name-value pairs for configuring this extension. |
-| `enableDefaultTelemetry` | bool | `True` | Enable telemetry via the Customer Usage Attribution ID (GUID). |
+| `enableDefaultTelemetry` | bool | `True` | Enable telemetry via a Globally Unique Identifier (GUID). |
 | `location` | string | `[resourceGroup().location]` | Location for all resources. |
 | `releaseNamespace` | string | `''` | Namespace where the extension Release must be placed, for a Cluster scoped extension. If this namespace does not exist, it will be created. |
 | `releaseTrain` | string | `'Stable'` | ReleaseTrain this extension participates in for auto-upgrade (e.g. Stable, Preview, etc.) - only if autoUpgradeMinorVersion is "true". |
@@ -72,9 +75,10 @@ _None_
 
 The following module usage examples are retrieved from the content of the files hosted in the module's `.test` folder.
    >**Note**: The name of each example is based on the name of the file from which it is taken.
+
    >**Note**: Each example lists all the required parameters first, followed by the rest - each in alphabetical order.
 
-<h3>Example 1: Min</h3>
+<h3>Example 1: Common</h3>
 
 <details>
 
@@ -82,69 +86,12 @@ The following module usage examples are retrieved from the content of the files 
 
 ```bicep
 module extensions './Microsoft.KubernetesConfiguration/extensions/deploy.bicep' = {
-  name: '${uniqueString(deployment().name)}-extensions'
+  name: '${uniqueString(deployment().name)}-test-kcecom'
   params: {
     // Required parameters
-    clusterName: '<<namePrefix>>-az-aks-kubenet-001'
+    clusterName: '<clusterName>'
     extensionType: 'microsoft.flux'
-    name: 'flux'
-    // Non-required parameters
-    releaseNamespace: 'flux-system'
-    releaseTrain: 'Stable'
-  }
-}
-```
-
-</details>
-<p>
-
-<details>
-
-<summary>via JSON Parameter file</summary>
-
-```json
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    // Required parameters
-    "clusterName": {
-      "value": "<<namePrefix>>-az-aks-kubenet-001"
-    },
-    "extensionType": {
-      "value": "microsoft.flux"
-    },
-    "name": {
-      "value": "flux"
-    },
-    // Non-required parameters
-    "releaseNamespace": {
-      "value": "flux-system"
-    },
-    "releaseTrain": {
-      "value": "Stable"
-    }
-  }
-}
-```
-
-</details>
-<p>
-
-<h3>Example 2: Parameters</h3>
-
-<details>
-
-<summary>via Bicep module</summary>
-
-```bicep
-module extensions './Microsoft.KubernetesConfiguration/extensions/deploy.bicep' = {
-  name: '${uniqueString(deployment().name)}-extensions'
-  params: {
-    // Required parameters
-    clusterName: '<<namePrefix>>-az-aks-kubenet-001'
-    extensionType: 'microsoft.flux'
-    name: 'flux'
+    name: '<<namePrefix>>kcecom001'
     // Non-required parameters
     configurationSettings: {
       'image-automation-controller.enabled': 'false'
@@ -153,6 +100,7 @@ module extensions './Microsoft.KubernetesConfiguration/extensions/deploy.bicep' 
       'notification-controller.enabled': 'false'
       'source-controller.enabled': 'true'
     }
+    enableDefaultTelemetry: '<enableDefaultTelemetry>'
     releaseNamespace: 'flux-system'
     releaseTrain: 'Stable'
     version: '0.5.2'
@@ -174,13 +122,13 @@ module extensions './Microsoft.KubernetesConfiguration/extensions/deploy.bicep' 
   "parameters": {
     // Required parameters
     "clusterName": {
-      "value": "<<namePrefix>>-az-aks-kubenet-001"
+      "value": "<clusterName>"
     },
     "extensionType": {
       "value": "microsoft.flux"
     },
     "name": {
-      "value": "flux"
+      "value": "<<namePrefix>>kcecom001"
     },
     // Non-required parameters
     "configurationSettings": {
@@ -192,6 +140,9 @@ module extensions './Microsoft.KubernetesConfiguration/extensions/deploy.bicep' 
         "source-controller.enabled": "true"
       }
     },
+    "enableDefaultTelemetry": {
+      "value": "<enableDefaultTelemetry>"
+    },
     "releaseNamespace": {
       "value": "flux-system"
     },
@@ -200,6 +151,67 @@ module extensions './Microsoft.KubernetesConfiguration/extensions/deploy.bicep' 
     },
     "version": {
       "value": "0.5.2"
+    }
+  }
+}
+```
+
+</details>
+<p>
+
+<h3>Example 2: Min</h3>
+
+<details>
+
+<summary>via Bicep module</summary>
+
+```bicep
+module extensions './Microsoft.KubernetesConfiguration/extensions/deploy.bicep' = {
+  name: '${uniqueString(deployment().name)}-test-kcemin'
+  params: {
+    // Required parameters
+    clusterName: '<clusterName>'
+    extensionType: 'microsoft.flux'
+    name: '<<namePrefix>>kcemin001'
+    // Non-required parameters
+    enableDefaultTelemetry: '<enableDefaultTelemetry>'
+    releaseNamespace: 'flux-system'
+    releaseTrain: 'Stable'
+  }
+}
+```
+
+</details>
+<p>
+
+<details>
+
+<summary>via JSON Parameter file</summary>
+
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    // Required parameters
+    "clusterName": {
+      "value": "<clusterName>"
+    },
+    "extensionType": {
+      "value": "microsoft.flux"
+    },
+    "name": {
+      "value": "<<namePrefix>>kcemin001"
+    },
+    // Non-required parameters
+    "enableDefaultTelemetry": {
+      "value": "<enableDefaultTelemetry>"
+    },
+    "releaseNamespace": {
+      "value": "flux-system"
+    },
+    "releaseTrain": {
+      "value": "Stable"
     }
   }
 }

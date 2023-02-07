@@ -19,17 +19,19 @@ With this module you can perform policy assignments on a resource group level
 ## Parameters
 
 **Required parameters**
+
 | Parameter Name | Type | Description |
 | :-- | :-- | :-- |
 | `name` | string | Specifies the name of the policy assignment. Maximum length is 64 characters for resource group scope. |
 | `policyDefinitionId` | string | Specifies the ID of the policy definition or policy set definition being assigned. |
 
 **Optional parameters**
+
 | Parameter Name | Type | Default Value | Allowed Values | Description |
 | :-- | :-- | :-- | :-- | :-- |
 | `description` | string | `''` |  | This message will be part of response in case of policy violation. |
 | `displayName` | string | `''` |  | The display name of the policy assignment. Maximum length is 128 characters. |
-| `enableDefaultTelemetry` | bool | `True` |  | Enable telemetry via the Customer Usage Attribution ID (GUID). |
+| `enableDefaultTelemetry` | bool | `True` |  | Enable telemetry via a Globally Unique Identifier (GUID). |
 | `enforcementMode` | string | `'Default'` | `[Default, DoNotEnforce]` | The policy assignment enforcement mode. Possible values are Default and DoNotEnforce. - Default or DoNotEnforce. |
 | `identity` | string | `'SystemAssigned'` | `[None, SystemAssigned, UserAssigned]` | The managed identity associated with the policy assignment. Policy assignments must include a resource identity when assigning 'Modify' policy definitions. |
 | `location` | string | `[resourceGroup().location]` |  | Location for all resources. |
