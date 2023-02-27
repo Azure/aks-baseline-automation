@@ -38,7 +38,7 @@ module hub 'rg-hub/hub-default.bicep' = {
           destinationPortRange: '443'
           destinationAddressPrefix: '*'
           access: 'Allow'
-          priority: '100'
+          priority: 100
           direction: 'Inbound'
         }
       }
@@ -52,7 +52,7 @@ module hub 'rg-hub/hub-default.bicep' = {
           destinationPortRange: '443'
           destinationAddressPrefix: '*'
           access: 'Allow'
-          priority: '110'
+          priority: 110
           direction: 'Inbound'
         }
       }
@@ -66,7 +66,7 @@ module hub 'rg-hub/hub-default.bicep' = {
           destinationPortRange: '443'
           destinationAddressPrefix: '*'
           access: 'Allow'
-          priority: '120'
+          priority: 120
           direction: 'Inbound'
         }
       }
@@ -83,7 +83,7 @@ module hub 'rg-hub/hub-default.bicep' = {
           ]
           destinationAddressPrefix: 'VirtualNetwork'
           access: 'Allow'
-          priority: '130'
+          priority: 130
           direction: 'Inbound'
         }
       }
@@ -96,7 +96,7 @@ module hub 'rg-hub/hub-default.bicep' = {
           destinationPortRange: '*'
           destinationAddressPrefix: '*'
           access: 'Deny'
-          priority: '1000'
+          priority: 1000
           direction: 'Inbound'
         }
       }
@@ -110,7 +110,7 @@ module hub 'rg-hub/hub-default.bicep' = {
           destinationPortRange: '22'
           destinationAddressPrefix: 'VirtualNetwork'
           access: 'Allow'
-          priority: '100'
+          priority: 100
           direction: 'Outbound'
         }
       }
@@ -124,7 +124,7 @@ module hub 'rg-hub/hub-default.bicep' = {
           destinationPortRange: '3389'
           destinationAddressPrefix: 'VirtualNetwork'
           access: 'Allow'
-          priority: '110'
+          priority: 110
           direction: 'Outbound'
         }
       }
@@ -138,7 +138,7 @@ module hub 'rg-hub/hub-default.bicep' = {
           destinationPortRange: '443'
           destinationAddressPrefix: 'AzureCloud'
           access: 'Allow'
-          priority: '120'
+          priority: 120
           direction: 'Outbound'
         }
       }
@@ -155,7 +155,7 @@ module hub 'rg-hub/hub-default.bicep' = {
           ]
           destinationAddressPrefix: 'VirtualNetwork'
           access: 'Allow'
-          priority: '130'
+          priority: 130
           direction: 'Outbound'
         }
       }
@@ -169,7 +169,7 @@ module hub 'rg-hub/hub-default.bicep' = {
           destinationPortRange: '80'
           destinationAddressPrefix: 'Internet'
           access: 'Allow'
-          priority: '140'
+          priority: 140
           direction: 'Outbound'
         }
       }
@@ -182,7 +182,7 @@ module hub 'rg-hub/hub-default.bicep' = {
           destinationPortRange: '*'
           destinationAddressPrefix: '*'
           access: 'Deny'
-          priority: '1000'
+          priority: 1000
           direction: 'Outbound'
         }
       }
