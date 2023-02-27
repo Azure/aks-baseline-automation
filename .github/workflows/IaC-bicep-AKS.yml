@@ -116,72 +116,24 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: "Deploy Hub"
-        id: hub
+      - name: "Deploy AKS Landingzone"
+        id: akslz
         uses: azure/arm-deploy@v1
         with:
           subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
           region: ${{ github.event.inputs.REGION }}
           scope: subscription
-          template: ./IaC/bicep/rg-hub/hub-default.bicep
-          parameters: ./IaC/bicep/rg-hub/hub-default.parameters.json  resourceGroupName=rg-enterprise-networking-hubs-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }}
+          template: ./IaC/bicep/main.bicep
+          parameters: clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }} appGatewayListenerCertificate=${{ env.APP_GATEWAY_LISTENER_CERTIFICATE }} aksIngressControllerCertificate=${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE }}
           failOnStdErr: false
-          deploymentName: carml-hub-${{ github.event.inputs.REGION }}
-
-      - name: "Deploy Spoke"
-        id: spoke
-        uses: azure/arm-deploy@v1
-        with:
-          subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
-          region: ${{ github.event.inputs.REGION }}
-          scope: subscription
-          template: ./IaC/bicep/rg-spoke/spoke.bicep
-          parameters: ./IaC/bicep/rg-spoke/spoke.parameters.json hubVnetResourceId=${{ steps.hub.outputs.hubVnetId }} hubLaWorkspaceResourceId=${{ steps.hub.outputs.hubLaWorkspaceResourceId }} hubFwResourceId=${{ steps.hub.outputs.hubFwResourceId }} resourceGroupName=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }}
-          failOnStdErr: false
-          deploymentName: carml-spoke-${{ github.event.inputs.REGION }}
-
-      - name: "Deploy Registry"
-        id: registry
-        uses: azure/arm-deploy@v1
-        with:
-          subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
-          region: ${{ github.event.inputs.REGION }}
-          scope: subscription
-          template: ./IaC/bicep/rg-spoke/acr.bicep
-          parameters: ./IaC/bicep/rg-spoke/acr.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }}
-          failOnStdErr: false
-          deploymentName: carml-registry-${{ github.event.inputs.REGION }}
+          deploymentName: carml-aks-landingzone-${{ github.event.inputs.REGION }}
 
       # Import core images hosted in public container registries to be used during bootstrapping
       - name: "Import Images into ACR for flux"
         id: image_import
         run: |
-          az acr import --source docker.io/weaveworks/kured:1.10.1 -n ${{ steps.registry.outputs.containerRegistryName }} --force
-          az acr import --source docker.io/library/traefik:v2.8.1 -n ${{ steps.registry.outputs.containerRegistryName }} --force
-
-      - name: "Deploy Cluster prerequisites"
-        id: cluster_prereq
-        uses: azure/arm-deploy@v1
-        with:
-          subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
-          region: ${{ github.event.inputs.REGION }}
-          scope: subscription
-          template: ./IaC/bicep/rg-spoke/clusterprereq.bicep
-          parameters: ./IaC/bicep/rg-spoke/clusterprereq.parameters.json appGatewayListenerCertificate=${{ env.APP_GATEWAY_LISTENER_CERTIFICATE }} aksIngressControllerCertificate=${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE }} targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} vNetResourceGroup=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }}
-          failOnStdErr: false
-          deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
-
-      - name: "Deploy Cluster"
-        id: cluster
-        uses: azure/arm-deploy@v1
-        with:
-          subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
-          region: ${{ github.event.inputs.REGION }}
-          scope: subscription
-          template: ./IaC/bicep/rg-spoke/cluster.bicep
-          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }} vNetResourceGroup=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }} gitOpsBootstrappingRepoBranch=${{ github.ref_name }}
-          failOnStdErr: false
-          deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
+          az acr import --source docker.io/weaveworks/kured:1.10.1 -n ${{ steps.akslz.outputs.containerRegistryName }} --force
+          az acr import --source docker.io/library/traefik:v2.8.1 -n ${{ steps.akslz.outputs.containerRegistryName }} --force
 
         # Temporary workaround until we figure out why steps.cluster.outputs.keyVaultName is blank
       - name: "Get KeyVault Name"
@@ -189,9 +141,9 @@ jobs:
         run: |
           export AKV_NAME=$(az deployment group list -g rg-BU0001A0008-${{ github.event.inputs.REGION }} -o table| grep 'kv-aks'|awk '{print $1}')
           echo "AKV_NAME=${AKV_NAME}" >> $GITHUB_ENV
-          echo "AKV Name from bicep output is ${{ steps.cluster.outputs.keyVaultName }}"
-          echo "aksIngressControllerPodManagedIdentityResourceId from bicep output is ${{ steps.cluster.outputs.aksIngressControllerPodManagedIdentityResourceId }}"
-          echo "To prove that this should work: hubVnetId is ${{ steps.hub.outputs.hubVnetId }}"
+          echo "AKV Name from bicep output is ${{ steps.akslz.outputs.keyVaultName }}"
+          echo "aksIngressControllerPodManagedIdentityResourceId from bicep output is ${{ steps.akslz.outputs.aksIngressControllerPodManagedIdentityResourceId }}"
+          echo "To prove that this should work: hubVnetId is ${{ steps.akslz.outputs.hubVnetId }}"
 
         # Re-authentication is required for the commands that follow
       - name: Azure Login

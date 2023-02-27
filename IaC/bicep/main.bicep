@@ -13,6 +13,8 @@ param appGatewayListenerCertificate string
 
 param aksIngressControllerCertificate string
 
+var domainName = 'contoso.com'
+
 module hub 'rg-hub/hub-default.bicep' = {
   name: 'deploy-hub'
   params: {
@@ -214,7 +216,7 @@ module clusterprereq 'rg-spoke/clusterprereq.bicep' = {
   params: {
     aksIngressControllerCertificate: aksIngressControllerCertificate
     appGatewayListenerCertificate: appGatewayListenerCertificate
-    domainName: 'contoso.com'
+    domainName: domainName
     keyVaultPublicNetworkAccess: 'Enabled'
     location: location
     targetVnetResourceId: spoke.outputs.clusterVnetResourceId
@@ -228,7 +230,7 @@ module cluster 'rg-spoke/cluster.bicep' = {
   params: {
     a0008NamespaceReaderAadGroupObjectId: a0008NamespaceReaderAadGroupObjectId
     clusterAdminAadGroupObjectId: clusterAdminAadGroupObjectId
-    domainName: 'contoso.com'
+    domainName: domainName
     gitOpsBootstrappingRepoBranch: 'main'
     gitOpsBootstrappingRepoHttpsUrl: 'https://github.com/Azure/aks-baseline-automation'
     kubernetesVersion: '1.23.8'
@@ -242,4 +244,12 @@ module cluster 'rg-spoke/cluster.bicep' = {
 /*** OUTPUTS ***/
 
 output containerRegistryName string = registry.outputs.containerRegistryName
+
+output keyVaultName string = clusterprereq.outputs.keyVaultName
+
+output aksIngressControllerPodManagedIdentityResourceId string = clusterprereq.outputs.aksIngressControllerPodManagedIdentityResourceId
+
+output aksClusterName string = cluster.outputs.aksClusterName
+
+output hubVnetId string = hub.outputs.hubVnetId
 
