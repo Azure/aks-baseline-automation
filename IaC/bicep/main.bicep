@@ -220,8 +220,8 @@ module clusterprereq 'rg-spoke/clusterprereq.bicep' = {
     keyVaultPublicNetworkAccess: 'Enabled'
     location: location
     targetVnetResourceId: spoke.outputs.clusterVnetResourceId
-    vNetResourceGroup: 'rg-enterprise-networking-spokes-${location}'
-    resourceGroupName: 'rg-BU0001A0008-${location}'
+    vNetResourceGroup: 'rg-enterprise-networking-spokes'
+    resourceGroupName: 'rg-bu0001a0008'
   }
 }
 
@@ -239,6 +239,9 @@ module cluster 'rg-spoke/cluster.bicep' = {
     vNetResourceGroup: 'rg-enterprise-networking-spokes-${location}'
     resourceGroupName: 'rg-BU0001A0008-${location}'
   }
+  dependsOn: [
+    clusterprereq
+  ]
 }
 
 /*** OUTPUTS ***/
