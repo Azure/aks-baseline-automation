@@ -233,7 +233,7 @@ module cluster 'rg-spoke/cluster.bicep' = {
     domainName: domainName
     gitOpsBootstrappingRepoBranch: 'main'
     gitOpsBootstrappingRepoHttpsUrl: 'https://github.com/Azure/aks-baseline-automation'
-    kubernetesVersion: '1.23.8'
+    kubernetesVersion: ''
     location: location
     targetVnetResourceId: spoke.outputs.clusterVnetResourceId
     vNetResourceGroup: 'rg-enterprise-networking-spokes'
