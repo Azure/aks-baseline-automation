@@ -236,8 +236,8 @@ module cluster 'rg-spoke/cluster.bicep' = {
     kubernetesVersion: '1.23.8'
     location: location
     targetVnetResourceId: spoke.outputs.clusterVnetResourceId
-    vNetResourceGroup: 'rg-enterprise-networking-spokes-${location}'
-    resourceGroupName: 'rg-BU0001A0008-${location}'
+    vNetResourceGroup: 'rg-enterprise-networking-spokes'
+    resourceGroupName: 'rg-BU0001A0008'
   }
   dependsOn: [
     clusterprereq
