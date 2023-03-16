@@ -139,7 +139,7 @@ jobs:
       - name: "Get KeyVault Name"
         id: akv_name
         run: |
-          export AKV_NAME=$(az deployment group list -g rg-BU0001A0008-${{ github.event.inputs.REGION }} -o table| grep 'kv-aks'|awk '{print $1}')
+          export AKV_NAME=$(az deployment group list -g rg-bu0001a0008 -o table| grep 'kv-aks'|awk '{print $1}')
           echo "AKV_NAME=${AKV_NAME}" >> $GITHUB_ENV
           echo "AKV Name from bicep output is ${{ steps.akslz.outputs.keyVaultName }}"
           echo "aksIngressControllerPodManagedIdentityResourceId from bicep output is ${{ steps.akslz.outputs.aksIngressControllerPodManagedIdentityResourceId }}"
