@@ -10,10 +10,10 @@ param spokeResourceGroupName string
 param aksResourceGroupName string
 
 @description('AKS Service, Node Pool, and supporting services (KeyVault, App Gateway, etc) region. This needs to be the same region as the vnet provided in these parameters.')
-param location string = 'eastus2'
+param location string
 
 @description('For Azure resources that support native geo-redunancy, provide the location the redundant service will have its secondary. Should be different than the location parameter and ideally should be a paired region - https://learn.microsoft.com/azure/best-practices-availability-paired-regions. This region does not need to support availability zones.')
-param geoRedundancyLocation string = 'centralus'
+param geoRedundancyLocation string
 
 @description('Subnet address prefixes for all AKS clusters nodepools in all attached spokes to allow necessary outbound traffic through the firewall.')
 @minLength(1)
@@ -25,27 +25,27 @@ param networkSecurityGroupSecurityRules array = []
 @description('A /24 to contain the regional firewall, management, and gateway subnet')
 @minLength(10)
 @maxLength(18)
-param hubVnetAddressSpace string = '10.200.0.0/24'
+param hubVnetAddressSpace string
 
 @description('A /26 under the VNet Address Space for the regional Azure Firewall')
 @minLength(10)
 @maxLength(18)
-param azureFirewallSubnetAddressSpace string = '10.200.0.0/26'
+param azureFirewallSubnetAddressSpace string
 
 @description('A /27 under the VNet Address Space for our regional On-Prem Gateway')
 @minLength(10)
 @maxLength(18)
-param azureGatewaySubnetAddressSpace string = '10.200.0.64/27'
+param azureGatewaySubnetAddressSpace string
 
 @description('A /27 under the VNet Address Space for regional Azure Bastion')
 @minLength(10)
 @maxLength(18)
-param azureBastionSubnetAddressSpace string = '10.200.0.96/27'
+param azureBastionSubnetAddressSpace string
 
 @description('A /16 to contain the cluster')
 @minLength(10)
 @maxLength(18)
-param clusterVnetAddressSpace string = '10.240.0.0/16'
+param clusterVnetAddressSpace string
 
 @description('IP ranges authorized to contact the Kubernetes API server. Passing an empty array will result in no IP restrictions. If any are provided, remember to also provide the public IP of the egress Azure Firewall otherwise your nodes will not be able to talk to the API server (e.g. Flux).')
 param clusterAuthorizedIPRanges array = []

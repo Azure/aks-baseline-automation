@@ -58,9 +58,6 @@
         "a0008NamespaceReaderAadGroupObjectId": {
             "value": ""
         },
-        "k8sControlPlaneAuthorizationTenantId": {
-            "value": ""
-        },
         "networkSecurityGroupSecurityRules": {
             "value": [
                 {
