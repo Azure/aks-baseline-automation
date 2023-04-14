@@ -1,200 +1,103 @@
 targetScope = 'subscription'
 
-@description('The location to deploy the resources to')
-param location string = deployment().location
+@description('Name of the hub resource group')
+param hubResourceGroupName string
+
+@description('Name of the spoke resource group')
+param spokeResourceGroupName string
+
+@description('Name of the AKS resource group')
+param aksResourceGroupName string
+
+@description('AKS Service, Node Pool, and supporting services (KeyVault, App Gateway, etc) region. This needs to be the same region as the vnet provided in these parameters.')
+param location string = 'eastus2'
+
+@description('For Azure resources that support native geo-redunancy, provide the location the redundant service will have its secondary. Should be different than the location parameter and ideally should be a paired region - https://learn.microsoft.com/azure/best-practices-availability-paired-regions. This region does not need to support availability zones.')
+param geoRedundancyLocation string = 'centralus'
+
+@description('Subnet address prefixes for all AKS clusters nodepools in all attached spokes to allow necessary outbound traffic through the firewall.')
+@minLength(1)
+param subnetIpAddressSpace array
+
+@description('Optional. Array of Security Rules to deploy to the Network Security Group. When not provided, an NSG including only the built-in roles will be deployed.')
+param networkSecurityGroupSecurityRules array = []
+
+@description('A /24 to contain the regional firewall, management, and gateway subnet')
+@minLength(10)
+@maxLength(18)
+param hubVnetAddressSpace string = '10.200.0.0/24'
+
+@description('A /26 under the VNet Address Space for the regional Azure Firewall')
+@minLength(10)
+@maxLength(18)
+param azureFirewallSubnetAddressSpace string = '10.200.0.0/26'
+
+@description('A /27 under the VNet Address Space for our regional On-Prem Gateway')
+@minLength(10)
+@maxLength(18)
+param azureGatewaySubnetAddressSpace string = '10.200.0.64/27'
+
+@description('A /27 under the VNet Address Space for regional Azure Bastion')
+@minLength(10)
+@maxLength(18)
+param azureBastionSubnetAddressSpace string = '10.200.0.96/27'
+
+@description('A /16 to contain the cluster')
+@minLength(10)
+@maxLength(18)
+param clusterVnetAddressSpace string = '10.240.0.0/16'
+
+@description('IP ranges authorized to contact the Kubernetes API server. Passing an empty array will result in no IP restrictions. If any are provided, remember to also provide the public IP of the egress Azure Firewall otherwise your nodes will not be able to talk to the API server (e.g. Flux).')
+param clusterAuthorizedIPRanges array = []
+
+@description('Key Vault public network access.')
+param keyVaultPublicNetworkAccess string
+
+param kubernetesVersion string
+
+@description('Domain name to use for App Gateway and AKS ingress.')
+param domainName string
+
+@description('Your cluster will be bootstrapped from this git repo.')
+@minLength(9)
+param gitOpsBootstrappingRepoHttpsUrl string
+
+@description('You cluster will be bootstrapped from this branch in the identifed git repo.')
+@minLength(1)
+param gitOpsBootstrappingRepoBranch string
 
 @description('Azure AD Group in the identified tenant that will be granted the highly privileged cluster-admin role. If Azure RBAC is used, then this group will get a role assignment to Azure RBAC, else it will be assigned directly to the cluster\'s admin group.')
-param clusterAdminAadGroupObjectId string = ''
+param clusterAdminAadGroupObjectId string
 
 @description('Azure AD Group in the identified tenant that will be granted the read only privileges in the a0008 namespace that exists in the cluster. This is only used when Azure RBAC is used for Kubernetes RBAC.')
-param a0008NamespaceReaderAadGroupObjectId string = ''
+param a0008NamespaceReaderAadGroupObjectId string
+
+@description('Your AKS control plane Cluster API authentication tenant')
+param k8sControlPlaneAuthorizationTenantId string = subscription().tenantId
 
 param appGatewayListenerCertificate string
 
 param aksIngressControllerCertificate string
 
-var domainName = 'contoso.com'
-
 module hub 'rg-hub/hub-default.bicep' = {
   name: 'deploy-hub'
   params: {
-    resourceGroupName: 'rg-enterprise-networking-hubs'
+    resourceGroupName: hubResourceGroupName
     location: location
-    subnetIpAddressSpace: [
-      '10.240.0.0/16'
-    ]
-    hubVnetAddressSpace: '10.200.0.0/24'
-    azureFirewallSubnetAddressSpace: '10.200.0.0/26'
-    azureGatewaySubnetAddressSpace: '10.200.0.64/27'
-    azureBastionSubnetAddressSpace: '10.200.0.96/27'
-    networkSecurityGroupSecurityRules: [
-      {
-        name: 'AllowWebExperienceInBound'
-        properties: {
-          description: 'Allow our users in. Update this to be as restrictive as possible.'
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          sourceAddressPrefix: 'Internet'
-          destinationPortRange: '443'
-          destinationAddressPrefix: '*'
-          access: 'Allow'
-          priority: 100
-          direction: 'Inbound'
-        }
-      }
-      {
-        name: 'AllowControlPlaneInBound'
-        properties: {
-          description: 'Service Requirement. Allow control plane access. Regional Tag not yet supported.'
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          sourceAddressPrefix: 'GatewayManager'
-          destinationPortRange: '443'
-          destinationAddressPrefix: '*'
-          access: 'Allow'
-          priority: 110
-          direction: 'Inbound'
-        }
-      }
-      {
-        name: 'AllowHealthProbesInBound'
-        properties: {
-          description: 'Service Requirement. Allow Health Probes.'
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          sourceAddressPrefix: 'AzureLoadBalancer'
-          destinationPortRange: '443'
-          destinationAddressPrefix: '*'
-          access: 'Allow'
-          priority: 120
-          direction: 'Inbound'
-        }
-      }
-      {
-        name: 'AllowBastionHostToHostInBound'
-        properties: {
-          description: 'Service Requirement. Allow Required Host to Host Communication.'
-          protocol: '*'
-          sourcePortRange: '*'
-          sourceAddressPrefix: 'VirtualNetwork'
-          destinationPortRanges: [
-            '8080'
-            '5701'
-          ]
-          destinationAddressPrefix: 'VirtualNetwork'
-          access: 'Allow'
-          priority: 130
-          direction: 'Inbound'
-        }
-      }
-      {
-        name: 'DenyAllInBound'
-        properties: {
-          protocol: '*'
-          sourcePortRange: '*'
-          sourceAddressPrefix: '*'
-          destinationPortRange: '*'
-          destinationAddressPrefix: '*'
-          access: 'Deny'
-          priority: 1000
-          direction: 'Inbound'
-        }
-      }
-      {
-        name: 'AllowSshToVnetOutBound'
-        properties: {
-          description: 'Allow SSH out to the VNet'
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          sourceAddressPrefix: '*'
-          destinationPortRange: '22'
-          destinationAddressPrefix: 'VirtualNetwork'
-          access: 'Allow'
-          priority: 100
-          direction: 'Outbound'
-        }
-      }
-      {
-        name: 'AllowRdpToVnetOutBound'
-        properties: {
-          protocol: 'Tcp'
-          description: 'Allow RDP out to the VNet'
-          sourcePortRange: '*'
-          sourceAddressPrefix: '*'
-          destinationPortRange: '3389'
-          destinationAddressPrefix: 'VirtualNetwork'
-          access: 'Allow'
-          priority: 110
-          direction: 'Outbound'
-        }
-      }
-      {
-        name: 'AllowControlPlaneOutBound'
-        properties: {
-          description: 'Required for control plane outbound. Regional prefix not yet supported'
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          sourceAddressPrefix: '*'
-          destinationPortRange: '443'
-          destinationAddressPrefix: 'AzureCloud'
-          access: 'Allow'
-          priority: 120
-          direction: 'Outbound'
-        }
-      }
-      {
-        name: 'AllowBastionHostToHostOutBound'
-        properties: {
-          description: 'Service Requirement. Allow Required Host to Host Communication.'
-          protocol: '*'
-          sourcePortRange: '*'
-          sourceAddressPrefix: 'VirtualNetwork'
-          destinationPortRanges: [
-            '8080'
-            '5701'
-          ]
-          destinationAddressPrefix: 'VirtualNetwork'
-          access: 'Allow'
-          priority: 130
-          direction: 'Outbound'
-        }
-      }
-      {
-        name: 'AllowBastionCertificateValidationOutBound'
-        properties: {
-          description: 'Service Requirement. Allow Required Session and Certificate Validation.'
-          protocol: '*'
-          sourcePortRange: '*'
-          sourceAddressPrefix: '*'
-          destinationPortRange: '80'
-          destinationAddressPrefix: 'Internet'
-          access: 'Allow'
-          priority: 140
-          direction: 'Outbound'
-        }
-      }
-      {
-        name: 'DenyAllOutBound'
-        properties: {
-          protocol: '*'
-          sourcePortRange: '*'
-          sourceAddressPrefix: '*'
-          destinationPortRange: '*'
-          destinationAddressPrefix: '*'
-          access: 'Deny'
-          priority: 1000
-          direction: 'Outbound'
-        }
-      }
-    ]
+    subnetIpAddressSpace: subnetIpAddressSpace
+    hubVnetAddressSpace: hubVnetAddressSpace
+    azureFirewallSubnetAddressSpace: azureFirewallSubnetAddressSpace
+    azureGatewaySubnetAddressSpace: azureGatewaySubnetAddressSpace
+    azureBastionSubnetAddressSpace: azureBastionSubnetAddressSpace
+    networkSecurityGroupSecurityRules: networkSecurityGroupSecurityRules
   }
 }
 
 module spoke 'rg-spoke/spoke.bicep' = {
   name: 'deploy-spoke'
   params: {
-    resourceGroupName: 'rg-enterprise-networking-spokes'
-    clusterVnetAddressSpace: '10.240.0.0/16'
+    resourceGroupName: spokeResourceGroupName
+    clusterVnetAddressSpace: clusterVnetAddressSpace
     hubFwResourceId: hub.outputs.hubFwResourceId
     hubLaWorkspaceResourceId: hub.outputs.hubLaWorkspaceResourceId
     hubVnetResourceId: hub.outputs.hubVnetId
@@ -207,7 +110,8 @@ module registry 'rg-spoke/acr.bicep' = {
   params: {
     location: location
     targetVnetResourceId: spoke.outputs.clusterVnetResourceId
-    geoRedundancyLocation: 'northeurope'
+    geoRedundancyLocation: geoRedundancyLocation
+    resourceGroupName: spokeResourceGroupName
   }
 }
 
@@ -217,11 +121,11 @@ module clusterprereq 'rg-spoke/clusterprereq.bicep' = {
     aksIngressControllerCertificate: aksIngressControllerCertificate
     appGatewayListenerCertificate: appGatewayListenerCertificate
     domainName: domainName
-    keyVaultPublicNetworkAccess: 'Enabled'
+    keyVaultPublicNetworkAccess: keyVaultPublicNetworkAccess
     location: location
     targetVnetResourceId: spoke.outputs.clusterVnetResourceId
-    vNetResourceGroup: 'rg-enterprise-networking-spokes'
-    resourceGroupName: 'rg-bu0001a0008'
+    vNetResourceGroup: spokeResourceGroupName
+    resourceGroupName: aksResourceGroupName
   }
 }
 
@@ -231,13 +135,15 @@ module cluster 'rg-spoke/cluster.bicep' = {
     a0008NamespaceReaderAadGroupObjectId: a0008NamespaceReaderAadGroupObjectId
     clusterAdminAadGroupObjectId: clusterAdminAadGroupObjectId
     domainName: domainName
-    gitOpsBootstrappingRepoBranch: 'main'
-    gitOpsBootstrappingRepoHttpsUrl: 'https://github.com/Azure/aks-baseline-automation'
-    kubernetesVersion: ''
+    gitOpsBootstrappingRepoBranch: gitOpsBootstrappingRepoBranch
+    gitOpsBootstrappingRepoHttpsUrl: gitOpsBootstrappingRepoHttpsUrl
+    kubernetesVersion: kubernetesVersion
     location: location
     targetVnetResourceId: spoke.outputs.clusterVnetResourceId
-    vNetResourceGroup: 'rg-enterprise-networking-spokes'
-    resourceGroupName: 'rg-bu0001a0008'
+    vNetResourceGroup: spokeResourceGroupName
+    resourceGroupName: aksResourceGroupName
+    clusterAuthorizedIPRanges: clusterAuthorizedIPRanges
+    k8sControlPlaneAuthorizationTenantId: k8sControlPlaneAuthorizationTenantId
   }
   dependsOn: [
     clusterprereq
@@ -255,4 +161,3 @@ output aksIngressControllerPodManagedIdentityResourceId string = clusterprereq.o
 output aksClusterName string = cluster.outputs.aksClusterName
 
 output hubVnetId string = hub.outputs.hubVnetId
-
