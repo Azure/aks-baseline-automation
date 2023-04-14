@@ -61,12 +61,6 @@
         "k8sControlPlaneAuthorizationTenantId": {
             "value": ""
         },
-        "appGatewayListenerCertificate": {
-            "value": ""
-        },
-        "aksIngressControllerCertificate": {
-            "value": ""
-        },
         "networkSecurityGroupSecurityRules": {
             "value": [
                 {
