@@ -51,7 +51,7 @@ var vnetNodePoolSubnetResourceId = '${targetVnetResourceId}/subnets/${clusterNod
 var keyVaultName = 'kv-${clusterName}'
 
 module rg '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
-  name: resourceGroupName
+  name: 'resourceGroup'
   params: {
     name: resourceGroupName
     location: location
@@ -72,7 +72,7 @@ module rg '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
 // }
 
 module clusterLa '../CARML/Microsoft.OperationalInsights/workspaces/deploy.bicep' = {
-  name: logAnalyticsWorkspaceName
+  name: 'logAnalyticsWorkspace'
   params: {
     name: logAnalyticsWorkspaceName
     location: location
@@ -174,7 +174,7 @@ module podmi_ingress_controller '../CARML/Microsoft.ManagedIdentity/userAssigned
 }
 
 module akvPrivateDnsZones '../CARML/Microsoft.Network/privateDnsZones/deploy.bicep' = {
-  name: akvPrivateDnsZonesName
+  name: 'akvPrivateDnsZones'
   params: {
     name: akvPrivateDnsZonesName
     location: 'global'
@@ -193,7 +193,7 @@ module akvPrivateDnsZones '../CARML/Microsoft.Network/privateDnsZones/deploy.bic
 }
 
 module keyVault '../CARML/Microsoft.KeyVault/vaults/deploy.bicep' = {
-  name: keyVaultName
+  name: 'keyVault'
   params: {
     name: keyVaultName
     location: location
@@ -286,7 +286,7 @@ module backendCert '../CARML/Microsoft.KeyVault/vaults/secrets/deploy.bicep' = {
 }
 
 module wafPolicy '../CARML/Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies/deploy.bicep' = {
-  name: 'waf-${clusterName}'
+  name: 'waf'
   params: {
     location: location
     name:'waf-${clusterName}'
@@ -311,10 +311,13 @@ module wafPolicy '../CARML/Microsoft.Network/applicationGatewayWebApplicationFir
     }
   }
   scope: resourceGroup(resourceGroupName)
+  dependsOn: [
+    rg
+  ]
 }
 
 module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
-  name: agwName
+  name: 'agw'
   params: {
     name: agwName
     location: location
