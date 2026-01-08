@@ -133,6 +133,10 @@ jobs:
         uses: azure/setup-kubectl@v3.0
         with:
             version: 'latest'
+            - name: Install Kubectl
+        uses: azure/setup-kubectl@v4.0
+        with:
+            version: 'latest'
 
       - name: Set the target Azure Kubernetes Service (AKS) cluster.
         uses: azure/aks-set-context@v2.0
