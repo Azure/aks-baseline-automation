@@ -73,7 +73,7 @@ jobs:
       prefix: ${{ steps.test.outputs.PREFIX }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
 
       - name: "Parameter Check"
         run: |
@@ -88,13 +88,13 @@ jobs:
 
         # OIDC auth is not supported until TF AzureRM 3.7.0 onwards
       - name: Azure Login
-        uses: Azure/login@v1.4.6
+        uses: Azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2 # v1.4.6
         with:
           creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Create Resource Group and Storage Account for TF State
         if: ${{ github.event.inputs.TF_BACKEND_STORAGE_ACCOUNT != '' && (github.event.inputs.DEPLOY_PLAN_ONLY == 'true' || github.event.inputs.DEPLOY == 'true') }}
-        uses: azure/CLI@v1
+        uses: azure/CLI@4db43908b9df2e7ac93c8275a8f9a448c59338dd # v1.0.9
         with:
           inlineScript: |
             az group create -l ${{ github.event.inputs.REGION }} -n ${{ env.TF_BACKEND_RSG }}
@@ -103,7 +103,7 @@ jobs:
 
       - name: Deploy Plan Standalone
         if: ${{ github.event.inputs.DEPLOY_PLAN_ONLY == 'true' || github.event.inputs.DEPLOY == 'true' }}
-        uses: azure/CLI@v1
+        uses: azure/CLI@4db43908b9df2e7ac93c8275a8f9a448c59338dd # v1.0.9
         with:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
           inlineScript: |
@@ -129,7 +129,7 @@ jobs:
 
       - name: Deploy Standalone
         if: ${{ github.event.inputs.DEPLOY == 'true' }}
-        uses: azure/CLI@v1
+        uses: azure/CLI@4db43908b9df2e7ac93c8275a8f9a448c59338dd # v1.0.9
         with:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
           inlineScript: |
@@ -140,7 +140,7 @@ jobs:
 
       - name: Destroy Plan Standalone
         if: ${{ github.event.inputs.DESTROY_PLAN_ONLY == 'true' || github.event.inputs.DESTROY == 'true' }}
-        uses: azure/CLI@v1
+        uses: azure/CLI@4db43908b9df2e7ac93c8275a8f9a448c59338dd # v1.0.9
         with:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
           inlineScript: |
@@ -204,7 +204,7 @@ jobs:
 
       - name: Destroy Standalone
         if: ${{ github.event.inputs.DESTROY == 'true' }}
-        uses: azure/CLI@v1
+        uses: azure/CLI@4db43908b9df2e7ac93c8275a8f9a448c59338dd # v1.0.9
         with:
           azcliversion: ${{ env.AZ_CLI_VERSION }}
           inlineScript: |
