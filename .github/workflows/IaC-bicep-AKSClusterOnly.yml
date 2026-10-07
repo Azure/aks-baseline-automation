@@ -41,7 +41,7 @@ jobs:
     name: Prerequisite Checks
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v2
+        uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
         with:
           fetch-depth: 0
 
@@ -54,7 +54,7 @@ jobs:
           echo "K8S Reader Azure AAD Group ObjectID : ${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }}"
 
       - name: Azure Login
-        uses: Azure/login@v1.4.3
+        uses: Azure/login@1f63701bf3e6892515f1b7ce2d2bf1708b46beaf # v1.4.3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -100,12 +100,12 @@ jobs:
     needs: [prereqs]
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v2
+        uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
         with:
           fetch-depth: 0
 
       - name: Azure Login
-        uses: Azure/login@v1.4.3
+        uses: Azure/login@1f63701bf3e6892515f1b7ce2d2bf1708b46beaf # v1.4.3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -132,7 +132,7 @@ jobs:
 
       - name: "Deploy Cluster"
         id: cluster
-        uses: azure/arm-deploy@v1
+        uses: azure/arm-deploy@65ae74fb7aec7c680c88ef456811f353adae4d06 # v1.0.9
         with:
           subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
           region: ${{ github.event.inputs.REGION }}

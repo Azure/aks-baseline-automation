@@ -41,13 +41,13 @@ jobs:
     
       # Get application code from repo
       - name: Get application code from repo
-        uses: actions/checkout@main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: ${{ inputs.AppRepo}}
           #ref: ${{ inputs.AppRepoRef}}
       
       # Logs into your Azure subscription
-      - uses: azure/login@v1
+      - uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -92,10 +92,10 @@ jobs:
     steps:
 
     # Checks out the baseline repository
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
 
     - name: Update image name in manifest file
-      uses: azure/powershell@v1
+      uses: azure/powershell@1300bbd2b3e1c21c029fe34887d16d2809a1397f # v1.4.0
       with:
         inlineScript: |
           $line = Get-Content workloads/flask/deployment.yaml | Select-String image: | Select-Object -ExpandProperty Line
